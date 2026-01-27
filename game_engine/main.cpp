@@ -32,6 +32,9 @@ int main()
     while (!WindowShouldClose())
     {
         FrameData frameData = frameSync();
+        // Sometimes "realDt" is useful, but not for world state updates!
+        // We want consistency, predictability, and stability.
+        // const float realDt = 1 / frameData.fps;
 
         inputManager.Update();
 
