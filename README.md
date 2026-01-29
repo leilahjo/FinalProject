@@ -23,7 +23,7 @@ You are free to define any new classes, parameters, and functions as you see fit
 
 ### Code Style
 
-Make sure you follow the [style guide](Thttps://docs.google.com/document/d/1ik2bGHQSDmEYUMFrJsHvl4FQDzDaK-1RiZd-cGi014s/edit?usp=sharingODO) when writing your code.
+Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bGHQSDmEYUMFrJsHvl4FQDzDaK-1RiZd-cGi014s/edit?usp=sharingODO) when writing your code.
 
 ## User Guide
 
