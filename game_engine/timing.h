@@ -6,20 +6,23 @@
 #define GAME_ENGINE_TIMING_H
 #include <cstdint>
 
-struct FrameData
+namespace GameEngine
 {
-    uint64_t frame;
+    struct FrameData
+    {
+        uint64_t frame;
 
-    // Diagnostic
-    uint64_t jitterUs;
-    float fps;
-    uint64_t workDurationUs;
-};
+        // Diagnostic
+        uint64_t jitterUs;
+        float fps;
+        uint64_t workDurationUs;
+    };
 
-void initializeTiming();
+    void initializeTiming();
 
-FrameData frameSync();
+    FrameData frameSync();
 
-void stopTiming();
+    void stopTiming();
+}
 
 #endif //GAME_ENGINE_TIMING_H

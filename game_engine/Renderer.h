@@ -5,13 +5,14 @@
 #ifndef GAME_ENGINE_RENDERER_H
 #define GAME_ENGINE_RENDERER_H
 #include "timing.h"
-#include "GameObject.h"
+#include "Game.h"
 
-
-struct Renderer
+namespace GameEngine
 {
-public:
-    static void DrawFrame(const FrameData& frameData, const GameObject& gameObject);
-};
+    struct Renderer
+    {
+        static void DrawFrame( FrameData& frameData, Game::Game& game);
+    };
+}
 
 #endif //GAME_ENGINE_RENDERER_H

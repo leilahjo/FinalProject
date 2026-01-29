@@ -6,10 +6,13 @@
 
 #include "raylib.h"
 
-void InputManager::Update()
+namespace GameEngine
 {
-    this->moveLeft = IsKeyDown(KEY_LEFT);
-    this->moveRight = IsKeyDown(KEY_RIGHT);
-    this->moveDown = IsKeyDown(KEY_DOWN);
-    this->moveUp = IsKeyDown(KEY_UP);
+    void InputManager::Update()
+    {
+        this->moveLeft = IsKeyDown(KEY_LEFT);
+        this->moveRight = IsKeyDown(KEY_RIGHT);
+        this->moveDown = IsKeyDown(KEY_DOWN);
+        this->moveUp = IsKeyDown(KEY_UP);
+    }
 }

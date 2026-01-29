@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 
+#include "Game.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "raylib.h"
@@ -18,8 +19,10 @@
  * 🦦            🐘
  */
 
-GameObject player;
+using namespace GameEngine;
+
 InputManager inputManager;
+Game::Game game;
 
 int main()
 {
@@ -27,8 +30,14 @@ int main()
 
     initializeTiming();
 
-    const float frameDt = 1.0 / 60;
+    game.objects.push_back({0, 0, 0, 0, 2, 2, 0, 0, BLUE});
+    game.objects.push_back({0, 0, 0, 0, 1.9, 1.9, 0, 0, RAYWHITE});
 
+    game.objects.push_back({-0.5, -0.5, 0, 0, 0, 0, 0.1, 0.1, GOLD, false});
+    game.objects.push_back({-0.25, -0.25, 0, 0, 0, 0, 0.1, 0.1, MAROON, false});
+    game.objects.push_back({0.25, 0.25, 0, 0, 0, 0, 0.1, 0.1, PURPLE, false});
+    game.objects.push_back({0.5, 0.5, 0, 0, 0, 0, 0.1, 0.1, BEIGE, false});
+    
     while (!WindowShouldClose())
     {
         FrameData frameData = frameSync();
@@ -37,25 +46,8 @@ int main()
         // const float realDt = 1 / frameData.fps;
 
         inputManager.Update();
-
-        if (inputManager.moveLeft)
-        {
-            player.x -= player.speed * frameDt;
-        }
-        if (inputManager.moveRight)
-        {
-            player.x += player.speed * frameDt;
-        }
-        if (inputManager.moveUp)
-        {
-            player.y += player.speed * frameDt;
-        }
-        if (inputManager.moveDown)
-        {
-            player.y -= player.speed * frameDt;
-        }
-
-        Renderer::DrawFrame(frameData, player);
+        game.Update(inputManager);
+        Renderer::DrawFrame(frameData, game);
 
         if (frameData.workDurationUs > 16'666)
         {

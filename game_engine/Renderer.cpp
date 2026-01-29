@@ -8,42 +8,60 @@
 #include <iostream>
 
 #include "raylib.h"
+#include "game.h"
 
-void DrawGameObject(GameObject gameObject);
-
-void Renderer::DrawFrame(const FrameData& frameData, const GameObject& gameObject)
+namespace GameEngine
 {
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
+    void DrawGameObject(GameObject& gameObject, GameObject& player);
 
-    DrawGameObject(gameObject);
+    void Renderer::DrawFrame(FrameData& frameData, Game::Game& game)
+    {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
 
-    DrawText(TextFormat("FPS %f | Jitter: %lld us | Work: %lld us",
-                        frameData.fps, frameData.jitterUs, frameData.workDurationUs),
-             0, 0, 30, DARKGRAY);
-    EndDrawing();
-}
+        for (int i = 0; i < game.objects.size(); ++i)
+            DrawGameObject(game.objects[i], game.player);
+        DrawGameObject(game.player, game.player);
 
-void DrawGameObject(GameObject gameObject)
-{
-    double windowWidthPx = GetScreenWidth();
-    double windowHeightPx = GetScreenHeight();
+        DrawText(TextFormat("FPS %f | Jitter: %lld us | Work: %lld us",
+                            frameData.fps, frameData.jitterUs, frameData.workDurationUs),
+                 0, 0, 30, DARKGRAY);
+        EndDrawing();
+    }
 
-    double minDim = std::min(windowWidthPx, windowHeightPx);
-    double pxPerGameUnit = minDim / 2;
+    void DrawGameObject(GameObject& gameObject, GameObject& player)
+    {
+        double windowWidthPx = GetScreenWidth();
+        double windowHeightPx = GetScreenHeight();
 
-    double originXPx = windowWidthPx / 2;
-    double originYPx = windowHeightPx / 2;
+        double minDim = std::min(windowWidthPx, windowHeightPx);
+        double pxPerGameUnit = minDim / 2;
 
-    double objXPx = originXPx + gameObject.x * pxPerGameUnit;
-    double objYPx = originYPx - gameObject.y * pxPerGameUnit;
+        double originXPx = windowWidthPx / 2;
+        double originYPx = windowHeightPx / 2;
 
-    double objWidthPx = gameObject.width * pxPerGameUnit;
-    double objHeightPx = gameObject.height * pxPerGameUnit;
+        double objXPx = originXPx + (gameObject.x - player.x) * pxPerGameUnit;
+        double objYPx = originYPx - (gameObject.y - player.y) * pxPerGameUnit;
 
-    DrawRectangle( static_cast<int>(std::round(objXPx - objWidthPx / 2)),
-                  static_cast<int>(std::round(objYPx - objHeightPx / 2)),
-                  static_cast<int>(std::round(objWidthPx)),
-                  static_cast<int>(std::round(objHeightPx)),
-                  GREEN);
+        if (gameObject.isRect)
+        {
+            double objWidthPx = gameObject.width * pxPerGameUnit;
+            double objHeightPx = gameObject.height * pxPerGameUnit;
+
+            DrawRectangle(static_cast<int>(std::round(objXPx - objWidthPx / 2)),
+                          static_cast<int>(std::round(objYPx - objHeightPx / 2)),
+                          static_cast<int>(std::round(objWidthPx)),
+                          static_cast<int>(std::round(objHeightPx)),
+                          gameObject.color);
+        }
+        else
+        {
+            double objRadiusPx = gameObject.radius * pxPerGameUnit;
+
+            DrawCircle(static_cast<int>(std::round(objXPx)),
+                       static_cast<int>(std::round(objYPx)),
+                       static_cast<int>(std::round(objRadiusPx)),
+                       gameObject.color);
+        }
+    }
 }

@@ -21,7 +21,9 @@ add_executable(game_engine main.cpp
         GameObject.cpp
         GameObject.h
         InputManager.cpp
-        InputManager.h)
+        InputManager.h
+        Game.cpp
+        Game.h)
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
 

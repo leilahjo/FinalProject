@@ -5,16 +5,18 @@
 #ifndef GAME_ENGINE_INPUTMANAGER_H
 #define GAME_ENGINE_INPUTMANAGER_H
 
-
-struct InputManager
+namespace GameEngine
 {
-    bool moveLeft = false;
-    bool moveRight = false;
-    bool moveUp = false;
-    bool moveDown = false;
+    struct InputManager
+    {
+        bool moveLeft = false;
+        bool moveRight = false;
+        bool moveUp = false;
+        bool moveDown = false;
 
-    void Update();
-};
+        void Update();
+    };
+}
 
 
 #endif //GAME_ENGINE_INPUTMANAGER_H
