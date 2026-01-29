@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "raylib.h"
-#include "game.h"
+#include "GameObject.h"
 
 namespace GameEngine
 {
@@ -23,9 +23,9 @@ namespace GameEngine
             DrawGameObject(game.objects[i], game.player);
         DrawGameObject(game.player, game.player);
 
-        DrawText(TextFormat("FPS %f | Jitter: %lld us | Work: %lld us",
-                            frameData.fps, frameData.jitterUs, frameData.workDurationUs),
-                 0, 0, 30, DARKGRAY);
+        DrawText(TextFormat("FPS %f | Jitter: %lld us | Work: %lld us", frameData.fps, frameData.jitterUs,
+                            frameData.workDurationUs), 0, 0, 14, DARKGRAY);
+
         EndDrawing();
     }
 
@@ -60,7 +60,7 @@ namespace GameEngine
 
             DrawCircle(static_cast<int>(std::round(objXPx)),
                        static_cast<int>(std::round(objYPx)),
-                       static_cast<int>(std::round(objRadiusPx)),
+                       static_cast<float>(objRadiusPx),
                        gameObject.color);
         }
     }

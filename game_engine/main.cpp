@@ -8,17 +8,6 @@
 #include "Renderer.h"
 #include "timing.h"
 
-/*
- * cursor park
- * 🦊        🐢      🦝
- *     🐻‍❄️      🦦
- *   🦉        🐶   🐱
- *        🦒
- * 🐙            🦌  🦙
- *     🐧    🦔
- * 🦦            🐘
- */
-
 using namespace GameEngine;
 
 InputManager inputManager;
@@ -30,9 +19,11 @@ int main()
 
     initializeTiming();
 
+	// Double-unit "border" squares
     game.objects.push_back({0, 0, 0, 0, 2, 2, 0, 0, BLUE});
     game.objects.push_back({0, 0, 0, 0, 1.9, 1.9, 0, 0, RAYWHITE});
 
+	// Bouncing cicrles
     game.objects.push_back({-0.5, -0.5, 0, 0, 0, 0, 0.1, 0.1, GOLD, false});
     game.objects.push_back({-0.25, -0.25, 0, 0, 0, 0, 0.1, 0.1, MAROON, false});
     game.objects.push_back({0.25, 0.25, 0, 0, 0, 0, 0.1, 0.1, PURPLE, false});

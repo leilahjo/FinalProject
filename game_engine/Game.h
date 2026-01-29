@@ -9,10 +9,10 @@
 #include "GameObject.h"
 #include "InputManager.h"
 
+using namespace GameEngine;
+
 namespace Game
 {
-    using namespace GameEngine;
-
     struct Game
     {
         static constexpr float frameDt = 1 / 60.0f;
@@ -20,7 +20,6 @@ namespace Game
         GameObject player;
         std::vector<GameObject> objects;
 
-        void Update();
         void Update(InputManager& inputManager);
     };
 }
