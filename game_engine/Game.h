@@ -15,9 +15,12 @@ namespace Game
 {
     struct Game
     {
+        Game();
+
         static constexpr float frameDt = 1 / 60.0f;
 
-        GameObject player;
+        KinematicsData kinematicsData;
+        GameObject* player;
         std::vector<GameObject> objects;
 
         void Update(InputManager& inputManager);

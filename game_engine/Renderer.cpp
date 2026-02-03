@@ -20,8 +20,8 @@ namespace GameEngine
         ClearBackground(RAYWHITE);
 
         for (int i = 0; i < game.objects.size(); ++i)
-            DrawGameObject(game.objects[i], game.player);
-        DrawGameObject(game.player, game.player);
+            DrawGameObject(game.objects[i], *game.player);
+        DrawGameObject(*game.player, *game.player);
 
         DrawText(TextFormat("FPS %f | Jitter: %lld us | Work: %lld us", frameData.fps, frameData.jitterUs,
                             frameData.workDurationUs), 0, 0, 14, DARKGRAY);
@@ -40,8 +40,8 @@ namespace GameEngine
         double originXPx = windowWidthPx / 2;
         double originYPx = windowHeightPx / 2;
 
-        double objXPx = originXPx + (gameObject.x - player.x) * pxPerGameUnit;
-        double objYPx = originYPx - (gameObject.y - player.y) * pxPerGameUnit;
+        double objXPx = originXPx + (gameObject.x() - player.x()) * pxPerGameUnit;
+        double objYPx = originYPx - (gameObject.y() - player.y()) * pxPerGameUnit;
 
         if (gameObject.isRect)
         {

@@ -5,35 +5,55 @@
 #ifndef GAME_ENGINE_GAMEOBJECT_H
 #define GAME_ENGINE_GAMEOBJECT_H
 
+#include "KinematicsData.h"
 #include "raylib.h"
 
 namespace GameEngine
 {
-	struct GameObject
-	{
-	    // World Coordinates
-	    float x = 0;
-	    float y = 0;
-		
+    struct GameObject
+    {
+    private:
+        KinematicsData* kinematicsData;
+        size_t index;
 
-	    float vx = 0;
-	    float vy = 0;
+    public:
+        GameObject(
+            KinematicsData* kinematicsData,
+            size_t index,
+            float width,
+            float height,
+            float radius,
+            float speed,
+            Color color,
+            bool isRect
+        )
+            : width(width)
+              , height(height)
+              , radius(radius)
+              , speed(speed)
+              , color(color)
+              , isRect(isRect)
+              , index(index)
+              , kinematicsData(kinematicsData)
+        {
+        }
 
-	    // We almost never want this stored per-object
-	    // float ax = 0;
-	    // float ay = 0;
+        // World Coordinates
+        float& x() { return kinematicsData->x[index]; }
+        float& y() { return kinematicsData->y[index]; }
+        float& vx() { return kinematicsData->vx[index]; }
+        float& vy() { return kinematicsData->vy[index]; }
 
-	    float width = 0.2;
-	    float height = 0.2;
-	    float radius = 0.2;
+        float width;
+        float height;
+        float radius;
 
-	    // Move 1 game unit in 1 second
-	    float speed = 1.0f;
+        // World units per second
+        float speed;
 
-		// Default to a green rect
-	    Color color = GREEN;
-	    bool isRect = true;
-	};
+        Color color;
+        bool isRect;
+    };
 }
 
 
