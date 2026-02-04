@@ -1,24 +1,21 @@
-#include <chrono>
 #include <iostream>
 
-#include "Game.h"
-#include "GameObject.h"
-#include "InputManager.h"
 #include "raylib.h"
-#include "Renderer.h"
 #include "timing.h"
 
-using namespace GameEngine;
+#include "Game.h"
+#include "InputManager.h"
+#include "Renderer.h"
 
-InputManager inputManager;
 Game::Game game;
+InputManager inputManager;
 
 int main()
 {
     InitWindow(800, 600, "Raylib + Console");
 
     initializeTiming();
-    
+
     while (!WindowShouldClose())
     {
         FrameData frameData = frameSync();

@@ -4,11 +4,14 @@
 
 #include "KinematicsData.h"
 
-uint32_t KinematicsData::create(float x, float y, float vx, float vy)
+namespace GameEngine
 {
-    this->x.push_back(x);
-    this->y.push_back(y);
-    this->vx.push_back(vx);
-    this->vy.push_back(vy);
-    return this->getCount() - 1;
+    uint32_t KinematicsData::create(float x, float y, float vx, float vy)
+    {
+        this->x.push_back(x);
+        this->y.push_back(y);
+        this->vx.push_back(vx);
+        this->vy.push_back(vy);
+        return this->x.size() - 1;
+    }
 }

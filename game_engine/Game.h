@@ -8,6 +8,7 @@
 
 #include "GameObject.h"
 #include "InputManager.h"
+#include "KinematicsData.h"
 
 using namespace GameEngine;
 
@@ -15,13 +16,13 @@ namespace Game
 {
     struct Game
     {
-        Game();
-
         static constexpr float frameDt = 1 / 60.0f;
 
-        KinematicsData kinematicsData;
+        Game();
+
         GameObject* player;
         std::vector<GameObject> objects;
+        KinematicsData kinematicsData;
 
         void Update(InputManager& inputManager);
     };

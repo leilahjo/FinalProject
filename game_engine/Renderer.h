@@ -11,7 +11,7 @@ namespace GameEngine
 {
     struct Renderer
     {
-        static void DrawFrame( FrameData& frameData, Game::Game& game);
+        static void DrawFrame(FrameData& frameData, Game::Game& game);
     };
 }
 

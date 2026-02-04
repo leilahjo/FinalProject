@@ -8,14 +8,17 @@
 #include <vector>
 #include <cstdint>
 
-struct KinematicsData
+namespace GameEngine
 {
-    std::vector<float> x, y, vx, vy;
-    
-    uint32_t create(float x, float y, float vx, float vy);
-    
-    size_t getCount() const { return x.size(); }
-};
+    struct KinematicsData
+    {
+        std::vector<float> x, y, vx, vy;
+
+        uint32_t create(float x, float y, float vx, float vy);
+
+        size_t getCount() const { return x.size(); }
+    };
+}
 
 
 #endif //GAME_ENGINE_KINEMATICSDATA_H

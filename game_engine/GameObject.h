@@ -56,5 +56,4 @@ namespace GameEngine
     };
 }
 
-
 #endif //GAME_ENGINE_GAMEOBJECT_H
