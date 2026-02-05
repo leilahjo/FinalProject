@@ -6,9 +6,10 @@
 #define GAME_ENGINE_GAME_H
 #include <vector>
 
-#include "GameObject.h"
+#include "Entity.h"
 #include "InputManager.h"
-#include "KinematicsData.h"
+#include "Archetype.h"
+#include "World.h"
 
 using namespace GameEngine;
 
@@ -20,9 +21,15 @@ namespace Game
 
         Game();
 
-        GameObject* player;
-        std::vector<GameObject> objects;
-        KinematicsData kinematicsData;
+        Entity player;
+        World world;
+        std::vector<Entity> objects;
+
+        //No velocity.
+        Archetype* borderArchetype;
+
+        // Velocity.
+        Archetype* squareArchetype;
 
         void Update(InputManager& inputManager);
     };

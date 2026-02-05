@@ -14,6 +14,8 @@ namespace GameEngine
         bool moveUp = false;
         bool moveDown = false;
 
+        bool addEntity = false;
+
         void Update();
     };
 }

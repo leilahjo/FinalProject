@@ -18,15 +18,19 @@ add_executable(game_engine main.cpp
         timing.h
         Renderer.cpp
         Renderer.h
-        GameObject.cpp
-        GameObject.h
+        Entity.cpp
+        Entity.h
         InputManager.cpp
         InputManager.h
         Game.cpp
         Game.h
-        KinematicsData.cpp
-        KinematicsData.h
-        Random.h)
+        Archetype.cpp
+        Archetype.h
+        Random.h
+        ECSTypes.h
+        World.h
+        KinematicsSystem.h
+        KinematicsSystem.cpp)
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
 

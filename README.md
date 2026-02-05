@@ -1,25 +1,22 @@
-# Week 2 Homework Instructions
+# Homework Instructions
 
-Add a "camera" that is controlled independently of the game objects in the game. The camera simply changes the view of the world, it is not a visible object within the world.
+1. Add an acceleration component represented by two float vectors named `ax` and `ay`. 
 
-The camera should support panning and "latching". More explicitly, your camera should support all of the functionality below.
+2. Instantiate a new archetype that uses this component and use it only for the blue entities that are created when holding the space button.
 
-1. A "pan up" button.
-2. A "pan left" button.
-3. A "pan down" button.
-4. A "pan right" button.
-5. A "latch" button.
-6. An "unlatch" button.
+3. Update `KinematicsSystem` to use `ax` and `ay` to update `vx` and `vy` in the same that it already uses `vx` and `vy` to update `x` and `y`. *Don't forget to check that the archetype actually has the acceleration component!*
 
-Use any keys you want but make sure you can still move the player independently of the camera.
+4. Initialize all new entities in this archetype with "gravity" in the form of some constant negative `ay`.
 
-Panning should be self explanatory: "pan up" means the camera moves up at a reasonable speed of your choosing. Don't forget to scale the camera's movement by `dt`.
+5. Add the following controls:
+   - Pressing the "+" key **increases** gravity by some constant amount. *Holding* the key does not continue increasing gravity.
+   - Pressing the "-" key **decreases** gravity by some constant amount. *Holding* the key does not continue decreasing gravity.
 
-"Latch" should immediately snap the camera to the "player" object we had in class and continue to follow it as the player moves.
+The same gravity should apply to all existing entities (for which it applies) and newly added entities!
 
-"Unlatch" should decouple the camera and game object so it no longer follows the "player". The camera should retain its position at the time of unlatch. Panning in any direction should unlatch the camera. This should be the initial state of your camera (unlatched).
+**Important:** You must update the gravity values of every entity, not multiply by a separate scaling factor just before integrating. This is to give you practice with iterating over entities within an archetype.
 
-You are free to define any new classes, parameters, and functions as you see fit. If you decide to add a "Camera" class, remember to use the `game_engine` namespace to differentiate it from the Raylib camera class.
+*Note: in class I mentioned that storage for acceleration on a per-entity basis is unusual because acceleration tends to be either directly controlled by the game, constant accross many entities, or just 0. That's not in conflict with adding an acceleration component to an ECS. The nice thing about an ECS is that only the entities that are defined to use the acceleration component will incur the extra storage and computation cost.*
 
 ### Code Style
 
@@ -27,4 +24,13 @@ Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bG
 
 ## User Guide
 
-*Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should specify which keys you used for the 6 features above.*
+*Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should write at least 1 paragraph describing your approach to the problem. Also include any inputs you've added or modified as part of the assignment, and exactly what they do.*
+
+## Extra Credit
+Worth up to 10% of the assignment point total.
+
+Make the space bar exert an outward "force" on all entities near the player. Nearby entities are those within 0.5 world units of the player. How you implement the force is up to you. Some options:
+
+1. While the spacebar is held down, modify the x and y coordinates of the nearby entities directly.
+2. When the spacebar is pressed down, modify the vx and vy components of the nearby entities.
+3. When the spacebar is pressed down, modify the ax and ay components of the nearby entities, but have them gradually revert to (0, -g)
