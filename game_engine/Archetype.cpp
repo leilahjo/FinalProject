@@ -12,7 +12,8 @@ namespace GameEngine
 
     uint32_t Archetype::create(float x, float y,
                                float vx, float vy,
-                               float width, float height, Color color)
+                               float width, float height, 
+							   Color color)
     {
         if (componentMask & COMP_POSITION)
         {

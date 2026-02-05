@@ -11,12 +11,13 @@
 
 namespace GameEngine
 {
+    // Represents an entity in the game world. The struct itself is a lightweight view
+    // into the arrays of an archetype.
     struct Entity
     {
         Archetype* archetype;
         ArchIndex archIndex;
 
-        // World Coordinates
 
         // Position
         float& x() { return archetype->x[archIndex]; }

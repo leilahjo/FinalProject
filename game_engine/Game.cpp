@@ -4,6 +4,8 @@
 
 #include "Game.h"
 
+#include "Entity.h"
+#include "InputManager.h"
 #include "Random.h"
 #include "KinematicsSystem.h"
 
@@ -11,6 +13,7 @@ namespace Game
 {
     Game::Game()
     {
+        // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_SIZE
@@ -24,7 +27,7 @@ namespace Game
         player = world.createEntity(squareArchetype, 0, 0, 0, 0, 0.2, 0.2, GREEN);
 
         // Double-unit "border" squares
-        world.createEntity(borderArchetype, 0, 0, 0, 0, 2, 2, BLUE);
+        world.createEntity(borderArchetype, 0, 0, 0, 0, 2, 2, YELLOW);
         world.createEntity(borderArchetype, 0, 0, 0, 0, 1.95, 1.95, RAYWHITE);
 
         // Moving red squares
@@ -37,19 +40,15 @@ namespace Game
         // Input directly affects player velocity.
         player.vx() = 0;
         if (inputManager.moveLeft)
-            player.vx() = -0.5f;
+            player.vx() = -1;
         if (inputManager.moveRight)
-            player.vx() = 0.5f;
+            player.vx() = 1;
 
         player.vy() = 0;
         if (inputManager.moveUp)
-            player.vy() = 0.5f;
+            player.vy() = 1;
         if (inputManager.moveDown)
-            player.vy() = -0.5f;
-
-        // Semi-Implicit Euler method
-        player.x() += player.vx() * frameDt;
-        player.y() += player.vy() * frameDt;
+            player.vy() = -1;
 
         KinematicsSystem::Update(world, frameDt);
 
@@ -90,15 +89,15 @@ namespace Game
                     entity.x() -= 0.01f;
                 }
             }
+        }
 
-            if (inputManager.addEntity)
+        if (inputManager.addEntity)
+        {
+            for (int i = 1; i < 10; i++)
             {
-                for (int i = 1; i < 10; i++)
-                {
-                    world.createEntity(squareArchetype, player.x(), player.y(), randomFloat(-0.25, 0.25),
-                                       randomFloat(-0.1, 0.1), 0.025,
-                                       0.025, BLUE);
-                }
+                world.createEntity(squareArchetype, player.x(), player.y(), randomFloat(-0.25, 0.25),
+                                   randomFloat(-0.1, 0.1), 0.025,
+                                   0.025, BLUE);
             }
         }
     }

@@ -2,7 +2,7 @@
 
 1. Add an acceleration component represented by two float vectors named `ax` and `ay`. 
 
-2. Instantiate a new archetype that uses this component and use it only for the blue entities that are created when holding the space button.
+2. Instantiate a new archetype that uses this component and use it only for the blue entities that are created when holding the space bar.
 
 3. Update `KinematicsSystem` to use `ax` and `ay` to update `vx` and `vy` in the same that it already uses `vx` and `vy` to update `x` and `y`. *Don't forget to check that the archetype actually has the acceleration component!*
 
@@ -27,10 +27,10 @@ Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bG
 *Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should write at least 1 paragraph describing your approach to the problem. Also include any inputs you've added or modified as part of the assignment, and exactly what they do.*
 
 ## Extra Credit
-Worth up to 10% of the assignment point total.
+Worth up to 10% of the assignment point total. Can also be counted as 1.0 points toward the project "complexity score" if used in an appropriate way for your game.
 
 Make the space bar exert an outward "force" on all entities near the player. Nearby entities are those within 0.5 world units of the player. How you implement the force is up to you. Some options:
 
-1. While the spacebar is held down, modify the x and y coordinates of the nearby entities directly.
-2. When the spacebar is pressed down, modify the vx and vy components of the nearby entities.
-3. When the spacebar is pressed down, modify the ax and ay components of the nearby entities, but have them gradually revert to (0, -g)
+1. While the Q button is held down, modify the x and y coordinates of the nearby entities directly.
+2. When the Q button is pressed down, modify the vx and vy components of the nearby entities.
+3. When the Q button is pressed down, modify the ax and ay components of the nearby entities, but have them gradually revert to (0, -g)
