@@ -36,6 +36,7 @@ namespace GameEngine
         {
             this->color.push_back(color);
         }
+
         return n++;
     }
 }

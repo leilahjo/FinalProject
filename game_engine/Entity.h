@@ -2,8 +2,8 @@
 // Created by greg8 on 1/27/2026.
 //
 
-#ifndef GAME_ENGINE_GAMEOBJECT_H
-#define GAME_ENGINE_GAMEOBJECT_H
+#ifndef GAME_ENGINE_ENTITY_H
+#define GAME_ENGINE_ENTITY_H
 
 #include "Archetype.h"
 #include "ECSTypes.h"

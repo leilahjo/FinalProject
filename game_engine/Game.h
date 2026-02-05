@@ -23,7 +23,6 @@ namespace Game
 
         Entity player;
         World world;
-        std::vector<Entity> objects;
 
         //No velocity.
         Archetype* borderArchetype;

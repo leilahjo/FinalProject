@@ -93,7 +93,7 @@ namespace Game
 
             if (inputManager.addEntity)
             {
-                for (int i = 1; i < 100; i++)
+                for (int i = 1; i < 10; i++)
                 {
                     world.createEntity(squareArchetype, player.x(), player.y(), randomFloat(-0.25, 0.25),
                                        randomFloat(-0.1, 0.1), 0.025,

@@ -25,7 +25,7 @@ namespace GameEngine
         };
 
         //Fixed per archetype.
-        ComponentMask componentMask = 0;
+        ComponentMask componentMask;
 
         Archetype(ComponentMask mask);
 
@@ -51,7 +51,7 @@ namespace GameEngine
         size_t getCount() const { return n; }
 
     private:
-        size_t n = 0;
+        size_t n;
     };
 }
 
