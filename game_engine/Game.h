@@ -4,7 +4,6 @@
 
 #ifndef GAME_ENGINE_GAME_H
 #define GAME_ENGINE_GAME_H
-#include <vector>
 
 #include "Entity.h"
 #include "InputManager.h"

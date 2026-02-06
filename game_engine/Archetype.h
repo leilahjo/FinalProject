@@ -16,6 +16,7 @@ namespace GameEngine
     struct Archetype
     {
         using ComponentMask = uint32_t;
+
         enum Components : ComponentMask
         {
             COMP_POSITION = 1 << 0,
@@ -25,7 +26,7 @@ namespace GameEngine
         };
 
         //Fixed per archetype.
-        ComponentMask componentMask;
+        const ComponentMask componentMask;
 
         Archetype(ComponentMask mask);
 
@@ -41,15 +42,14 @@ namespace GameEngine
         // Color Component
         std::vector<Color> color;
 
-        ArchIndex create(float x, float y, float vx, float vy, float width, float height, Color color);
+        EntityIndex createEntity(float x, float y, float vx, float vy, float width, float height, Color color);
 
         bool hasPosition() { return componentMask & COMP_POSITION; }
         bool hasVelocity() { return componentMask & COMP_VELOCITY; }
         bool hasSize() { return componentMask & COMP_SIZE; }
         bool hasColor() { return componentMask & COMP_COLOR; }
 
-        size_t getCount() const { return n; }
-
+        size_t getEntityCount() const { return n; }
     private:
         size_t n;
     };

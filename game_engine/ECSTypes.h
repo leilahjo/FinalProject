@@ -9,7 +9,7 @@
 namespace GameEngine
 {
     using ArchIndex = uint32_t;
-    static constexpr ArchIndex INVALID_ARCH_INDEX = -1; //0xFFFFFFF
+    using EntityIndex = uint32_t;
 }
 
 #endif //GAME_ENGINE_ECSTYPES_H

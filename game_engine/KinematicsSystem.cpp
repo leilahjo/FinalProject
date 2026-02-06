@@ -8,17 +8,17 @@ namespace GameEngine
 {
     void KinematicsSystem::Update(World& world, float frameDt)
     {
-        for (ArchIndex i = 0; i < world.archetypes.size(); i++)
+        for (ArchIndex archIndex = 0; archIndex < world.archetypes.size(); archIndex++)
         {
-            auto archetype = world.archetypes[i].get();
+            auto& archetype = world.archetypes[archIndex];
 
             if (!archetype->hasVelocity() || !archetype->hasPosition())
                 continue;
 
-            for (int i = 0; i < archetype->getCount(); i++)
+            for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); entityIndex++)
             {
-                archetype->x[i] += archetype->vx[i] * frameDt;
-                archetype->y[i] += archetype->vy[i] * frameDt;
+                archetype->x[entityIndex] += archetype->vx[entityIndex] * frameDt;
+                archetype->y[entityIndex] += archetype->vy[entityIndex] * frameDt;
             }
         }
     }

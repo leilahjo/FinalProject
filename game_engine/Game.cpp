@@ -58,10 +58,10 @@ namespace Game
             if (!archetype->hasPosition() || !archetype->hasVelocity() || !archetype->hasSize())
                 continue;
 
-            for (ArchIndex archIndex = 0; archIndex < archetype->getCount(); archIndex++)
+            for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); entityIndex++)
             {
-                auto entity = Entity{archetype.get(), archIndex};
-                if (entity.archetype == player.archetype && entity.archIndex == player.archIndex)
+                auto entity = Entity{archetype.get(), entityIndex};
+                if (entity.archetype == player.archetype && entity.entityIndex == player.entityIndex)
                     continue;
 
                 //Bottom

@@ -25,8 +25,8 @@ namespace GameEngine
         Entity createEntity(Archetype* archetype, float x, float y, float vx, float vy,
                             float width, float height, Color color)
         {
-            ArchIndex index = archetype->create(x, y, vx, vy, width, height, color);
-            return Entity(archetype, index);
+            EntityIndex entityIndex = archetype->createEntity(x, y, vx, vy, width, height, color);
+            return Entity(archetype, entityIndex);
         }
     };
 }

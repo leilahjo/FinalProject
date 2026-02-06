@@ -16,22 +16,21 @@ namespace GameEngine
     struct Entity
     {
         Archetype* archetype;
-        ArchIndex archIndex;
-
+        EntityIndex entityIndex;
 
         // Position
-        float& x() { return archetype->x[archIndex]; }
-        float& y() { return archetype->y[archIndex]; }
+        float& x() { return archetype->x[entityIndex]; }
+        float& y() { return archetype->y[entityIndex]; }
 
         // Velocity
-        float& vx() { return archetype->vx[archIndex]; }
-        float& vy() { return archetype->vy[archIndex]; }
+        float& vx() { return archetype->vx[entityIndex]; }
+        float& vy() { return archetype->vy[entityIndex]; }
 
         // Size
-        float& width() { return archetype->width[archIndex]; }
-        float& height() { return archetype->height[archIndex]; }
+        float& width() { return archetype->width[entityIndex]; }
+        float& height() { return archetype->height[entityIndex]; }
 
-        Color& color() { return archetype->color[archIndex]; }
+        Color& color() { return archetype->color[entityIndex]; }
     };
 }
 
