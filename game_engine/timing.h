@@ -13,7 +13,7 @@ namespace GameEngine
         uint64_t frame;
 
         // Diagnostic
-        uint64_t jitterUs;
+        int64_t jitterUs;
         float fps;
         uint64_t workDurationUs;
     };
