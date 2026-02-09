@@ -30,7 +30,8 @@ add_executable(game_engine main.cpp
         ECSTypes.h
         World.h
         KinematicsSystem.h
-        KinematicsSystem.cpp)
+        KinematicsSystem.cpp
+        Random.cpp)
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
 
