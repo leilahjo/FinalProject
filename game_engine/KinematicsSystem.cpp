@@ -9,9 +9,10 @@ namespace GameEngine
     void KinematicsSystem::Update(World& world, float frameDt)
     {
         world.forEach(Archetype::COMP_POSITION | Archetype::COMP_VELOCITY,
-        [frameDt](Entity entity){
-            entity.x() += entity.vx() * frameDt;
-            entity.y() += entity.vy() * frameDt;
-        });
+                      [frameDt](Entity entity)
+                      {
+                          entity.x() += entity.vx() * frameDt;
+                          entity.y() += entity.vy() * frameDt;
+                      });
     }
 }

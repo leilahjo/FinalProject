@@ -46,10 +46,10 @@ namespace GameEngine
         std::vector<Entity::State> state;
 
         EntityIndex createEntity(float x, float y,
-                               float vx, float vy,
-                               float width, float height,
-                               Color color,
-                               Entity::State state);
+                                 float vx, float vy,
+                                 float width, float height,
+                                 Color color,
+                                 Entity::State state);
         bool removeEntity(EntityIndex entityIndex);
 
         bool hasPosition() { return componentMask & COMP_POSITION; }
@@ -59,6 +59,7 @@ namespace GameEngine
         bool hasState() { return componentMask & COMP_STATE; }
 
         size_t getEntityCount() const { return n; }
+
     private:
         size_t n;
     };

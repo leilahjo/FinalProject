@@ -5,7 +5,8 @@
 #include "Random.h"
 #include <random>
 
-float GameEngine::randomFloat(float min, float max) {
+float GameEngine::randomFloat(float min, float max)
+{
     thread_local std::mt19937 rng{std::random_device{}()};
     std::uniform_real_distribution dist(min, max);
     return dist(rng);

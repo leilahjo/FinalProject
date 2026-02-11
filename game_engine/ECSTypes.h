@@ -9,14 +9,14 @@
 namespace GameEngine
 {
     struct Archetype;
-    
+
     using ArchIndex = uint32_t;
-    static constexpr ArchIndex INVALID_ARCH_INDEX = static_cast<ArchIndex>(-1);//0xFFFFFFFF
-    
+    static constexpr ArchIndex INVALID_ARCH_INDEX = static_cast<ArchIndex>(-1); //0xFFFFFFFF
+
     using EntityIndex = uint32_t;
     using ComponentMask = uint32_t;
     using EntityRecordIndex = uint32_t;
-    
+
     struct EntityLocation
     {
         Archetype* archetype;
@@ -41,7 +41,6 @@ namespace GameEngine
         EntityId entityId;
         EntityLocation location;
     };
-
 }
 
 #endif //GAME_ENGINE_ECSTYPES_H

@@ -36,8 +36,8 @@ add_executable(game_engine main.cpp
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
 
-if(WIN32)
+if (WIN32)
     target_link_libraries(game_engine PRIVATE winmm)
-endif()
+endif ()
 
 # target_compile_definitions(game_engine PRIVATE _GLIBCXX_ASSERTIONS)

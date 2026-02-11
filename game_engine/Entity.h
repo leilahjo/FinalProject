@@ -12,7 +12,7 @@
 namespace GameEngine
 {
     struct Archetype;
-    
+
     // Represents an entity in the game world. The struct itself is a lightweight view
     // into the arrays of an archetype.
     struct Entity

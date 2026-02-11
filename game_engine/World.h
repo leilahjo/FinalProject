@@ -15,7 +15,7 @@ namespace GameEngine
     struct World
     {
         static constexpr int MAX_ENTITIES = 1'000'000;
-        
+
         World();
 
         // We're using unique_ptr because world is the exclusive "owner" of the archetypes.

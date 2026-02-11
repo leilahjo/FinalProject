@@ -26,7 +26,6 @@ namespace Game
             | Archetype::COMP_STATE);
 
 
-
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
                            0, 0,
@@ -52,11 +51,11 @@ namespace Game
                                Entity::STATE_DEFAULT);
 
         player = world.createEntity(squareArchetype,
-                            0, 0,
-                            0, 0,
-                            0.2, 0.2,
-                            GREEN,
-                            Entity::STATE_DEFAULT);
+                                    0, 0,
+                                    0, 0,
+                                    0.2, 0.2,
+                                    GREEN,
+                                    Entity::STATE_DEFAULT);
     }
 
     void Game::Update(InputManager& inputManager)

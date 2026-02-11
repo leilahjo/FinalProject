@@ -11,10 +11,10 @@ namespace GameEngine
     }
 
     EntityIndex Archetype::createEntity(float x, float y,
-                                  float vx, float vy,
-                                  float width, float height,
-                                  Color color,
-                                  Entity::State state)
+                                        float vx, float vy,
+                                        float width, float height,
+                                        Color color,
+                                        Entity::State state)
     {
         if (componentMask & COMP_POSITION)
         {
@@ -82,13 +82,13 @@ namespace GameEngine
             color[entityIndex] = color[lastIndex];
             color.pop_back();
         }
-        
+
         if (componentMask & COMP_STATE)
         {
             state[entityIndex] = state[lastIndex];
             state.pop_back();
         }
-        
+
         n--;
         return true;
     }

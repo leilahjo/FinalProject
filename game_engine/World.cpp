@@ -17,11 +17,11 @@ namespace GameEngine
     }
 
     Entity World::createEntity(Archetype* archetype,
-                      float x, float y,
-                      float vx, float vy,
-                      float width, float height,
-                      Color color,
-                      Entity::State state)
+                               float x, float y,
+                               float vx, float vy,
+                               float width, float height,
+                               Color color,
+                               Entity::State state)
     {
         EntityIndex entityIndex = archetype->createEntity(x, y,
                                                           vx, vy,
