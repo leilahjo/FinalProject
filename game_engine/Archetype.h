@@ -41,16 +41,15 @@ namespace GameEngine
 
         // Color Component
         std::vector<Color> color;
-        
+
         // State Component
         std::vector<Entity::State> state;
 
         EntityIndex createEntity(float x, float y,
-            float vx, float vy,
-            float width, float height,
-            Color color,
-            Entity::State state);
-
+                               float vx, float vy,
+                               float width, float height,
+                               Color color,
+                               Entity::State state);
         bool removeEntity(EntityIndex entityIndex);
 
         bool hasPosition() { return componentMask & COMP_POSITION; }
@@ -64,6 +63,5 @@ namespace GameEngine
         size_t n;
     };
 }
-
 
 #endif //GAME_ENGINE_ARCHETYPE_H

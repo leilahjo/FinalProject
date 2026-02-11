@@ -120,9 +120,8 @@ namespace Game
             {
                 world.createEntity(squareArchetype,
                                    player.x(), player.y(),
-                                   randomFloat(-0.25, 0.25),
-                                   randomFloat(-0.1, 0.1), 0.025,
-                                   0.025,
+                                   randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
+                                   0.025, 0.025,
                                    BLUE,
                                    Entity::STATE_DEFAULT);
             }

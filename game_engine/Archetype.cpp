@@ -38,7 +38,7 @@ namespace GameEngine
         {
             this->color.push_back(color);
         }
-        
+
         if (componentMask & COMP_STATE)
         {
             this->state.push_back(state);

@@ -49,4 +49,4 @@ namespace GameEngine
     Entity::State& operator|=(Entity::State& lhs, Entity::State rhs);
 }
 
-#endif //GAME_ENGINE_GAMEOBJECT_H
+#endif //GAME_ENGINE_ENTITY_H
