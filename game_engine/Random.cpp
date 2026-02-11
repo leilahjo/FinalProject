@@ -7,6 +7,6 @@
 
 float GameEngine::randomFloat(float min, float max) {
     thread_local std::mt19937 rng{std::random_device{}()};
-    std::uniform_real_distribution<float> dist(min, max);
+    std::uniform_real_distribution dist(min, max);
     return dist(rng);
 }

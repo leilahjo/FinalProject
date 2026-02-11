@@ -5,33 +5,48 @@
 #ifndef GAME_ENGINE_ENTITY_H
 #define GAME_ENGINE_ENTITY_H
 
-#include "Archetype.h"
+#include <cstdint>
 #include "ECSTypes.h"
 #include "raylib.h"
 
 namespace GameEngine
 {
+    struct Archetype;
+    
     // Represents an entity in the game world. The struct itself is a lightweight view
     // into the arrays of an archetype.
     struct Entity
     {
+        using StateMask = std::uint32_t;
+
+        enum State : StateMask
+        {
+            STATE_DEFAULT = 0,
+            STATE_DESTROYED = 1 << 0,
+        };
+
         Archetype* archetype;
         EntityIndex entityIndex;
 
         // Position
-        float& x() { return archetype->x[entityIndex]; }
-        float& y() { return archetype->y[entityIndex]; }
+        float& x();
+        float& y();
 
         // Velocity
-        float& vx() { return archetype->vx[entityIndex]; }
-        float& vy() { return archetype->vy[entityIndex]; }
+        float& vx();
+        float& vy();
 
         // Size
-        float& width() { return archetype->width[entityIndex]; }
-        float& height() { return archetype->height[entityIndex]; }
+        float& width();
+        float& height();
 
-        Color& color() { return archetype->color[entityIndex]; }
+        Color& color();
+
+        State& state();
     };
+
+    Entity::State operator|(Entity::State lhs, Entity::State rhs);
+    Entity::State& operator|=(Entity::State& lhs, Entity::State rhs);
 }
 
 #endif //GAME_ENGINE_GAMEOBJECT_H

@@ -13,7 +13,8 @@ namespace GameEngine
     EntityIndex Archetype::createEntity(float x, float y,
                                   float vx, float vy,
                                   float width, float height,
-                                  Color color)
+                                  Color color,
+                                  Entity::State state)
     {
         if (componentMask & COMP_POSITION)
         {
@@ -37,7 +38,58 @@ namespace GameEngine
         {
             this->color.push_back(color);
         }
+        
+        if (componentMask & COMP_STATE)
+        {
+            this->state.push_back(state);
+        }
 
         return n++;
+    }
+
+    bool Archetype::removeEntity(EntityIndex entityIndex)
+    {
+        if (entityIndex >= n)
+            return false;
+        EntityIndex lastIndex = n - 1;
+
+        if (componentMask & COMP_POSITION)
+        {
+            x[entityIndex] = x[lastIndex];
+            x.pop_back();
+            y[entityIndex] = y[lastIndex];
+            y.pop_back();
+        }
+
+        if (componentMask & COMP_VELOCITY)
+        {
+            vx[entityIndex] = vx[lastIndex];
+            vx.pop_back();
+            vy[entityIndex] = vy[lastIndex];
+            vy.pop_back();
+        }
+
+        if (componentMask & COMP_SIZE)
+        {
+            width[entityIndex] = width[lastIndex];
+            width.pop_back();
+            height[entityIndex] = height[lastIndex];
+            height.pop_back();
+        }
+
+        if (componentMask & COMP_COLOR)
+        {
+            color[entityIndex] = color[lastIndex];
+            color.pop_back();
+        }
+        
+        if (componentMask & COMP_STATE)
+        {
+            state[entityIndex] = state[lastIndex];
+            state.pop_back();
+        }
+        
+        n--;
+        return true;
     }
 }

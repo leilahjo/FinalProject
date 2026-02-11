@@ -22,17 +22,41 @@ namespace Game
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
             | Archetype::COMP_SIZE
-            | Archetype::COMP_COLOR);
+            | Archetype::COMP_COLOR
+            | Archetype::COMP_STATE);
 
-        player = world.createEntity(squareArchetype, 0, 0, 0, 0, 0.2, 0.2, GREEN);
+
 
         // Double-unit "border" squares
-        world.createEntity(borderArchetype, 0, 0, 0, 0, 2, 2, YELLOW);
-        world.createEntity(borderArchetype, 0, 0, 0, 0, 1.95, 1.95, RAYWHITE);
+        world.createEntity(borderArchetype,
+                           0, 0,
+                           0, 0,
+                           2, 2,
+                           YELLOW,
+                           Entity::STATE_DEFAULT);
+        world.createEntity(borderArchetype,
+                           0, 0,
+                           0, 0,
+                           1.95, 1.95,
+                           RAYWHITE
+                           ,
+                           Entity::STATE_DEFAULT);
 
         // Moving red squares
         for (int i = 1; i < 10; i++)
-            world.createEntity(squareArchetype, 0, 0, randomFloat(-0.25, 0.25), randomFloat(-0.1, 0.1), 0.1, 0.1, RED);
+            world.createEntity(squareArchetype,
+                               0, 0,
+                               randomFloat(-0.25, 0.25), randomFloat(-0.1, 0.1),
+                               0.1, 0.1,
+                               RED,
+                               Entity::STATE_DEFAULT);
+
+        player = world.createEntity(squareArchetype,
+                            0, 0,
+                            0, 0,
+                            0.2, 0.2,
+                            GREEN,
+                            Entity::STATE_DEFAULT);
     }
 
     void Game::Update(InputManager& inputManager)
@@ -61,14 +85,13 @@ namespace Game
             for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); entityIndex++)
             {
                 auto entity = Entity{archetype.get(), entityIndex};
-                if (entity.archetype == player.archetype && entity.entityIndex == player.entityIndex)
-                    continue;
+                // if (entity.archetype == player.archetype && entity.entityIndex == player.entityIndex)
+                //     continue;
 
                 //Bottom
                 if (entity.y() - entity.height() / 2 < -1)
                 {
-                    entity.vy() *= -1;
-                    entity.y() += 0.01f;
+                    entity.state() |= Entity::State::STATE_DESTROYED;
                 }
                 //Top
                 if (entity.y() + entity.height() / 2 > 1)
@@ -95,10 +118,16 @@ namespace Game
         {
             for (int i = 1; i < 10; i++)
             {
-                world.createEntity(squareArchetype, player.x(), player.y(), randomFloat(-0.25, 0.25),
+                world.createEntity(squareArchetype,
+                                   player.x(), player.y(),
+                                   randomFloat(-0.25, 0.25),
                                    randomFloat(-0.1, 0.1), 0.025,
-                                   0.025, BLUE);
+                                   0.025,
+                                   BLUE,
+                                   Entity::STATE_DEFAULT);
             }
         }
+
+        world.cleanup();
     }
 }

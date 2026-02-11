@@ -9,20 +9,20 @@
 #include <cstdint>
 
 #include "ECSTypes.h"
+#include "Entity.h"
 #include "raylib.h"
 
 namespace GameEngine
 {
     struct Archetype
     {
-        using ComponentMask = uint32_t;
-
         enum Components : ComponentMask
         {
             COMP_POSITION = 1 << 0,
             COMP_VELOCITY = 1 << 1,
             COMP_SIZE = 1 << 2,
-            COMP_COLOR = 1 << 3
+            COMP_COLOR = 1 << 3,
+            COMP_STATE = 1 << 4
         };
 
         //Fixed per archetype.
@@ -41,13 +41,23 @@ namespace GameEngine
 
         // Color Component
         std::vector<Color> color;
+        
+        // State Component
+        std::vector<Entity::State> state;
 
-        EntityIndex createEntity(float x, float y, float vx, float vy, float width, float height, Color color);
+        EntityIndex createEntity(float x, float y,
+            float vx, float vy,
+            float width, float height,
+            Color color,
+            Entity::State state);
+
+        bool removeEntity(EntityIndex entityIndex);
 
         bool hasPosition() { return componentMask & COMP_POSITION; }
         bool hasVelocity() { return componentMask & COMP_VELOCITY; }
         bool hasSize() { return componentMask & COMP_SIZE; }
         bool hasColor() { return componentMask & COMP_COLOR; }
+        bool hasState() { return componentMask & COMP_STATE; }
 
         size_t getEntityCount() const { return n; }
     private:

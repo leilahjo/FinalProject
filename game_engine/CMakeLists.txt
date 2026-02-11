@@ -31,10 +31,13 @@ add_executable(game_engine main.cpp
         World.h
         KinematicsSystem.h
         KinematicsSystem.cpp
-        Random.cpp)
+        Random.cpp
+        World.cpp)
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
 
 if(WIN32)
     target_link_libraries(game_engine PRIVATE winmm)
 endif()
+
+# target_compile_definitions(game_engine PRIVATE _GLIBCXX_ASSERTIONS)
