@@ -1,22 +1,19 @@
 # Homework Instructions
 
-1. Add an acceleration component represented by two float vectors named `ax` and `ay`. 
+1. Add an `EntityStatisticsSystem` that tracks the following information:
+    1. Number of entities created this frame
+    2. Number of entities destroyed this frame
+    3. Number of entities ever created
+    4. Number of entities ever destroyed
+    5. Number of current entities
 
-2. Instantiate a new archetype that uses this component and use it only for the blue entities that are created when holding the space bar.
+2. Update `Renderer` to display all of the data above, similarly to how it currently displays frame data.
 
-3. Update `KinematicsSystem` to use `ax` and `ay` to update `vx` and `vy` in the same that it already uses `vx` and `vy` to update `x` and `y`. *Don't forget to check that the archetype actually has the acceleration component!*
+3. Add a 6th "Number of ..." counter to your statitics system. This counter will
+    a. Count the number of entities having a specific component. You should display the name of the component followed by the count.
+    b. Once every 3 seconds, change the component being tracked. Skip components for which the entity count is 0. Make sure all components will eventually be iterated over.
 
-4. Initialize all new entities in this archetype with "gravity" in the form of some constant negative `ay`.
-
-5. Add the following controls:
-   - Pressing the "+" key **increases** gravity by some constant amount. *Holding* the key does not continue increasing gravity.
-   - Pressing the "-" key **decreases** gravity by some constant amount. *Holding* the key does not continue decreasing gravity.
-
-The same gravity should apply to all existing entities (for which it applies) and newly added entities!
-
-**Important:** You must update the gravity values of every entity, not multiply by a separate scaling factor just before integrating. This is to give you practice with iterating over entities within an archetype.
-
-*Note: in class I mentioned that storage for acceleration on a per-entity basis is unusual because acceleration tends to be either directly controlled by the game, constant accross many entities, or just 0. That's not in conflict with adding an acceleration component to an ECS. The nice thing about an ECS is that only the entities that are defined to use the acceleration component will incur the extra storage and computation cost.*
+4. Pressing the F1 key should show/hide all diagnostic output. That includes the frame data that was added in class and all of the entity statitistics you just added. Do **not** use the Raylib function `IsKeyPressed`. You will have to figure out how to emulate its behavior (reading the Raylib source code for hints is fine). 
 
 ### Code Style
 
@@ -27,10 +24,17 @@ Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bG
 *Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should write at least 1 paragraph describing your approach to the problem. Also include any inputs you've added or modified as part of the assignment, and exactly what they do.*
 
 ## Extra Credit
-Worth up to 10% of the assignment point total. Can also be counted as 1.0 points toward the project "complexity score" if used in an appropriate way for your game.
+Worth up to 20% of the assignment point total. Can also be counted as 2.0 points toward the project "complexity score" if used in an appropriate way for your game.
 
-Make the space bar exert an outward "force" on all entities near the player. Nearby entities are those within 0.5 world units of the player. How you implement the force is up to you. Some options:
+The goal is to remove any reference to "archetype" from the `Game` code altogether. Instead, `World` should manage archetypes internally by finding or creating new archetypes based on the components now passed to `createEntity`.
 
-1. While the Q button is held down, modify the x and y coordinates of the nearby entities directly.
-2. When the Q button is pressed down, modify the vx and vy components of the nearby entities.
-3. When the Q button is pressed down, modify the ax and ay components of the nearby entities, but have them gradually revert to (0, -g)
+Below you will find some refactoring steps to get you started. This list is not exhaustive.
+
+1. Remove the `createArchetype` function from `World.h`.
+2. Remove any archetype pointers from `Game.h`.
+3. Update `createEntity` to take a component mask.
+4. Update `Game.cpp` to pass a component mask into `createEntity` and remove all references to archetypes.
+
+The rest is up to you. Think about what datastructure will be appropriate for maintaining efficient entity creation.
+
+*NOTE: You do NOT need to worry about removal of empty archetypes resulting from entity removals.*

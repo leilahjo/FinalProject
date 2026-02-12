@@ -10,12 +10,16 @@ namespace GameEngine
     {
     }
 
-    EntityIndex Archetype::createEntity(float x, float y,
-                                        float vx, float vy,
-                                        float width, float height,
-                                        Color color,
-                                        Entity::State state)
+    EntityIndex Archetype::createEntity(
+        EntityId entityId,
+        float x, float y,
+        float vx, float vy,
+        float width, float height,
+        Color color,
+        Entity::State state)
     {
+        this->entityId.push_back(entityId);
+
         if (componentMask & COMP_POSITION)
         {
             this->x.push_back(x);
@@ -47,11 +51,18 @@ namespace GameEngine
         return n++;
     }
 
-    bool Archetype::removeEntity(EntityIndex entityIndex)
+    EntityId Archetype::removeEntity(EntityIndex entityIndex)
     {
         if (entityIndex >= n)
-            return false;
+            return INVALID_ENTITY_ID;
         EntityIndex lastIndex = n - 1;
+
+        EntityId movedEntityId = (entityIndex == lastIndex)
+                                     ? INVALID_ENTITY_ID
+                                     : entityId[lastIndex];
+
+        entityId[entityIndex] = entityId[lastIndex];
+        entityId.pop_back();
 
         if (componentMask & COMP_POSITION)
         {
@@ -90,6 +101,6 @@ namespace GameEngine
         }
 
         n--;
-        return true;
+        return movedEntityId;
     }
 }

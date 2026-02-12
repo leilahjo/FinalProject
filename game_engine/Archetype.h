@@ -30,6 +30,8 @@ namespace GameEngine
 
         Archetype(ComponentMask mask);
 
+        std::vector<EntityId> entityId;
+
         // Position Component
         std::vector<float> x, y;
 
@@ -45,12 +47,14 @@ namespace GameEngine
         // State Component
         std::vector<Entity::State> state;
 
-        EntityIndex createEntity(float x, float y,
+        EntityIndex createEntity(EntityId entityId,
+                                 float x, float y,
                                  float vx, float vy,
                                  float width, float height,
                                  Color color,
                                  Entity::State state);
-        bool removeEntity(EntityIndex entityIndex);
+        // Returning the Entity Id of the moved data, if any data was moved.
+        EntityId removeEntity(EntityIndex entityIndex);
 
         bool hasPosition() { return componentMask & COMP_POSITION; }
         bool hasVelocity() { return componentMask & COMP_VELOCITY; }

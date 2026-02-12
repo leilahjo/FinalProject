@@ -25,6 +25,12 @@ namespace Game
             | Archetype::COMP_COLOR
             | Archetype::COMP_STATE);
 
+        playerId = world.createEntity(squareArchetype,
+                                    0, 0,
+                                    0, 0,
+                                    0.2, 0.2,
+                                    GREEN,
+                                    Entity::STATE_DEFAULT);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -49,17 +55,12 @@ namespace Game
                                0.1, 0.1,
                                RED,
                                Entity::STATE_DEFAULT);
-
-        player = world.createEntity(squareArchetype,
-                                    0, 0,
-                                    0, 0,
-                                    0.2, 0.2,
-                                    GREEN,
-                                    Entity::STATE_DEFAULT);
     }
 
     void Game::Update(InputManager& inputManager)
     {
+        auto player = world.findEntity(playerId).value();
+
         // Input directly affects player velocity.
         player.vx() = 0;
         if (inputManager.moveLeft)
@@ -88,7 +89,7 @@ namespace Game
                 //     continue;
 
                 //Bottom
-                if (entity.y() - entity.height() / 2 < -1)
+                if (entity.y() - entity.height() / 2 < -1 && entity != player)
                 {
                     entity.state() |= Entity::State::STATE_DESTROYED;
                 }

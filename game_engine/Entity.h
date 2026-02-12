@@ -43,6 +43,8 @@ namespace GameEngine
         Color& color();
 
         State& state();
+
+        bool operator==(const Entity& entity) const = default;
     };
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs);

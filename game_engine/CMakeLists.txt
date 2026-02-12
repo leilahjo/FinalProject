@@ -40,4 +40,6 @@ if (WIN32)
     target_link_libraries(game_engine PRIVATE winmm)
 endif ()
 
-# target_compile_definitions(game_engine PRIVATE _GLIBCXX_ASSERTIONS)
+ target_compile_definitions(game_engine
+    PRIVATE $<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>
+)

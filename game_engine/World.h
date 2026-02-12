@@ -5,6 +5,7 @@
 #ifndef GAME_ENGINE_WORLD_H
 #define GAME_ENGINE_WORLD_H
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "Entity.h"
@@ -27,12 +28,16 @@ namespace GameEngine
             return archetypes.back().get();
         }
 
-        Entity createEntity(Archetype* archetype,
+        EntityId createEntity(Archetype* archetype,
                             float x, float y,
                             float vx, float vy,
                             float width, float height,
                             Color color,
                             Entity::State state);
+        
+        bool removeEntity(EntityId entityId);
+        
+        std::optional<Entity> findEntity(EntityId entityId);
 
         void cleanup();
 

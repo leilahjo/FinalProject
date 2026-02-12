@@ -20,7 +20,7 @@ namespace Game
 
         Game();
 
-        Entity player;
+        EntityId playerId;
         World world;
 
         //No velocity.

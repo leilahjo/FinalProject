@@ -38,7 +38,7 @@ namespace GameEngine
 
     struct EntityRecord
     {
-        EntityId entityId;
+        uint32_t generation;
         EntityLocation location;
     };
 }

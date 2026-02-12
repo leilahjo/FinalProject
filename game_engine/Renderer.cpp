@@ -19,16 +19,15 @@ namespace GameEngine
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        for (auto& archetype : game.world.archetypes)
-        {
-            if (!archetype->hasColor() || !archetype->hasPosition() || !archetype->hasSize())
-                continue;
-            for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); entityIndex++)
-            {
-                auto entity = Entity{archetype.get(), entityIndex};
-                DrawEntity(entity, game.player);
-            }
-        }
+        Entity player = game.world.findEntity(game.playerId).value();
+        game.world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE | Archetype::COMP_COLOR,
+                           [&player](Entity entity)
+                           {
+                               if (entity != player)
+                                   DrawEntity(entity, player);
+                           });
+
+        DrawEntity(player, player);
 
         DrawText(TextFormat("FPS %f | Jitter: %lld us | Work: %lld us", frameData.fps, frameData.jitterUs,
                             frameData.workDurationUs), 0, 0, 14, DARKGRAY);
