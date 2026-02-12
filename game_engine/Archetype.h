@@ -53,7 +53,7 @@ namespace GameEngine
                                  float width, float height,
                                  Color color,
                                  Entity::State state);
-        // Returning the Entity Id of the moved data, if any data was moved.
+        // Returns the Entity Id of the moved data, if any data was moved.
         EntityId removeEntity(EntityIndex entityIndex);
 
         bool hasPosition() { return componentMask & COMP_POSITION; }

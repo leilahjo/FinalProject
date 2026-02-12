@@ -26,11 +26,11 @@ namespace Game
             | Archetype::COMP_STATE);
 
         playerId = world.createEntity(squareArchetype,
-                                    0, 0,
-                                    0, 0,
-                                    0.2, 0.2,
-                                    GREEN,
-                                    Entity::STATE_DEFAULT);
+                                      0, 0,
+                                      0, 0,
+                                      0.2, 0.2,
+                                      GREEN,
+                                      Entity::STATE_DEFAULT);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -51,7 +51,7 @@ namespace Game
         for (int i = 1; i < 10; i++)
             world.createEntity(squareArchetype,
                                0, 0,
-                               randomFloat(-0.25, 0.25), randomFloat(-0.1, 0.1),
+                               randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
                                0.1, 0.1,
                                RED,
                                Entity::STATE_DEFAULT);
@@ -59,9 +59,8 @@ namespace Game
 
     void Game::Update(InputManager& inputManager)
     {
-        auto player = world.findEntity(playerId).value();
-
         // Input directly affects player velocity.
+        Entity player = world.findEntity(playerId).value();
         player.vx() = 0;
         if (inputManager.moveLeft)
             player.vx() = -1;
@@ -85,14 +84,12 @@ namespace Game
             for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); entityIndex++)
             {
                 auto entity = Entity{archetype.get(), entityIndex};
-                // if (entity.archetype == player.archetype && entity.entityIndex == player.entityIndex)
-                //     continue;
+                if (entity == player)
+                    continue;
 
                 //Bottom
-                if (entity.y() - entity.height() / 2 < -1 && entity != player)
-                {
-                    entity.state() |= Entity::State::STATE_DESTROYED;
-                }
+                if (entity.y() - entity.height() / 2 < -1)
+                    entity.state() |= Entity::STATE_DESTROYED;
                 //Top
                 if (entity.y() + entity.height() / 2 > 1)
                 {
@@ -120,7 +117,8 @@ namespace Game
             {
                 world.createEntity(squareArchetype,
                                    player.x(), player.y(),
-                                   randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
+                                   randomFloat(-0.25, 0.25),
+                                   randomFloat(-0.25, 0.25),
                                    0.025, 0.025,
                                    BLUE,
                                    Entity::STATE_DEFAULT);

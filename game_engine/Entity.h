@@ -25,8 +25,9 @@ namespace GameEngine
             STATE_DESTROYED = 1 << 0,
         };
 
-        Archetype* archetype;
-        EntityIndex entityIndex;
+        EntityLocation entityLocation;
+
+        EntityId& id();
 
         // Position
         float& x();

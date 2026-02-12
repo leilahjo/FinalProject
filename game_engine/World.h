@@ -8,35 +8,31 @@
 #include <optional>
 #include <vector>
 
-#include "Entity.h"
 #include "Archetype.h"
+#include "ECSTypes.h"
+#include "Entity.h"
 
 namespace GameEngine
 {
     struct World
     {
-        static constexpr int MAX_ENTITIES = 1'000'000;
+        static constexpr uint32_t MAX_ENTITIES = 1'000'000;
 
         World();
 
         // We're using unique_ptr because world is the exclusive "owner" of the archetypes.
         std::vector<std::unique_ptr<Archetype>> archetypes;
 
-        Archetype* createArchetype(ComponentMask mask)
-        {
-            archetypes.push_back(std::make_unique<Archetype>(mask));
-            return archetypes.back().get();
-        }
-
+        Archetype* createArchetype(ComponentMask mask);
         EntityId createEntity(Archetype* archetype,
-                            float x, float y,
-                            float vx, float vy,
-                            float width, float height,
-                            Color color,
-                            Entity::State state);
-        
+                              float x, float y,
+                              float vx, float vy,
+                              float width, float height,
+                              Color color,
+                              Entity::State state);
+
         bool removeEntity(EntityId entityId);
-        
+
         std::optional<Entity> findEntity(EntityId entityId);
 
         void cleanup();

@@ -3,6 +3,7 @@
 //
 
 #include "Archetype.h"
+#include "ECSTypes.h"
 
 namespace GameEngine
 {

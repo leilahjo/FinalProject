@@ -35,6 +35,6 @@ Below you will find some refactoring steps to get you started. This list is not 
 3. Update `createEntity` to take a component mask.
 4. Update `Game.cpp` to pass a component mask into `createEntity` and remove all references to archetypes.
 
-The rest is up to you. Think about what datastructure will be appropriate for maintaining efficient entity creation.
+The rest is up to you. Think about what datastructure will be appropriate for maintaining efficient entity creation. To get full points you should keep entity creation O(1) with respect to the number of entities and number of archetypes.
 
 *NOTE: You do NOT need to worry about removal of empty archetypes resulting from entity removals.*

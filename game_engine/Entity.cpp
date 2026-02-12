@@ -7,14 +7,15 @@
 
 namespace GameEngine
 {
-    float& Entity::x() { return archetype->x[entityIndex]; }
-    float& Entity::y() { return archetype->y[entityIndex]; }
-    float& Entity::vx() { return archetype->vx[entityIndex]; }
-    float& Entity::vy() { return archetype->vy[entityIndex]; }
-    float& Entity::width() { return archetype->width[entityIndex]; }
-    float& Entity::height() { return archetype->height[entityIndex]; }
-    Color& Entity::color() { return archetype->color[entityIndex]; }
-    Entity::State& Entity::state() { return archetype->state[entityIndex]; }
+    float& Entity::x() { return entityLocation.archetype->x[entityLocation.entityIndex]; }
+    float& Entity::y() { return entityLocation.archetype->y[entityLocation.entityIndex]; }
+    float& Entity::vx() { return entityLocation.archetype->vx[entityLocation.entityIndex]; }
+    float& Entity::vy() { return entityLocation.archetype->vy[entityLocation.entityIndex]; }
+    float& Entity::width() { return entityLocation.archetype->width[entityLocation.entityIndex]; }
+    float& Entity::height() { return entityLocation.archetype->height[entityLocation.entityIndex]; }
+    Color& Entity::color() { return entityLocation.archetype->color[entityLocation.entityIndex]; }
+    Entity::State& Entity::state() { return entityLocation.archetype->state[entityLocation.entityIndex]; }
+    EntityId& Entity::id() { return entityLocation.archetype->entityId[entityLocation.entityIndex]; }
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs)
     {

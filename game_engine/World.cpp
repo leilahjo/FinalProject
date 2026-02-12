@@ -16,6 +16,14 @@ namespace GameEngine
             freeIndices[i] = MAX_ENTITIES - i - 1;
     }
 
+    Archetype* World::createArchetype(ComponentMask mask)
+    {
+        archetypes.push_back(
+            std::make_unique<Archetype>(mask)
+        );
+        return archetypes.back().get();
+    }
+
     EntityId World::createEntity(Archetype* archetype,
                                  float x, float y,
                                  float vx, float vy,
@@ -74,22 +82,21 @@ namespace GameEngine
         if (entityRecord.generation != entityId.generation)
             return std::nullopt;
 
-        return Entity{entityRecord.location.archetype, entityRecord.location.entityIndex};
+        return Entity{entityRecord.location};
     }
 
     void World::cleanup()
     {
-        for (ArchIndex archIndex = 0; archIndex < archetypes.size(); archIndex++)
+        for (auto& archetype : archetypes)
         {
-            auto& archetype = archetypes[archIndex];
-
             if (!archetype->hasState())
                 continue;
 
             for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount();)
             {
-                if (archetype->state[entityIndex] & Entity::State::STATE_DESTROYED)
-                    removeEntity(archetype->entityId[entityIndex]);
+                auto entity = Entity{archetype.get(), entityIndex};
+                if (entity.state() & Entity::STATE_DESTROYED)
+                    removeEntity(entity.id());
                 else
                     entityIndex++;
             }
