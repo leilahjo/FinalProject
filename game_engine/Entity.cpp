@@ -16,6 +16,13 @@ namespace GameEngine
     Color& Entity::color() { return entityLocation.archetype->color[entityLocation.entityIndex]; }
     Entity::State& Entity::state() { return entityLocation.archetype->state[entityLocation.entityIndex]; }
     EntityId& Entity::id() { return entityLocation.archetype->entityId[entityLocation.entityIndex]; }
+    ColliderLayerId& Entity::colliderLayerId() { return entityLocation.archetype->colliderLayerId[entityLocation.entityIndex]; }
+    ColliderShape& Entity::colliderShape() { return entityLocation.archetype->colliderShape[entityLocation.entityIndex]; }
+
+    float Entity::right() { return x() + width() / 2; }
+    float Entity::left() { return x() - width() / 2; }
+    float Entity::top() { return y() + height() / 2; }
+    float Entity::bottom() { return y() - height() /2; }
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs)
     {

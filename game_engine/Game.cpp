@@ -13,6 +13,8 @@ namespace Game
 {
     Game::Game()
     {
+        collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_RED_SQUARES, true);
+
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
             Archetype::COMP_POSITION
@@ -23,14 +25,16 @@ namespace Game
             | Archetype::COMP_VELOCITY
             | Archetype::COMP_SIZE
             | Archetype::COMP_COLOR
-            | Archetype::COMP_STATE);
+            | Archetype::COMP_STATE
+            | Archetype::COMP_COLLIDER);
 
         playerId = world.createEntity(squareArchetype,
                                       0, 0,
                                       0, 0,
                                       0.2, 0.2,
                                       GREEN,
-                                      Entity::STATE_DEFAULT);
+                                      Entity::STATE_DEFAULT,
+                                      LAYER_PLAYER, ColliderShape::RECT);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -38,14 +42,16 @@ namespace Game
                            0, 0,
                            2, 2,
                            YELLOW,
-                           Entity::STATE_DEFAULT);
+                           Entity::STATE_DEFAULT,
+                           LAYER_NONE, ColliderShape::RECT);
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
                            1.95, 1.95,
                            RAYWHITE
                            ,
-                           Entity::STATE_DEFAULT);
+                           Entity::STATE_DEFAULT,
+                           LAYER_NONE, ColliderShape::RECT);
 
         // Moving red squares
         for (int i = 1; i < 10; i++)
@@ -54,7 +60,8 @@ namespace Game
                                randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
                                0.1, 0.1,
                                RED,
-                               Entity::STATE_DEFAULT);
+                               Entity::STATE_DEFAULT,
+                               LAYER_RED_SQUARES, ColliderShape::RECT);
     }
 
     void Game::Update(InputManager& inputManager)
@@ -121,10 +128,23 @@ namespace Game
                                    randomFloat(-0.25, 0.25),
                                    0.025, 0.025,
                                    BLUE,
-                                   Entity::STATE_DEFAULT);
+                                   Entity::STATE_DEFAULT,
+                                   LAYER_BLUE_SQUARES, ColliderShape::RECT);
             }
         }
 
+        auto collisions = collisionSystem.detectCollisions(world);
+        for (auto& collision : collisions)
+        {
+            auto entityA = world.findEntity(collision.a).value();
+            auto entityB = world.findEntity(collision.b).value();
+
+            // This is a bit of a hack, because we don't have a better way to identify types of entities (yet).
+            if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_RED_SQUARES)
+                entityA.state() |= Entity::STATE_DESTROYED;
+            else if (entityB.colliderLayerId() == LAYER_BLUE_SQUARES && entityA.colliderLayerId() == LAYER_RED_SQUARES)
+                entityB.state() |= Entity::STATE_DESTROYED;
+        }
         world.cleanup();
     }
 }

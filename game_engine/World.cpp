@@ -29,7 +29,8 @@ namespace GameEngine
                                  float vx, float vy,
                                  float width, float height,
                                  Color color,
-                                 Entity::State state)
+                                 Entity::State state,
+                                 ColliderLayerId colliderLayerId, ColliderShape colliderShape)
     {
         if (freeIndices.empty())
             return INVALID_ENTITY_ID;
@@ -45,7 +46,8 @@ namespace GameEngine
                                                           vx, vy,
                                                           width, height,
                                                           color,
-                                                          state);
+                                                          state,
+                                                          colliderLayerId, colliderShape);
 
         entityRecord.location = {archetype, entityIndex};
 

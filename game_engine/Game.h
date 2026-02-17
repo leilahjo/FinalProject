@@ -5,9 +5,9 @@
 #ifndef GAME_ENGINE_GAME_H
 #define GAME_ENGINE_GAME_H
 
-#include "Entity.h"
 #include "InputManager.h"
 #include "Archetype.h"
+#include "CollisionSystem.h"
 #include "World.h"
 
 using namespace GameEngine;
@@ -19,6 +19,8 @@ namespace Game
         static constexpr float frameDt = 1 / 60.0f;
 
         Game();
+        
+        CollisionSystem collisionSystem;
 
         EntityId playerId;
         World world;
@@ -30,6 +32,14 @@ namespace Game
         Archetype* squareArchetype;
 
         void Update(InputManager& inputManager);
+
+        enum Layers : ColliderLayerId
+        {
+            LAYER_NONE,
+            LAYER_PLAYER,
+            LAYER_RED_SQUARES,
+            LAYER_BLUE_SQUARES
+        };
     };
 }
 

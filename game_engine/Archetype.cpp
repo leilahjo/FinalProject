@@ -17,7 +17,8 @@ namespace GameEngine
         float vx, float vy,
         float width, float height,
         Color color,
-        Entity::State state)
+        Entity::State state,
+        ColliderLayerId colliderLayerId, ColliderShape colliderShape)
     {
         this->entityId.push_back(entityId);
 
@@ -47,6 +48,12 @@ namespace GameEngine
         if (componentMask & COMP_STATE)
         {
             this->state.push_back(state);
+        }
+
+        if (componentMask & COMP_COLLIDER)
+        {
+            this->colliderLayerId.push_back(colliderLayerId);
+            this->colliderShape.push_back(colliderShape);
         }
 
         return n++;
@@ -99,6 +106,14 @@ namespace GameEngine
         {
             state[entityIndex] = state[lastIndex];
             state.pop_back();
+        }
+
+        if (componentMask & COMP_COLLIDER)
+        {
+            colliderLayerId[entityIndex] = colliderLayerId[lastIndex];
+            colliderLayerId.pop_back();
+            colliderShape[entityIndex] = colliderShape[lastIndex];
+            colliderShape.pop_back();
         }
 
         n--;

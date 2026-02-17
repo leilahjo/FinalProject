@@ -19,6 +19,13 @@ namespace GameEngine
     using EntityRecordIndex = uint32_t;
 
     using ComponentMask = uint32_t;
+    
+    using ColliderLayerId = uint8_t;
+    static constexpr ColliderLayerId DEFAULT_COLLISION_LAYER_ID = 0;
+    enum struct ColliderShape
+    {
+        RECT, CIRCLE
+    };
 
     struct EntityLocation
     {
