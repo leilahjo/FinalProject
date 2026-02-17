@@ -23,11 +23,12 @@ namespace GameEngine
         static constexpr uint8_t MAX_COLLISION_LAYER_COUNT = 255;
 
         void enableCollisions(ColliderLayerId a, ColliderLayerId b, bool enabled);
-        
-        std::vector<Collision> detectCollisions(World& world);
+
+        std::vector<Collision> detect(World& world);
 
     private:
-        bool permittedLayerCollisions[MAX_COLLISION_LAYER_COUNT][MAX_COLLISION_LAYER_COUNT];
+        //Consider reducing the memory footprint by using bits rather than bytes.
+        bool permittedLayerCollisions[MAX_COLLISION_LAYER_COUNT][MAX_COLLISION_LAYER_COUNT] = {{}};
     };
 }
 

@@ -19,8 +19,6 @@ namespace Game
         static constexpr float frameDt = 1 / 60.0f;
 
         Game();
-        
-        CollisionSystem collisionSystem;
 
         EntityId playerId;
         World world;
@@ -30,6 +28,8 @@ namespace Game
 
         // Velocity.
         Archetype* squareArchetype;
+
+        CollisionSystem collisionSystem;
 
         void Update(InputManager& inputManager);
 

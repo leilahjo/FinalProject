@@ -6,51 +6,54 @@
 
 #include "World.h"
 
-void GameEngine::CollisionSystem::enableCollisions(ColliderLayerId a, ColliderLayerId b, bool enabled)
+namespace GameEngine
 {
-    permittedLayerCollisions[a][b] = enabled;
-    permittedLayerCollisions[b][a] = enabled;
-}
-
-std::vector<GameEngine::Collision> GameEngine::CollisionSystem::detectCollisions(World& world)
-{
-    std::vector<Collision> collisions;
-
-    // Array of layers, where every array is a vector of entities
-    std::vector<Entity> colliderEntities[MAX_COLLISION_LAYER_COUNT];
-    world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE | Archetype::COMP_COLLIDER,
-                  [&colliderEntities](Entity entity)
-                  {
-                      colliderEntities[entity.colliderLayerId()].push_back(entity);
-                  });
-
-    for (ColliderLayerId layerAId = 0; layerAId < MAX_COLLISION_LAYER_COUNT; layerAId++)
+    void CollisionSystem::enableCollisions(ColliderLayerId a, ColliderLayerId b, bool enabled)
     {
-        for (ColliderLayerId layerBId = 0; layerBId < MAX_COLLISION_LAYER_COUNT; layerBId++)
+        permittedLayerCollisions[a][b] = enabled;
+        permittedLayerCollisions[b][a] = enabled;
+    }
+
+    std::vector<Collision> CollisionSystem::detect(World& world)
+    {
+        std::vector<Collision> collisions;
+
+        // Array of layers, where every array is a vector of entities
+        std::vector<Entity> colliderEntities[MAX_COLLISION_LAYER_COUNT];
+        world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE | Archetype::COMP_COLLIDER,
+                      [&colliderEntities](Entity entity)
+                      {
+                          colliderEntities[entity.colliderLayerId()].push_back(entity);
+                      });
+
+        for (ColliderLayerId layerAId = 0; layerAId < MAX_COLLISION_LAYER_COUNT; layerAId++)
         {
-            if (permittedLayerCollisions[layerAId][layerBId] == false)
-                continue;
-
-            for (Entity entityA : colliderEntities[layerAId])
+            for (ColliderLayerId layerBId = 0; layerBId < MAX_COLLISION_LAYER_COUNT; layerBId++)
             {
-                for (Entity entityB : colliderEntities[layerBId])
+                if (permittedLayerCollisions[layerAId][layerBId] == false)
+                    continue;
+
+                for (Entity entityA : colliderEntities[layerAId])
                 {
-                    if (entityA == entityB)
-                        continue;
-
-                    if (entityA.right() < entityB.left()
-                        || entityA.left() > entityB.right()
-                        || entityA.bottom() > entityB.top()
-                        || entityA.top() < entityB.bottom())
+                    for (Entity entityB : colliderEntities[layerBId])
                     {
-                        continue;
-                    }
+                        if (entityA == entityB)
+                            continue;
 
-                    collisions.push_back(Collision{entityA.id(), entityB.id()});
+                        if (entityA.right() < entityB.left()
+                            || entityA.left() > entityB.right()
+                            || entityA.bottom() > entityB.top()
+                            || entityA.top() < entityB.bottom())
+                        {
+                            continue;
+                        }
+
+                        collisions.push_back(Collision{entityA.id(), entityB.id()});
+                    }
                 }
             }
         }
-    }
 
-    return collisions;
+        return collisions;
+    }
 }

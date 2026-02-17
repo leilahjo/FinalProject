@@ -34,7 +34,7 @@ namespace Game
                                       0.2, 0.2,
                                       GREEN,
                                       Entity::STATE_DEFAULT,
-                                      LAYER_PLAYER, ColliderShape::RECT);
+                                      ColliderShape::RECT, LAYER_PLAYER);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -43,15 +43,14 @@ namespace Game
                            2, 2,
                            YELLOW,
                            Entity::STATE_DEFAULT,
-                           LAYER_NONE, ColliderShape::RECT);
+                           ColliderShape::RECT, LAYER_NONE);
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
                            1.95, 1.95,
-                           RAYWHITE
-                           ,
+                           RAYWHITE,
                            Entity::STATE_DEFAULT,
-                           LAYER_NONE, ColliderShape::RECT);
+                           ColliderShape::RECT, LAYER_NONE);
 
         // Moving red squares
         for (int i = 1; i < 10; i++)
@@ -61,7 +60,7 @@ namespace Game
                                0.1, 0.1,
                                RED,
                                Entity::STATE_DEFAULT,
-                               LAYER_RED_SQUARES, ColliderShape::RECT);
+                               ColliderShape::RECT, LAYER_RED_SQUARES);
     }
 
     void Game::Update(InputManager& inputManager)
@@ -129,11 +128,11 @@ namespace Game
                                    0.025, 0.025,
                                    BLUE,
                                    Entity::STATE_DEFAULT,
-                                   LAYER_BLUE_SQUARES, ColliderShape::RECT);
+                                   ColliderShape::RECT, LAYER_BLUE_SQUARES);
             }
         }
 
-        auto collisions = collisionSystem.detectCollisions(world);
+        auto collisions = collisionSystem.detect(world);
         for (auto& collision : collisions)
         {
             auto entityA = world.findEntity(collision.a).value();
@@ -142,9 +141,10 @@ namespace Game
             // This is a bit of a hack, because we don't have a better way to identify types of entities (yet).
             if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_RED_SQUARES)
                 entityA.state() |= Entity::STATE_DESTROYED;
-            else if (entityB.colliderLayerId() == LAYER_BLUE_SQUARES && entityA.colliderLayerId() == LAYER_RED_SQUARES)
+            if (entityA.colliderLayerId() == LAYER_RED_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
                 entityB.state() |= Entity::STATE_DESTROYED;
         }
+
         world.cleanup();
     }
 }

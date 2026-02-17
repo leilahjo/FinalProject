@@ -45,14 +45,14 @@ namespace GameEngine
 
         State& state();
 
-        ColliderLayerId& colliderLayerId();
         ColliderShape& colliderShape();
-        
-        float right();
+        ColliderLayerId& colliderLayerId();
+
         float left();
+        float right();
         float top();
         float bottom();
-        
+
         bool operator==(const Entity& entity) const = default;
     };
 

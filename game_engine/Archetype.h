@@ -23,7 +23,7 @@ namespace GameEngine
             COMP_SIZE = 1 << 2,
             COMP_COLOR = 1 << 3,
             COMP_STATE = 1 << 4,
-            COMP_COLLIDER = 1 << 5
+            COMP_COLLIDER = 1 << 5,
         };
 
         //Fixed per archetype.
@@ -49,8 +49,8 @@ namespace GameEngine
         std::vector<Entity::State> state;
 
         // Collider Component
-        std::vector<ColliderLayerId> colliderLayerId;
         std::vector<ColliderShape> colliderShape;
+        std::vector<ColliderLayerId> colliderLayerId;
 
         EntityIndex createEntity(EntityId entityId,
                                  float x, float y,
@@ -58,7 +58,7 @@ namespace GameEngine
                                  float width, float height,
                                  Color color,
                                  Entity::State state,
-                                 ColliderLayerId colliderLayerId, ColliderShape colliderShape);
+                                 ColliderShape collisionShape, ColliderLayerId collisionLayerId);
         // Returns the Entity Id of the moved data, if any data was moved.
         EntityId removeEntity(EntityIndex entityIndex);
 

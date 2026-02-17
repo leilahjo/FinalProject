@@ -34,7 +34,8 @@ add_executable(game_engine main.cpp
         Random.cpp
         World.cpp
         CollisionSystem.cpp
-        CollisionSystem.h)
+        CollisionSystem.h
+)
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
 
@@ -42,6 +43,6 @@ if (WIN32)
     target_link_libraries(game_engine PRIVATE winmm)
 endif ()
 
- target_compile_definitions(game_engine
-    PRIVATE $<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>
+target_compile_definitions(game_engine
+        PRIVATE $<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>
 )
