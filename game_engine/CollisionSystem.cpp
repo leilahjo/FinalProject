@@ -108,43 +108,28 @@ namespace GameEngine
 
         float xOverlap = std::min(a.right(), b.right()) - std::max(a.left(), b.left());
         float yOverlap = std::min(a.top(), b.top()) - std::max(a.bottom(), b.bottom());
-
+        
         bool resolveX = xOverlap < yOverlap;
-        if (resolveX)
+        float& aPosition = resolveX ? a.x() : a.y();
+        float& aVelocity = resolveX ? a.vx() : a.vy();
+        float& bPosition = resolveX ? b.x() : b.y();
+        float& bVelocity = resolveX ? b.vx() : b.vy();
+        float& overlap = resolveX ? xOverlap : yOverlap;
+
+        // A is left/below of B
+        if (aPosition < bPosition)
         {
-            // A is left of B
-            if (a.x() < b.x())
-            {
-                a.x() -= xOverlap * moveA;
-                b.x() += xOverlap * moveB;
-                if (a.vx() > 0) a.vx() *= -1;
-                if (b.vx() < 0) b.vx() *= -1;
-            }
-            else // B is left of A
-            {
-                a.x() += xOverlap * moveA;
-                b.x() -= xOverlap * moveB;
-                if (a.vx() < 0) a.vx() *= -1;
-                if (b.vx() > 0) b.vx() *= -1;
-            }
+            aPosition -= overlap * moveA;
+            bPosition += overlap * moveB;
+            if (aVelocity > 0) aVelocity *= -1;
+            if (bVelocity < 0) bVelocity *= -1;
         }
-        else
+        else // A is right/top of B
         {
-            // A is below B
-            if (a.y() < b.y())
-            {
-                a.y() -= yOverlap * moveA;
-                b.y() += yOverlap * moveB;
-                if (a.vy() > 0) a.vy() *= -1;
-                if (b.vy() < 0) b.vy() *= -1;
-            }
-            else // B is below A
-            {
-                a.y() += yOverlap * moveA;
-                b.y() -= yOverlap * moveB;
-                if (a.vy() < 0) a.vy() *= -1;
-                if (b.vy() > 0) b.vy() *= -1;
-            }
+            aPosition += overlap * moveA;
+            bPosition -= overlap * moveB;
+            if (aVelocity < 0) aVelocity *= -1;
+            if (bVelocity > 0) bVelocity *= -1;
         }
     }
 }
