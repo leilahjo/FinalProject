@@ -14,6 +14,8 @@ namespace Game
     Game::Game()
     {
         collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_RED_SQUARES, true);
+        collisionSystem.enableCollisions(LAYER_RED_SQUARES, LAYER_RED_SQUARES, true);
+        collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
@@ -144,6 +146,7 @@ namespace Game
             if (entityA.colliderLayerId() == LAYER_RED_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
                 entityB.state() |= Entity::STATE_DESTROYED;
         }
+        collisionSystem.resolve(world, collisions);
 
         world.cleanup();
     }

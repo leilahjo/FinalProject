@@ -6,7 +6,7 @@
 #define GAME_ENGINE_COLLISIONSYSTEM_H
 #include <vector>
 
-#include "ECSTypes.h"
+#include "World.h"
 
 namespace GameEngine
 {
@@ -25,8 +25,10 @@ namespace GameEngine
         void enableCollisions(ColliderLayerId a, ColliderLayerId b, bool enabled);
 
         std::vector<Collision> detect(World& world);
+        void resolve(World& world, std::vector<Collision>& collisions);
 
     private:
+        static void separate(Entity& a, Entity& b);
         //Consider reducing the memory footprint by using bits rather than bytes.
         bool permittedLayerCollisions[MAX_COLLISION_LAYER_COUNT][MAX_COLLISION_LAYER_COUNT] = {{}};
     };

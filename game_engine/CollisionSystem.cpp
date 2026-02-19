@@ -64,4 +64,87 @@ namespace GameEngine
 
         return collisions;
     }
+
+    void CollisionSystem::resolve(World& world, std::vector<Collision>& collisions)
+    {
+        for (auto& collision : collisions)
+        {
+            auto optA = world.findEntity(collision.a);
+            auto optB = world.findEntity(collision.b);
+            if (!optA || !optB)
+                continue;
+
+            auto& a = optA.value();
+            auto& b = optB.value();
+            if (a.state() & Entity::STATE_DESTROYED || b.state() & Entity::STATE_DESTROYED)
+                continue;
+
+            separate(a, b);
+        }
+    }
+
+    static constexpr float separationEpsilon = 0.0001f;
+
+    void CollisionSystem::separate(Entity& a, Entity& b)
+    {
+        bool aHasVelocity = a.entityLocation.archetype->hasVelocity();
+        bool bHasVelocity = b.entityLocation.archetype->hasVelocity();
+
+        if (!aHasVelocity && !bHasVelocity)
+            return;
+
+        float moveA = 0.5f + separationEpsilon;
+        float moveB = 0.5f + separationEpsilon;
+        if (!aHasVelocity)
+        {
+            moveA = 0;
+            moveB = 1 + separationEpsilon;
+        }
+        if (!bHasVelocity)
+        {
+            moveA = 1 + separationEpsilon;
+            moveB = 0;
+        }
+
+        float xOverlap = std::min(a.right(), b.right()) - std::max(a.left(), b.left());
+        float yOverlap = std::min(a.top(), b.top()) - std::max(a.bottom(), b.bottom());
+
+        bool resolveX = xOverlap < yOverlap;
+        if (resolveX)
+        {
+            // A is left of B
+            if (a.x() < b.x())
+            {
+                a.x() -= xOverlap * moveA;
+                b.x() += xOverlap * moveB;
+                if (a.vx() > 0) a.vx() *= -1;
+                if (b.vx() < 0) b.vx() *= -1;
+            }
+            else // B is left of A
+            {
+                a.x() += xOverlap * moveA;
+                b.x() -= xOverlap * moveB;
+                if (a.vx() < 0) a.vx() *= -1;
+                if (b.vx() > 0) b.vx() *= -1;
+            }
+        }
+        else
+        {
+            // A is below B
+            if (a.y() < b.y())
+            {
+                a.y() -= yOverlap * moveA;
+                b.y() += yOverlap * moveB;
+                if (a.vy() > 0) a.vy() *= -1;
+                if (b.vy() < 0) b.vy() *= -1;
+            }
+            else // B is below A
+            {
+                a.y() += yOverlap * moveA;
+                b.y() -= yOverlap * moveB;
+                if (a.vy() < 0) a.vy() *= -1;
+                if (b.vy() > 0) b.vy() *= -1;
+            }
+        }
+    }
 }
