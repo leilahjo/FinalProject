@@ -6,10 +6,11 @@
 #define GAME_ENGINE_COLLISIONSYSTEM_H
 #include <vector>
 
-#include "World.h"
+#include "ECSTypes.h"
 
 namespace GameEngine
 {
+    struct Entity;
     struct World;
 
     struct Collision

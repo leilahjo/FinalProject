@@ -14,6 +14,7 @@ namespace Game
     Game::Game()
     {
         collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_RED_SQUARES, true);
+        collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_BLUE_SQUARES, true);
         collisionSystem.enableCollisions(LAYER_RED_SQUARES, LAYER_RED_SQUARES, true);
         collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
 
