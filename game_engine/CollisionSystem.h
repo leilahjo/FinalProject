@@ -20,7 +20,7 @@ namespace GameEngine
 
     struct CollisionSystem
     {
-        static constexpr uint8_t MAX_COLLISION_LAYER_COUNT = 255;
+        static constexpr size_t MAX_COLLISION_LAYER_COUNT = 64;
 
         void enableCollisions(ColliderLayerId a, ColliderLayerId b, bool enabled);
 

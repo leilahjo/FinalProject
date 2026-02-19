@@ -33,12 +33,20 @@ namespace GameEngine
                 if (permittedLayerCollisions[layerAId][layerBId] == false)
                     continue;
 
-                for (Entity entityA : colliderEntities[layerAId])
+                if (layerBId > layerAId)
+                    break;
+
+                for (size_t a = 0; a < colliderEntities[layerAId].size(); a++)
                 {
-                    for (Entity entityB : colliderEntities[layerBId])
+                    for (size_t b = 0; b < colliderEntities[layerBId].size(); b++)
                     {
+                        auto& entityA = colliderEntities[layerAId][a];
+                        auto& entityB = colliderEntities[layerBId][b];
+
                         if (entityA == entityB)
                             continue;
+                        if (b > a)
+                            break;
 
                         if (entityA.right() < entityB.left()
                             || entityA.left() > entityB.right()
