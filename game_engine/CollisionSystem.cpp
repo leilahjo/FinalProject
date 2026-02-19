@@ -40,13 +40,11 @@ namespace GameEngine
                 {
                     for (size_t b = 0; b < colliderEntities[layerBId].size(); b++)
                     {
+                        if (layerAId == layerBId && b >= a)
+                            break;
+
                         auto& entityA = colliderEntities[layerAId][a];
                         auto& entityB = colliderEntities[layerBId][b];
-
-                        if (entityA == entityB)
-                            continue;
-                        if (b > a)
-                            break;
 
                         if (entityA.right() < entityB.left()
                             || entityA.left() > entityB.right()
@@ -108,7 +106,7 @@ namespace GameEngine
 
         float xOverlap = std::min(a.right(), b.right()) - std::max(a.left(), b.left());
         float yOverlap = std::min(a.top(), b.top()) - std::max(a.bottom(), b.bottom());
-        
+
         bool resolveX = xOverlap < yOverlap;
         float& aPosition = resolveX ? a.x() : a.y();
         float& aVelocity = resolveX ? a.vx() : a.vy();
