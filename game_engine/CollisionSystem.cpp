@@ -4,6 +4,8 @@
 
 #include "CollisionSystem.h"
 
+#include <vector>
+
 #include "World.h"
 
 namespace GameEngine
@@ -30,11 +32,14 @@ namespace GameEngine
         {
             for (ColliderLayerId layerBId = 0; layerBId < MAX_COLLISION_LAYER_COUNT; layerBId++)
             {
-                if (permittedLayerCollisions[layerAId][layerBId] == false)
-                    continue;
-
+                // Skip <b,a> since we already checked <a,b>.
                 if (layerBId > layerAId)
                     break;
+                if (!permittedLayerCollisions[layerAId][layerBId])
+                    continue;
+
+                auto& layerA = colliderEntities[layerAId];
+                auto& layerB = colliderEntities[layerBId];
 
                 for (size_t a = 0; a < colliderEntities[layerAId].size(); a++)
                 {
@@ -43,8 +48,9 @@ namespace GameEngine
                         if (layerAId == layerBId && b >= a)
                             break;
 
-                        auto& entityA = colliderEntities[layerAId][a];
-                        auto& entityB = colliderEntities[layerBId][b];
+                        auto& entityA = layerA[entityAIndex];
+                        auto& entityB = layerB[entityBIndex];
+
 
                         // Check whether AABBs overlap.
                         // Note that these checks shouldn't be expected to have great cache locality. That's unavoidable

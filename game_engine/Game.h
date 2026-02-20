@@ -23,10 +23,7 @@ namespace Game
         EntityId playerId;
         World world;
 
-        //No velocity.
         Archetype* borderArchetype;
-
-        // Velocity.
         Archetype* squareArchetype;
 
         CollisionSystem collisionSystem;
