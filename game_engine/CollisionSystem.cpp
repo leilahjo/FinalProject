@@ -48,8 +48,8 @@ namespace GameEngine
                         if (layerAId == layerBId && b >= a)
                             break;
 
-                        auto& entityA = layerA[entityAIndex];
-                        auto& entityB = layerB[entityBIndex];
+                        auto& entityA = layerA[a];
+                        auto& entityB = layerB[b];
 
 
                         // Check whether AABBs overlap.
