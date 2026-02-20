@@ -46,10 +46,13 @@ namespace GameEngine
                         auto& entityA = colliderEntities[layerAId][a];
                         auto& entityB = colliderEntities[layerBId][b];
 
-                        if (entityA.right() < entityB.left()
-                            || entityA.left() > entityB.right()
-                            || entityA.bottom() > entityB.top()
-                            || entityA.top() < entityB.bottom())
+                        // Check whether AABBs overlap.
+                        // Note that these checks shouldn't be expected to have great cache locality. That's unavoidable
+                        // because we don't organize our entity data spatially.
+                        if (entityA.right() < entityB.left() ||
+                            entityA.left() > entityB.right() ||
+                            entityA.top() < entityB.bottom() ||
+                            entityA.bottom() > entityB.top())
                         {
                             continue;
                         }
