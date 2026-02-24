@@ -30,8 +30,8 @@ namespace GameEngine
                               float width, float height,
                               Color color,
                               Entity::State state,
-                              ColliderShape colliderShape, ColliderLayerId colliderLayerId);
-
+                              ColliderShape colliderShape, ColliderLayerId colliderLayerId,
+                              AnimationData animationData);
         bool removeEntity(EntityId entityId);
 
         std::optional<Entity> findEntity(EntityId entityId);

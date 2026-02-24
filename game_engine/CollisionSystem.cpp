@@ -51,7 +51,6 @@ namespace GameEngine
                         auto& entityA = layerA[a];
                         auto& entityB = layerB[b];
 
-
                         // Check whether AABBs overlap.
                         // Note that these checks shouldn't be expected to have great cache locality. That's unavoidable
                         // because we don't organize our entity data spatially.

@@ -24,6 +24,7 @@ namespace GameEngine
             COMP_COLOR = 1 << 3,
             COMP_STATE = 1 << 4,
             COMP_COLLIDER = 1 << 5,
+            COMP_ANIMATION = 1 << 6
         };
 
         //Fixed per archetype.
@@ -52,13 +53,17 @@ namespace GameEngine
         std::vector<ColliderShape> colliderShape;
         std::vector<ColliderLayerId> colliderLayerId;
 
+        // Animation Component (SoAoS!)
+        std::vector<AnimationData> animationData;
+
         EntityIndex createEntity(EntityId entityId,
                                  float x, float y,
                                  float vx, float vy,
                                  float width, float height,
                                  Color color,
                                  Entity::State state,
-                                 ColliderShape collisionShape, ColliderLayerId collisionLayerId);
+                                 ColliderShape collisionShape, ColliderLayerId collisionLayerId,
+                                 AnimationData animationData);
         // Returns the Entity Id of the moved data, if any data was moved.
         EntityId removeEntity(EntityIndex entityIndex);
 
@@ -67,6 +72,8 @@ namespace GameEngine
         bool hasSize() { return componentMask & COMP_SIZE; }
         bool hasColor() { return componentMask & COMP_COLOR; }
         bool hasState() { return componentMask & COMP_STATE; }
+        bool hasCollider() { return componentMask & COMP_COLLIDER; }
+        bool hasAnimation() { return componentMask & COMP_ANIMATION; }
 
         size_t getEntityCount() const { return n; }
 
@@ -75,4 +82,4 @@ namespace GameEngine
     };
 }
 
-#endif //GAME_ENGINE_ARCHETYPE_H
+#endif //GAME_ENGINE_KINEMATICS_H

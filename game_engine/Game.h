@@ -5,6 +5,7 @@
 #ifndef GAME_ENGINE_GAME_H
 #define GAME_ENGINE_GAME_H
 
+#include "AnimationSystem.h"
 #include "InputManager.h"
 #include "Archetype.h"
 #include "CollisionSystem.h"
@@ -25,8 +26,13 @@ namespace Game
 
         Archetype* borderArchetype;
         Archetype* squareArchetype;
+        Archetype* animatedSquareArchetype;
+
+        AnimationId simpleAnimationId;
+
 
         CollisionSystem collisionSystem;
+        AnimationSystem animationSystem;
 
         void Update(InputManager& inputManager);
 

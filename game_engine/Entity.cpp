@@ -18,11 +18,14 @@ namespace GameEngine
     EntityId& Entity::id() { return entityLocation.archetype->entityId[entityLocation.entityIndex]; }
     ColliderShape& Entity::colliderShape() { return entityLocation.archetype->colliderShape[entityLocation.entityIndex]; }
     ColliderLayerId& Entity::colliderLayerId() { return entityLocation.archetype->colliderLayerId[entityLocation.entityIndex]; }
+    AnimationData& Entity::animation() { return entityLocation.archetype->animationData[entityLocation.entityIndex]; }
 
     float Entity::right() { return x() + width() / 2; }
     float Entity::left() { return x() - width() / 2; }
     float Entity::top() { return y() + height() / 2; }
     float Entity::bottom() { return y() - height() / 2; }
+
+    bool Entity::hasAnimation() { return entityLocation.archetype->hasAnimation(); }
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs)
     {

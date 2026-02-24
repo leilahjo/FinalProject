@@ -6,6 +6,8 @@
 #define GAME_ENGINE_ENTITY_H
 
 #include <cstdint>
+
+#include "AnimationData.h"
 #include "ECSTypes.h"
 #include "raylib.h"
 
@@ -47,6 +49,7 @@ namespace GameEngine
 
         ColliderShape& colliderShape();
         ColliderLayerId& colliderLayerId();
+        AnimationData& animation();
 
         float left();
         float right();
@@ -54,6 +57,7 @@ namespace GameEngine
         float bottom();
 
         bool operator==(const Entity& entity) const = default;
+        bool hasAnimation();
     };
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs);

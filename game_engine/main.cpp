@@ -12,7 +12,7 @@ InputManager inputManager;
 
 int main()
 {
-    InitWindow(800, 600, "Raylib + Console");
+    InitWindow(1200, 800, "Raylib + Console");
 
     initializeTiming();
 

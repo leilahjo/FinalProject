@@ -4,6 +4,9 @@
 
 #include "Game.h"
 
+#include <cmath>
+
+#include "AnimationSystem.h"
 #include "Entity.h"
 #include "InputManager.h"
 #include "Random.h"
@@ -18,6 +21,8 @@ namespace Game
         collisionSystem.enableCollisions(LAYER_RED_SQUARES, LAYER_RED_SQUARES, true);
         collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
 
+        simpleAnimationId = animationSystem.createAnimation(STOP_AT_END, 1.0f);
+
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
             Archetype::COMP_POSITION
@@ -30,6 +35,14 @@ namespace Game
             | Archetype::COMP_COLOR
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER);
+        animatedSquareArchetype = world.createArchetype(
+           Archetype::COMP_POSITION
+           | Archetype::COMP_VELOCITY
+           | Archetype::COMP_SIZE
+           | Archetype::COMP_COLOR
+           | Archetype::COMP_STATE
+           | Archetype::COMP_COLLIDER
+           | Archetype::COMP_ANIMATION);
 
         playerId = world.createEntity(squareArchetype,
                                       0, 0,
@@ -37,7 +50,8 @@ namespace Game
                                       0.2, 0.2,
                                       GREEN,
                                       Entity::STATE_DEFAULT,
-                                      ColliderShape::RECT, LAYER_PLAYER);
+                                      ColliderShape::RECT, LAYER_PLAYER,
+                                      {});
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -46,14 +60,16 @@ namespace Game
                            2, 2,
                            YELLOW,
                            Entity::STATE_DEFAULT,
-                           ColliderShape::RECT, LAYER_NONE);
+                           ColliderShape::RECT, LAYER_NONE,
+                           {});
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
                            1.95, 1.95,
                            RAYWHITE,
                            Entity::STATE_DEFAULT,
-                           ColliderShape::RECT, LAYER_NONE);
+                           ColliderShape::RECT, LAYER_NONE,
+                           {});
 
         // Moving red squares
         for (int i = 1; i < 10; i++)
@@ -63,7 +79,8 @@ namespace Game
                                0.1, 0.1,
                                RED,
                                Entity::STATE_DEFAULT,
-                               ColliderShape::RECT, LAYER_RED_SQUARES);
+                               ColliderShape::RECT, LAYER_RED_SQUARES,
+                               {});
     }
 
     void Game::Update(InputManager& inputManager)
@@ -124,14 +141,15 @@ namespace Game
         {
             for (int i = 1; i < 10; i++)
             {
-                world.createEntity(squareArchetype,
+                world.createEntity(animatedSquareArchetype,
                                    player.x(), player.y(),
                                    randomFloat(-0.25, 0.25),
                                    randomFloat(-0.25, 0.25),
                                    0.025, 0.025,
                                    BLUE,
                                    Entity::STATE_DEFAULT,
-                                   ColliderShape::RECT, LAYER_BLUE_SQUARES);
+                                   ColliderShape::RECT, LAYER_BLUE_SQUARES,
+                                   {});
             }
         }
 
@@ -146,8 +164,24 @@ namespace Game
                 entityA.state() |= Entity::STATE_DESTROYED;
             if (entityA.colliderLayerId() == LAYER_RED_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
                 entityB.state() |= Entity::STATE_DESTROYED;
+            if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
+            {
+                AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
+                AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);
+            }
         }
         collisionSystem.resolve(world, collisions);
+        animationSystem.update(world, frameDt);
+        world.forEach(Archetype::COMP_ANIMATION,
+                     [](Entity entity)
+                     {
+                         if (entity.animation().state != AnimationData::PLAYING)
+                             return;
+
+                         entity.color().r = static_cast<unsigned char>(
+                             std::round(255.0f * (1.0f - entity.animation().progress))
+                         );
+                     });
 
         world.cleanup();
     }

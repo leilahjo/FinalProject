@@ -28,6 +28,9 @@ namespace GameEngine
         RECT, CIRCLE
     };
 
+    using AnimationId = std::uint32_t;
+    static constexpr ArchIndex INVALID_ANIMATION_ID = -1;
+
     struct EntityLocation
     {
         Archetype* archetype;
