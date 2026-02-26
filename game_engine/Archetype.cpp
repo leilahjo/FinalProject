@@ -19,7 +19,8 @@ namespace GameEngine
         Color color,
         Entity::State state,
         ColliderShape collisionShape, ColliderLayerId collisionLayerId,
-        AnimationData animationData)
+        AnimationData animationData,
+        SpriteId spriteId)
     {
         this->entityId.push_back(entityId);
 
@@ -60,6 +61,11 @@ namespace GameEngine
         if (componentMask & COMP_ANIMATION)
         {
             this->animationData.push_back(animationData);
+        }
+
+        if (componentMask & COMP_SPRITE)
+        {
+            this->spriteId.push_back(spriteId);
         }
 
         return n++;
@@ -126,6 +132,12 @@ namespace GameEngine
         {
             animationData[entityIndex] = animationData[lastIndex];
             animationData.pop_back();
+        }
+
+        if (componentMask & COMP_SPRITE)
+        {
+            spriteId[entityIndex] = spriteId[lastIndex];
+            spriteId.pop_back();
         }
 
         n--;

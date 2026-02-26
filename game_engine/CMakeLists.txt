@@ -35,9 +35,13 @@ add_executable(game_engine main.cpp
         World.cpp
         CollisionSystem.cpp
         CollisionSystem.h
-        AnimationData.h
         AnimationSystem.cpp
         AnimationSystem.h
+        AnimationData.h
+        Sprite.h
+        Sprite.cpp
+        SpriteManager.cpp
+        SpriteManager.h
 )
 target_link_libraries(game_engine PRIVATE raylib)
 target_include_directories(game_engine PRIVATE ${RAYLIB_ROOT}/src)
@@ -48,4 +52,11 @@ endif ()
 
 target_compile_definitions(game_engine
         PRIVATE $<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>
+)
+
+add_custom_command(
+        TARGET game_engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:game_engine>/assets
 )

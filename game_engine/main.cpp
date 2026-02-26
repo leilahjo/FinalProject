@@ -7,12 +7,13 @@
 #include "InputManager.h"
 #include "Renderer.h"
 
-Game::Game game;
-InputManager inputManager;
-
 int main()
 {
-    InitWindow(1200, 800, "Raylib + Console");
+    InitWindow(1600, 1200, "Raylib + Console");
+
+    //Must be initialized after InitWindow now.
+    Game::Game game;
+    InputManager inputManager;
 
     initializeTiming();
 

@@ -55,6 +55,9 @@ namespace GameEngine
         uint32_t generation;
         EntityLocation location;
     };
+
+    using SpriteId = uint32_t;
+    static constexpr SpriteId INVALID_SPRITE_ID = -1; //0xFFFFFFFF
 }
 
 #endif //GAME_ENGINE_ECSTYPES_H

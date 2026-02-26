@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "Sprite.h"
 #include "ECSTypes.h"
 #include "World.h"
 
@@ -23,6 +24,10 @@ namespace GameEngine
     {
         AnimationPlaybackMode playbackMode;
         float defaultDurationS;
+
+        uint16_t startFrameIndex;
+        uint16_t frameCount;
+        uint16_t getCurrentFrameIndex(float progress);
     };
 
     class AnimationSystem
@@ -30,9 +35,9 @@ namespace GameEngine
         std::vector<Animation> animations;
 
     public:
-        AnimationId createAnimation(AnimationPlaybackMode, float defaultDurationS);
+        AnimationId createAnimation(AnimationPlaybackMode, float defaultDurationS, uint16_t startFrameIndex = 0, uint16_t frameCount = 0);
         static void startAnimation(World& world, EntityId entityId, AnimationId animationId, float speed = 1);
-        Animation& getAnimation(AnimationId animationId);
+        Animation* getAnimation(AnimationId animationId);
 
         void update(World& world, float dt);
     };

@@ -49,7 +49,10 @@ namespace GameEngine
 
         ColliderShape& colliderShape();
         ColliderLayerId& colliderLayerId();
+
         AnimationData& animation();
+
+        SpriteId& spriteId();
 
         float left();
         float right();
@@ -58,6 +61,8 @@ namespace GameEngine
 
         bool operator==(const Entity& entity) const = default;
         bool hasAnimation();
+        bool hasSprite();
+        bool hasColor();
     };
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs);

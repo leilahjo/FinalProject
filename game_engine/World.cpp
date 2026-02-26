@@ -31,7 +31,8 @@ namespace GameEngine
                                  Color color,
                                  Entity::State state,
                                  ColliderShape colliderShape, ColliderLayerId colliderLayerId,
-                                 AnimationData animationData)
+                                 AnimationData animationData,
+                                 SpriteId spriteId)
     {
         if (freeIndices.empty())
             return INVALID_ENTITY_ID;
@@ -49,7 +50,8 @@ namespace GameEngine
                                                           color,
                                                           state,
                                                           colliderShape, colliderLayerId,
-                                                          animationData);
+                                                          animationData,
+                                                          spriteId);
 
         entityRecord.location = {archetype, entityIndex};
 

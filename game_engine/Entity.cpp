@@ -19,6 +19,7 @@ namespace GameEngine
     ColliderShape& Entity::colliderShape() { return entityLocation.archetype->colliderShape[entityLocation.entityIndex]; }
     ColliderLayerId& Entity::colliderLayerId() { return entityLocation.archetype->colliderLayerId[entityLocation.entityIndex]; }
     AnimationData& Entity::animation() { return entityLocation.archetype->animationData[entityLocation.entityIndex]; }
+    SpriteId& Entity::spriteId() { return entityLocation.archetype->spriteId[entityLocation.entityIndex]; }
 
     float Entity::right() { return x() + width() / 2; }
     float Entity::left() { return x() - width() / 2; }
@@ -26,6 +27,8 @@ namespace GameEngine
     float Entity::bottom() { return y() - height() / 2; }
 
     bool Entity::hasAnimation() { return entityLocation.archetype->hasAnimation(); }
+    bool Entity::hasSprite() { return entityLocation.archetype->hasSprite(); }
+    bool Entity::hasColor() { return entityLocation.archetype->hasColor(); }
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs)
     {

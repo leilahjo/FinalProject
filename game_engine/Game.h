@@ -9,6 +9,7 @@
 #include "InputManager.h"
 #include "Archetype.h"
 #include "CollisionSystem.h"
+#include "SpriteManager.h"
 #include "World.h"
 
 using namespace GameEngine;
@@ -25,14 +26,19 @@ namespace Game
         World world;
 
         Archetype* borderArchetype;
-        Archetype* squareArchetype;
+        Archetype* playerArchetype;
+        Archetype* rockArchetype;
         Archetype* animatedSquareArchetype;
 
         AnimationId simpleAnimationId;
+        AnimationId playerAnimationId;
 
+        SpriteId rockSpriteId;
+        SpriteId playerSpriteSheetId;
 
         CollisionSystem collisionSystem;
         AnimationSystem animationSystem;
+        SpriteManager spriteManager;
 
         void Update(InputManager& inputManager);
 

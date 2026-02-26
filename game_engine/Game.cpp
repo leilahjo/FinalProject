@@ -21,37 +21,53 @@ namespace Game
         collisionSystem.enableCollisions(LAYER_RED_SQUARES, LAYER_RED_SQUARES, true);
         collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
 
-        simpleAnimationId = animationSystem.createAnimation(STOP_AT_END, 1.0f);
+        simpleAnimationId = animationSystem.createAnimation(STOP_AT_END, 1);
+        playerAnimationId = animationSystem.createAnimation(LOOP, 1, 6 * 2, 6);
+
+        rockSpriteId = spriteManager.createSprite("assets/rock.png", 1, 1, 0);
+        playerSpriteSheetId = spriteManager.createSprite("assets/player_run.png", 6, 4, 0);
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_SIZE
             | Archetype::COMP_COLOR);
-        squareArchetype = world.createArchetype(
+        playerArchetype = world.createArchetype(
+            Archetype::COMP_POSITION
+            | Archetype::COMP_VELOCITY
+            | Archetype::COMP_SIZE
+            | Archetype::COMP_STATE
+            | Archetype::COMP_COLLIDER
+            | Archetype::COMP_ANIMATION
+            | Archetype::COMP_SPRITE);
+        rockArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
             | Archetype::COMP_SIZE
             | Archetype::COMP_COLOR
             | Archetype::COMP_STATE
-            | Archetype::COMP_COLLIDER);
+            | Archetype::COMP_COLLIDER
+            | Archetype::COMP_SPRITE);
         animatedSquareArchetype = world.createArchetype(
-           Archetype::COMP_POSITION
-           | Archetype::COMP_VELOCITY
-           | Archetype::COMP_SIZE
-           | Archetype::COMP_COLOR
-           | Archetype::COMP_STATE
-           | Archetype::COMP_COLLIDER
-           | Archetype::COMP_ANIMATION);
+            Archetype::COMP_POSITION
+            | Archetype::COMP_VELOCITY
+            | Archetype::COMP_SIZE
+            | Archetype::COMP_COLOR
+            | Archetype::COMP_STATE
+            | Archetype::COMP_COLLIDER
+            | Archetype::COMP_ANIMATION);
 
-        playerId = world.createEntity(squareArchetype,
+        playerId = world.createEntity(playerArchetype,
                                       0, 0,
                                       0, 0,
                                       0.2, 0.2,
                                       GREEN,
                                       Entity::STATE_DEFAULT,
                                       ColliderShape::RECT, LAYER_PLAYER,
-                                      {});
+                                      {},
+                                      playerSpriteSheetId);
+
+        AnimationSystem::startAnimation(world, playerId, playerAnimationId);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -61,7 +77,8 @@ namespace Game
                            YELLOW,
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
-                           {});
+                           {},
+                           INVALID_SPRITE_ID);
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
@@ -69,18 +86,20 @@ namespace Game
                            RAYWHITE,
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
-                           {});
+                           {},
+                           INVALID_ANIMATION_ID);
 
         // Moving red squares
         for (int i = 1; i < 10; i++)
-            world.createEntity(squareArchetype,
+            world.createEntity(rockArchetype,
                                0, 0,
                                randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
-                               0.1, 0.1,
-                               RED,
+                               0.1, 0.1 * 92 / 128,
+                               WHITE,
                                Entity::STATE_DEFAULT,
                                ColliderShape::RECT, LAYER_RED_SQUARES,
-                               {});
+                               {},
+                               rockSpriteId);
     }
 
     void Game::Update(InputManager& inputManager)
@@ -149,7 +168,8 @@ namespace Game
                                    BLUE,
                                    Entity::STATE_DEFAULT,
                                    ColliderShape::RECT, LAYER_BLUE_SQUARES,
-                                   {});
+                                   {},
+                                   INVALID_SPRITE_ID);
             }
         }
 
@@ -171,17 +191,18 @@ namespace Game
             }
         }
         collisionSystem.resolve(world, collisions);
-        animationSystem.update(world, frameDt);
-        world.forEach(Archetype::COMP_ANIMATION,
-                     [](Entity entity)
-                     {
-                         if (entity.animation().state != AnimationData::PLAYING)
-                             return;
 
-                         entity.color().r = static_cast<unsigned char>(
-                             std::round(255.0f * (1.0f - entity.animation().progress))
-                         );
-                     });
+        world.forEach(Archetype::COMP_ANIMATION | Archetype::COMP_COLOR,
+                      [](Entity entity)
+                      {
+                          if (entity.animation().state == AnimationData::PLAYING || entity.color().r > 0)
+                          {
+                              entity.color().r = static_cast<unsigned char>(
+                                  std::round(255.0f * (1.0f - entity.animation().progress))
+                              );
+                          }
+                      });
+        animationSystem.update(world, frameDt);
 
         world.cleanup();
     }

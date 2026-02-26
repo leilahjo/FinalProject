@@ -6,7 +6,6 @@
 #define GAME_ENGINE_ARCHETYPE_H
 
 #include <vector>
-#include <cstdint>
 
 #include "ECSTypes.h"
 #include "Entity.h"
@@ -24,7 +23,8 @@ namespace GameEngine
             COMP_COLOR = 1 << 3,
             COMP_STATE = 1 << 4,
             COMP_COLLIDER = 1 << 5,
-            COMP_ANIMATION = 1 << 6
+            COMP_ANIMATION = 1 << 6,
+            COMP_SPRITE = 1 << 7,
         };
 
         //Fixed per archetype.
@@ -56,6 +56,9 @@ namespace GameEngine
         // Animation Component (SoAoS!)
         std::vector<AnimationData> animationData;
 
+        // Sprite Component
+        std::vector<SpriteId> spriteId;
+
         EntityIndex createEntity(EntityId entityId,
                                  float x, float y,
                                  float vx, float vy,
@@ -63,7 +66,8 @@ namespace GameEngine
                                  Color color,
                                  Entity::State state,
                                  ColliderShape collisionShape, ColliderLayerId collisionLayerId,
-                                 AnimationData animationData);
+                                 AnimationData animationData,
+                                 SpriteId spriteId);
         // Returns the Entity Id of the moved data, if any data was moved.
         EntityId removeEntity(EntityIndex entityIndex);
 
@@ -74,6 +78,7 @@ namespace GameEngine
         bool hasState() { return componentMask & COMP_STATE; }
         bool hasCollider() { return componentMask & COMP_COLLIDER; }
         bool hasAnimation() { return componentMask & COMP_ANIMATION; }
+        bool hasSprite() { return componentMask & COMP_SPRITE; }
 
         size_t getEntityCount() const { return n; }
 

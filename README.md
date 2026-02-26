@@ -1,53 +1,22 @@
 # Homework Instructions
 
-We'll implement Circle-Circle and Circle-Rect collision detection and resolution.
+1. **Add a `PING_PONG` `AnimationPlaybackMode`.**
 
-1. Start by changing the initial 10 moving squares to circles. Add a `renderShape` component and use it in all archetypes. This should be an `enum struct` with `CIRCLE` and `RECT`.
-    
-    To keep things simple, we'll assume entities are using collider shapes, render shapes, and width/height in a consistent way. That is, "circle entities" will always have a `CIRCLE` collider shape and render shape, and will have the same width and height (and you should adhere to this when creating entities). 
-    
-    With that said, it will still help readability to add a `float radius()` function to Entity.h that returns half the width. Do so.
-  
-    You'll need to update the `Renderer` to call `DrawCircle` as appropriate.
+In the `PING_PONG` playback mode, when `progress` reaches or exceeds `1`, it should then *decrease* each frame until it reaches or goes below `0`, then increase again back toward `1`, and so on indefinitely.
 
-2. Add Circle-Circle collision detection. This should happen immediately after the AABB check we did in class. *Hint: circles overlap if the distance between their centers is less than the sum of their radii.*.
-3. Add Circle-Rect collision detection. This should happen immediately after the AABB check we did in class. Here are some helpful tips:
-    1. You can determine the closest point on the rect to the circle center as follows:
-        ```
-        float closestX = std::clamp(circle.x(), rect.left(), rect.right());
-        float closestY = std::clamp(circle.y(), rect.bottom(), rect.top());
-        ```
-    2. The circle and rect intersect if the distance from that point is less than the radius. See if you can do this without using square roots (which are relatively slow). This is a classic optimization in "game math". 
-    
-    3. The approach above ignores the case of a circle being contained completely within a rect. Find a simple way to handle that case.
-4. Add Circle-Circle collision resolution. The idea is simply to separate the moveable circle(s) along the line joining their centers, then reflect the velocities about that line (aka "normal"). Here are some code fragments you might find useful:
+*Hint: Add a bool `playingBackward` (or similar) to `AnimationData` to track whether the animation is currently moving “forward” or “backward” through time. This should only be used by the `PING_PONG` playback mode.*
 
-```
-    float dx = b.x() - a.x();
-    float dy = b.y() - a.y();
-    float dist = std::sqrt(dx * dx + dy * dy);
-    // Normal from A to B
-    float nx = dx / dist;
-    float ny = dy / dist;
-```
+A "pingpong.png" image has been added that you will use to test your implementation. You must use the "pingpong.png" file for an animated sprite with at least one entity in your game.
 
-```
-    // Reflect velocity about normal:
-    float vx = a.vx();
-    float vy = a.vy();
-    float vn = vx * nx + vy * ny; // component along normal (a dot product)
-    // Only reflect velocities if A is not already moving away from B.
-    if (vn < 0.0f) {
-        a.vx() = vx - 2.0f * vn * nx;
-        a.vy() = vy - 2.0f * vn * ny;
-    }
-```
+2. **Implement the 4 directional idle and running animations in the provided sprite sheets.**
 
-5. Add Circle-Rect collision resolution. The idea is to move the circle and rect away from each other along the line joining the cicrle's center and the closest point on the rect (calculated above in part 3), and reflect velocties about that line (as done in part 4 above).
+*Note: this part of the assignment is unrelated to part 1 above.*
 
-**Warning:** Square roots are relatively expensive computation in collision detection algorithms. You should be able to avoid all square roots in the circle-circle and circle-rect collision **detection** code. Using a square root there will result in a minor, 2 point penalty.
+For this part, try to use the provided engine as-is: you do not need to modify any engine code. This is a chance to practice using the engine as a game developer would. This means you'll be working mostly in *Game.cpp* and any new constructs you come up with. 
 
-**Note:** Accurate collision resolution is hard and solution may have rare edge cases. Only > 50% collisions need to look "realistic". Less than that may receive a penalty.
+At a minimum, your game logic should:
+- Switch between idle and run animations based on keyboard input.
+- Use the correct directional animation (e.g., idle-up, run-right, etc.) based on keyboard input. There are 8 possible movement directions when combining inputs (up and left for example) but only 4 directions provided in the sprite sheet so use the convention of prefering left/right animations in those cases. 
 
 ### Code Style
 
@@ -58,9 +27,17 @@ Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bG
 *Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should write at least 1 paragraph describing your approach to the problem. Also include any inputs you've added or modified as part of the assignment, and exactly what they do.*
 
 ## Extra Credit
+*Worth up to 10% of the assignment point total. Can also be counted as 1.0 points toward the project "complexity score" if used in an appropriate way for your game.*
 
-*Worth up to 20% of the assignment point total. Can also be counted as 2.0 points toward the project "complexity score" if used in an appropriate way for your game.*
+Recall that we made the blue squares flash pink when colliding with other blue squares. We implemented this in Game.cpp by manipulating the color component of entities in Game.cpp. 
 
-Implement sort and sweep in CollisionSystem::detect. You do not need to persist ordering across frames and you only need to implement 1 dimension (x or y)! 
+**Replace** this animation with a completely new type of animation: a permanent "wobble". The blue squares should always wobble rather than start animating in response to a collision. You will still use the frameless animation data's `progress()`. You'll want to use a `LOOP` animation playback mode, and the animation should be continuous with no perceptible "jumps" or "snaps" in the animation.
 
-*Hint: run an O(N log(N)) sorting algorithm (you can use a library) on each of the `colliderEntities` vectors. Then update the entity traversal loop to take advantage of the ordering.*
+Specifications:
+1. When `progress()` is 0, `width()` should be maximized and `height()` should be minimized.
+2. When `progress()` is 1, `width()` should be minimized and `height()` should be maximized.
+3. Between 0 and 1, width and height should interpolate.
+
+The magnitude of the wobble is up to you and can be hard coded in Game.cpp. Just make the wobble obvious visually. 
+
+Note that linear interpolation will work, but it will not look as good as a "sprung" wobble using **sinusoidal interpolation**. For full credit you must implement "sprung" wobble.
