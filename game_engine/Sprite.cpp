@@ -16,30 +16,30 @@ namespace GameEngine
           crop(crop)
     {
         texture2D = LoadTexture(sourceFile.c_str());
-        colWidth = texture2D.width / colCt;
-        rowHeight = texture2D.height / rowCt;
+        colWidth = static_cast<uint32_t>(texture2D.width) / colCt;
+        rowHeight = static_cast<uint32_t>(texture2D.height) / rowCt;
     }
 
     Rectangle Sprite::GetSourceRect(uint16_t frameIndex)
     {
-        uint16_t col = frameIndex % colCt;
-        uint16_t row = frameIndex / colCt;
+        const uint16_t col = static_cast<uint16_t>(frameIndex % colCt);
+        const uint16_t row = static_cast<uint16_t>(frameIndex / colCt);
 
-        return {
-            static_cast<float>(col * colWidth),
-            static_cast<float>(row * rowHeight),
-            static_cast<float>(colWidth),
-            static_cast<float>(rowHeight)
+        return Rectangle{
+            static_cast<float>(col * colWidth + crop),
+            static_cast<float>(row * rowHeight + crop),
+            static_cast<float>(colWidth - crop * 2),
+            static_cast<float>(rowHeight - crop * 2)
         };
     }
 
     Rectangle Sprite::GetSourceRect()
     {
-        return {
-            0,
-            0,
-            static_cast<float>(colWidth),
-            static_cast<float>(rowHeight)
+        return Rectangle{
+            static_cast<float>(crop),
+            static_cast<float>(crop),
+            static_cast<float>(colWidth - crop * 2),
+            static_cast<float>(rowHeight - crop * 2)
         };
     }
 }

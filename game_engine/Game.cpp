@@ -22,10 +22,10 @@ namespace Game
         collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
 
         simpleAnimationId = animationSystem.createAnimation(STOP_AT_END, 1);
-        playerAnimationId = animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
+        playerRunAnimationId = animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
 
         rockSpriteId = spriteManager.createSprite("assets/rock.png", 1, 1, 0);
-        playerSpriteSheetId = spriteManager.createSprite("assets/player_run.png", 6, 4, 0);
+        playerRunSpriteSheetId = spriteManager.createSprite("assets/player_run.png", 6, 4, 5);
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
@@ -44,7 +44,6 @@ namespace Game
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
             | Archetype::COMP_SIZE
-            | Archetype::COMP_COLOR
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
             | Archetype::COMP_SPRITE);
@@ -65,9 +64,10 @@ namespace Game
                                       Entity::STATE_DEFAULT,
                                       ColliderShape::RECT, LAYER_PLAYER,
                                       {},
-                                      playerSpriteSheetId);
+                                      playerRunSpriteSheetId);
 
-        AnimationSystem::startAnimation(world, playerId, playerAnimationId);
+
+        AnimationSystem::startAnimation(world, playerId, playerRunAnimationId);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -87,15 +87,14 @@ namespace Game
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
                            {},
-                           INVALID_ANIMATION_ID);
+                           INVALID_SPRITE_ID);
 
-        // Moving red squares
         for (int i = 1; i < 10; i++)
             world.createEntity(rockArchetype,
                                0, 0,
                                randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
-                               0.1, 0.1 * 92 / 128,
-                               WHITE,
+                               0.1 * 128 / 92, 0.1,
+                               RED,
                                Entity::STATE_DEFAULT,
                                ColliderShape::RECT, LAYER_RED_SQUARES,
                                {},

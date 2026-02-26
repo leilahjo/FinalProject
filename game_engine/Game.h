@@ -31,10 +31,10 @@ namespace Game
         Archetype* animatedSquareArchetype;
 
         AnimationId simpleAnimationId;
-        AnimationId playerAnimationId;
+        AnimationId playerRunAnimationId;
 
         SpriteId rockSpriteId;
-        SpriteId playerSpriteSheetId;
+        SpriteId playerRunSpriteSheetId;
 
         CollisionSystem collisionSystem;
         AnimationSystem animationSystem;

@@ -25,8 +25,8 @@ namespace GameEngine
         AnimationPlaybackMode playbackMode;
         float defaultDurationS;
 
-        uint16_t startFrameIndex;
-        uint16_t frameCount;
+        const uint16_t startFrameIndex;
+        const uint16_t frameCount;
         uint16_t getCurrentFrameIndex(float progress);
     };
 
