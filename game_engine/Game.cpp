@@ -22,7 +22,7 @@ namespace Game
         collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
 
         simpleAnimationId = animationSystem.createAnimation(STOP_AT_END, 1);
-        playerAnimationId = animationSystem.createAnimation(LOOP, 1, 6 * 2, 6);
+        playerAnimationId = animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
 
         rockSpriteId = spriteManager.createSprite("assets/rock.png", 1, 1, 0);
         playerSpriteSheetId = spriteManager.createSprite("assets/player_run.png", 6, 4, 0);
