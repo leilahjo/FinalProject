@@ -17,6 +17,7 @@ namespace Game
 
         EntityId playerId;
 
+        // Doesn't need to be here.
         Archetype* borderArchetype;
         Archetype* rockArchetype;
         Archetype* animatedSquareArchetype;

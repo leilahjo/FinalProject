@@ -23,7 +23,7 @@ namespace Rendering
                       });
 
         DrawText(TextFormat("FPS %f\nJitter: %lld us\nWork: %lld us\nDraw: %lld us", frameData.fps, frameData.jitterUs,
-                            frameData.workDurationUs, drawDurationUs), 0, 0, 16, ::GRAY);
+                            frameData.workDurationUs, drawDurationUs), 0, 0, 36, ::GRAY);
 
         EndDrawing();
     }

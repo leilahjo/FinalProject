@@ -23,6 +23,7 @@ namespace EngineRuntime
         initializeTiming(TARGET_FPS);
 
         uint64_t drawDurationUs = 0;
+        uint64_t lastDrawDurationUs = 0;
         while (!WindowShouldClose())
         {
             frameData = frameSync();
@@ -38,8 +39,10 @@ namespace EngineRuntime
             world.cleanup();
 
             auto drawStart = clock::now();
-            renderer.draw(frameData, world, drawDurationUs);
+            renderer.draw(frameData, world, lastDrawDurationUs);
             auto drawEnd = clock::now();
+
+            lastDrawDurationUs = drawDurationUs;
             drawDurationUs =
                 std::chrono::duration_cast<std::chrono::microseconds>(drawEnd - drawStart).count();
 
@@ -49,7 +52,7 @@ namespace EngineRuntime
                     << "FPS " << frameData.fps
                     << " | jitter: " << frameData.jitterUs << " us"
                     << " | work: " << frameData.workDurationUs << " us"
-                    << " | draw: " << drawDurationUs << " us\n";
+                    << " | draw: " << lastDrawDurationUs << " us\n";
             }
         }
 
