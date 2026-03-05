@@ -120,7 +120,7 @@ namespace Game
 
         if (runtime.inputManager.keySpace)
         {
-            for (int i = 1; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
                 world.createEntity(animatedSquareArchetype,
                                    player.x(), player.y(),

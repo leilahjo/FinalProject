@@ -13,7 +13,7 @@
 
 namespace EngineRuntime
 {
-    static constexpr uint64_t TARGET_FPS = 60;
+    static constexpr uint64_t TARGET_FPS = 120;
     static constexpr float FRAME_DT = 1.0 / TARGET_FPS;
 
     using namespace EngineCore;

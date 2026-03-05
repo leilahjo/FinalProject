@@ -6,6 +6,7 @@
 #define GAME_ENGINE_PLAYERSHIP_H
 
 #include "engine_core/EngineCore.h"
+#include "engine_runtime/Runtime.h"
 
 namespace Game
 {
@@ -19,7 +20,7 @@ namespace Game
         static constexpr float PLAYER_MAX_SPEED = 1.0f;
         static constexpr float LASER_SPEED = 4.0f;
 
-        static constexpr uint64_t LASER_SHOOT_COOLDOWN_FRAMES = 60 / 20; // 20 shots per second at 60 fps
+        static constexpr uint64_t LASER_SHOOT_COOLDOWN_FRAMES = EngineRuntime::TARGET_FPS / 20; // 20 shots per second at N fps
 
         Archetype* playerArchetype;
         Archetype* laserArchetype;

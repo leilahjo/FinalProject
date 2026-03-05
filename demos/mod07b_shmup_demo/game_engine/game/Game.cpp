@@ -79,12 +79,13 @@ namespace Game
 
     void Game::explode(Entity entity, World& world)
     {
+        //Spawn 100 particles
         for (int i = 0; i < 100; i++)
         {
             float x = entity.x();
             float y = entity.y();
-            float width = 0.01f;
-            float height = 0.01f;
+            float width = 0.1f;
+            float height = 0.1f;
             float speed = randomFloat(0.1, 0.5);
             float angle = randomFloat(0, 2 * PI);
             float vx = cos(angle) * speed;
