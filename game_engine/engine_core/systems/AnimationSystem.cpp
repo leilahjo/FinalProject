@@ -41,6 +41,8 @@ namespace EngineCore
 
     Animation* AnimationSystem::getAnimation(AnimationId animationId)
     {
+        if (animationId >= animations.size())
+            return nullptr;
         return &animations[animationId];
     }
 
