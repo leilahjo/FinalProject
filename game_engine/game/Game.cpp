@@ -16,10 +16,10 @@ namespace Game
 
     void Game::onStart(World& world)
     {
-        world.collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_ROCK, true);
-        world.collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_BLUE_SQUARES, true);
-        world.collisionSystem.enableCollisions(LAYER_ROCK, LAYER_ROCK, true);
-        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCK, true);
+        world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ROCKS, true);
+        world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ANIMATED_SQUARES, true);
+        world.collisionSystem.enableCollisions(LAYER_ROCKS, LAYER_ROCKS, true);
+        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCKS, true);
 
         runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 0;
         runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 1;
@@ -106,7 +106,7 @@ namespace Game
                                0.1 * 128 / 92, 0.1,
                                red,
                                Entity::STATE_DEFAULT,
-                               ColliderShape::RECT, LAYER_ROCK,
+                               ColliderShape::RECT, LAYER_ROCKS,
                                {},
                                rockSpriteId,
                                ENTITY_TYPE_ROCK);
@@ -140,7 +140,7 @@ namespace Game
                                    0.025, 0.025,
                                    blue,
                                    Entity::STATE_DEFAULT,
-                                   ColliderShape::RECT, LAYER_BLUE_SQUARES,
+                                   ColliderShape::RECT, LAYER_ANIMATED_SQUARES,
                                    {},
                                    INVALID_SPRITE_ID,
                                    ENTITY_TYPE_ANIMATED_SQUARE);
@@ -196,11 +196,11 @@ namespace Game
             auto entityB = world.findEntity(collision.b).value();
 
             // This is a bit of a hack, because we don't have a better way to identify types of entities (yet).
-            if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_ROCK)
+            if (entityA.colliderLayerId() == LAYER_ANIMATED_SQUARES && entityB.colliderLayerId() == LAYER_ROCKS)
                 entityA.state() |= Entity::STATE_DESTROYED;
-            if (entityA.colliderLayerId() == LAYER_ROCK && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
+            if (entityA.colliderLayerId() == LAYER_ROCKS && entityB.colliderLayerId() == LAYER_ANIMATED_SQUARES)
                 entityB.state() |= Entity::STATE_DESTROYED;
-            if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
+            if (entityA.colliderLayerId() == LAYER_ANIMATED_SQUARES && entityB.colliderLayerId() == LAYER_ANIMATED_SQUARES)
             {
                 AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
                 AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);

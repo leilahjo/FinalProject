@@ -28,7 +28,7 @@ namespace Rendering
         float viewPointX = 0, viewPointY = 0;
 
         std::unordered_map<EntityTypeId, uint8_t> typeToRenderLayer;
-        RenderPreference typelessRenderPreference = RenderPreference::RENDER_LAST;
+        RenderPreference typelessRenderPreference = RenderPreference::RENDER_FIRST;
 
         void draw(FrameData& frameData, World& world, uint64_t drawDurationUs);
 

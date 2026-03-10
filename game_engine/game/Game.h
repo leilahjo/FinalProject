@@ -47,8 +47,8 @@ namespace Game
         {
             LAYER_NONE,
             LAYER_PLAYER,
-            LAYER_ROCK,
-            LAYER_BLUE_SQUARES
+            LAYER_ROCKS,
+            LAYER_ANIMATED_SQUARES,
         };
     };
 }
