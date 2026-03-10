@@ -58,6 +58,8 @@ namespace EngineCore
 
     using SpriteId = uint32_t;
     static constexpr SpriteId INVALID_SPRITE_ID = -1; //0xFFFFFFFF
+
+    using EntityTypeId = uint16_t;
 }
 
 #endif //ENGINE_CORE_ECSTYPES_H

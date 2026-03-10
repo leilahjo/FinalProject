@@ -20,7 +20,8 @@ namespace EngineCore
         Entity::State state,
         ColliderShape collisionShape, ColliderLayerId collisionLayerId,
         AnimationData animationData,
-        SpriteId spriteId)
+        SpriteId spriteId,
+        EntityTypeId entityType)
     {
         this->entityId.push_back(entityId);
 
@@ -66,6 +67,11 @@ namespace EngineCore
         if (componentMask & COMP_SPRITE)
         {
             this->spriteId.push_back(spriteId);
+        }
+
+        if (componentMask & COMP_TYPE)
+        {
+            this->entityType.push_back(entityType);
         }
 
         return n++;
@@ -138,6 +144,12 @@ namespace EngineCore
         {
             spriteId[entityIndex] = spriteId[lastIndex];
             spriteId.pop_back();
+        }
+
+        if (componentMask & COMP_TYPE)
+        {
+            entityType[entityIndex] = entityType[lastIndex];
+            entityType.pop_back();
         }
 
         n--;

@@ -20,7 +20,7 @@ namespace Rendering
         rowHeight = static_cast<uint32_t>(texture2D.height) / rowCt;
     }
 
-    Rectangle Sprite::GetSourceRect(uint16_t frameIndex)
+    Rectangle Sprite::getSourceRect(uint16_t frameIndex)
     {
         const uint16_t col = static_cast<uint16_t>(frameIndex % colCt);
         const uint16_t row = static_cast<uint16_t>(frameIndex / colCt);
@@ -33,7 +33,7 @@ namespace Rendering
         };
     }
 
-    Rectangle Sprite::GetSourceRect()
+    Rectangle Sprite::getSourceRect()
     {
         return Rectangle{
             static_cast<float>(crop),

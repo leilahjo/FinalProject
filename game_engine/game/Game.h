@@ -17,7 +17,6 @@ namespace Game
 
         EntityId playerId;
 
-        // Doesn't need to be here.
         Archetype* borderArchetype;
         Archetype* rockArchetype;
         Archetype* animatedSquareArchetype;
@@ -36,11 +35,19 @@ namespace Game
         void onUpdatePostCollisionResolution(World& world, std::vector<Collision>& vector) override;
         int run();
 
+        enum EntityType : EntityTypeId
+        {
+            ENTITY_TYPE_NONE,
+            ENTITY_TYPE_PLAYER,
+            ENTITY_TYPE_ROCK,
+            ENTITY_TYPE_ANIMATED_SQUARE,
+        };
+
         enum Layers : ColliderLayerId
         {
             LAYER_NONE,
             LAYER_PLAYER,
-            LAYER_RED_SQUARES,
+            LAYER_ROCK,
             LAYER_BLUE_SQUARES
         };
     };

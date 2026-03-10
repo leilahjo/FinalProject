@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(game_engine)
 
 include(FetchContent)
+set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
         raylib
         GIT_REPOSITORY https://github.com/raysan5/raylib.git

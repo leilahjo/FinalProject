@@ -12,15 +12,38 @@ namespace Rendering
     void Renderer::draw(FrameData& frameData, World& world, uint64_t drawDurationUs)
     {
         BeginDrawing();
-        // TODO Parameterize
-        ClearBackground(::RAYWHITE);
+        ClearBackground(std::bit_cast<::Color>(world.backgroundColor));
 
-        // TODO type -> render layer map
+        std::vector<Entity> renderLayers[256];
+        std::vector<Entity> unlayeredEntities;
         world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE,
                       [&](Entity entity)
                       {
-                          drawEntity(entity, world);
+                          if (!entity.hasEntityType())
+                          {
+                              unlayeredEntities.push_back(entity);
+                              return;
+                          }
+
+                          auto it = typeToRenderLayer.find(entity.entityTypeId());
+                          if (it == typeToRenderLayer.end())
+                          {
+                              unlayeredEntities.push_back(entity);
+                              return;
+                          }
+
+                          renderLayers[it->second].push_back(entity);
                       });
+
+        if (typelessRenderPreference == RenderPreference::RENDER_FIRST)
+            for (auto& entity : unlayeredEntities)
+                drawEntity(entity, world);
+        for (auto& renderLayer : renderLayers)
+            for (auto& entity : renderLayer)
+                drawEntity(entity, world);
+        if (typelessRenderPreference == RenderPreference::RENDER_LAST)
+            for (auto& entity : unlayeredEntities)
+                drawEntity(entity, world);
 
         DrawText(TextFormat("FPS %f\nJitter: %lld us\nWork: %lld us\nDraw: %lld us", frameData.fps, frameData.jitterUs,
                             frameData.workDurationUs, drawDurationUs), 0, 0, 36, ::GRAY);
@@ -57,9 +80,9 @@ namespace Rendering
         {
             Rectangle srcRect;
             if (animation)
-                srcRect = sprite->GetSourceRect(animation->getCurrentFrameIndex(entity.animation().progress));
+                srcRect = sprite->getSourceRect(animation->getCurrentFrameIndex(entity.animation().progress));
             else
-                srcRect = sprite->GetSourceRect();
+                srcRect = sprite->getSourceRect();
             DrawTexturePro(sprite->texture2D, srcRect, Rectangle{
                                static_cast<float>(objXPx - objWidthPx / 2),
                                static_cast<float>(objYPx - objHeightPx / 2),

@@ -16,10 +16,14 @@ namespace Game
 
     void Game::onStart(World& world)
     {
-        world.collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_RED_SQUARES, true);
+        world.collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_ROCK, true);
         world.collisionSystem.enableCollisions(LAYER_BLUE_SQUARES, LAYER_BLUE_SQUARES, true);
-        world.collisionSystem.enableCollisions(LAYER_RED_SQUARES, LAYER_RED_SQUARES, true);
-        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_RED_SQUARES, true);
+        world.collisionSystem.enableCollisions(LAYER_ROCK, LAYER_ROCK, true);
+        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCK, true);
+
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 0;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 1;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 2;
 
         simpleAnimationId = world.animationSystem.createAnimation(STOP_AT_END, 1);
         playerRunAnimationId = world.animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
@@ -39,14 +43,16 @@ namespace Game
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
             | Archetype::COMP_ANIMATION
-            | Archetype::COMP_SPRITE);
+            | Archetype::COMP_SPRITE
+            | Archetype::COMP_TYPE);
         rockArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
             | Archetype::COMP_SIZE
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
-            | Archetype::COMP_SPRITE);
+            | Archetype::COMP_SPRITE
+            | Archetype::COMP_TYPE);
         animatedSquareArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
@@ -54,7 +60,8 @@ namespace Game
             | Archetype::COMP_COLOR
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
-            | Archetype::COMP_ANIMATION);
+            | Archetype::COMP_ANIMATION
+            | Archetype::COMP_TYPE);
 
         playerId = world.createEntity(playerArchetype,
                                       0, 0,
@@ -64,7 +71,8 @@ namespace Game
                                       Entity::STATE_DEFAULT,
                                       ColliderShape::RECT, LAYER_PLAYER,
                                       {},
-                                      playerRunSpriteSheetId);
+                                      playerRunSpriteSheetId,
+                                      ENTITY_TYPE_PLAYER);
 
 
         AnimationSystem::startAnimation(world, playerId, playerRunAnimationId);
@@ -78,7 +86,8 @@ namespace Game
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
                            {},
-                           INVALID_SPRITE_ID);
+                           INVALID_SPRITE_ID,
+                           ENTITY_TYPE_NONE);
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
@@ -87,7 +96,8 @@ namespace Game
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
                            {},
-                           INVALID_SPRITE_ID);
+                           INVALID_SPRITE_ID,
+                           ENTITY_TYPE_NONE);
 
         for (int i = 1; i < 10; i++)
             world.createEntity(rockArchetype,
@@ -96,9 +106,10 @@ namespace Game
                                0.1 * 128 / 92, 0.1,
                                red,
                                Entity::STATE_DEFAULT,
-                               ColliderShape::RECT, LAYER_RED_SQUARES,
+                               ColliderShape::RECT, LAYER_ROCK,
                                {},
-                               rockSpriteId);
+                               rockSpriteId,
+                               ENTITY_TYPE_ROCK);
     }
 
     void Game::onUpdateBegin(World& world)
@@ -120,7 +131,7 @@ namespace Game
 
         if (runtime.inputManager.keySpace)
         {
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 10; i++)
             {
                 world.createEntity(animatedSquareArchetype,
                                    player.x(), player.y(),
@@ -131,7 +142,8 @@ namespace Game
                                    Entity::STATE_DEFAULT,
                                    ColliderShape::RECT, LAYER_BLUE_SQUARES,
                                    {},
-                                   INVALID_SPRITE_ID);
+                                   INVALID_SPRITE_ID,
+                                   ENTITY_TYPE_ANIMATED_SQUARE);
             }
         }
 
@@ -184,9 +196,9 @@ namespace Game
             auto entityB = world.findEntity(collision.b).value();
 
             // This is a bit of a hack, because we don't have a better way to identify types of entities (yet).
-            if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_RED_SQUARES)
+            if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_ROCK)
                 entityA.state() |= Entity::STATE_DESTROYED;
-            if (entityA.colliderLayerId() == LAYER_RED_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
+            if (entityA.colliderLayerId() == LAYER_ROCK && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
                 entityB.state() |= Entity::STATE_DESTROYED;
             if (entityA.colliderLayerId() == LAYER_BLUE_SQUARES && entityB.colliderLayerId() == LAYER_BLUE_SQUARES)
             {

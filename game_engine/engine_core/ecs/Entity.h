@@ -54,6 +54,8 @@ namespace EngineCore
 
         SpriteId& spriteId();
 
+        EntityTypeId& entityTypeId();
+
         float left();
         float right();
         float top();
@@ -64,6 +66,7 @@ namespace EngineCore
         bool hasAnimation();
         bool hasSprite();
         bool hasColor();
+        bool hasEntityType();
     };
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs);

@@ -26,6 +26,8 @@ namespace EngineCore
 
         const float frameDt;
 
+        GameColor backgroundColor = rayWhite;
+
         CollisionSystem collisionSystem;
         AnimationSystem animationSystem;
         KinematicsSystem kinematicsSystem;
@@ -42,7 +44,9 @@ namespace EngineCore
                               Entity::State state,
                               ColliderShape colliderShape, ColliderLayerId colliderLayerId,
                               AnimationData animationData,
-                              SpriteId spriteId);
+                              SpriteId spriteId,
+                              EntityTypeId entityType);
+
         bool removeEntity(EntityId entityId);
 
         std::optional<Entity> findEntity(EntityId entityId);

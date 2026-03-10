@@ -16,6 +16,7 @@ namespace EngineCore
     GameColor& Entity::color() { return entityLocation.archetype->color[entityLocation.entityIndex]; }
     Entity::State& Entity::state() { return entityLocation.archetype->state[entityLocation.entityIndex]; }
     EntityId& Entity::id() { return entityLocation.archetype->entityId[entityLocation.entityIndex]; }
+    EntityTypeId& Entity::entityTypeId() { return entityLocation.archetype->entityType[entityLocation.entityIndex]; }
     ColliderShape& Entity::colliderShape() { return entityLocation.archetype->colliderShape[entityLocation.entityIndex]; }
     ColliderLayerId& Entity::colliderLayerId() { return entityLocation.archetype->colliderLayerId[entityLocation.entityIndex]; }
     AnimationData& Entity::animation() { return entityLocation.archetype->animationData[entityLocation.entityIndex]; }
@@ -29,6 +30,7 @@ namespace EngineCore
     bool Entity::hasAnimation() { return entityLocation.archetype->hasAnimation(); }
     bool Entity::hasSprite() { return entityLocation.archetype->hasSprite(); }
     bool Entity::hasColor() { return entityLocation.archetype->hasColor(); }
+    bool Entity::hasEntityType() { return entityLocation.archetype->hasEntityType(); }
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs)
     {
