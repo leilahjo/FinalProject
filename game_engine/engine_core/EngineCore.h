@@ -16,5 +16,6 @@
 #include "util/Random.h"
 #include "World.h"
 #include "FrameData.h"
+#include "memory_management/ArenaAllocator.h"
 
 #endif //GAME_ENGINE_ENGINECORE_H

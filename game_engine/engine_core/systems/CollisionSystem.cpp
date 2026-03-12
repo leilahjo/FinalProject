@@ -6,6 +6,7 @@
 
 #include "CollisionSystem.h"
 #include "../World.h"
+#include "engine_core/memory_management/ArenaAllocator.h"
 
 namespace EngineCore
 {
@@ -15,9 +16,10 @@ namespace EngineCore
         permittedLayerCollisions[b][a] = enabled;
     }
 
-    std::vector<Collision> CollisionSystem::detect(World& world)
+    Collision* CollisionSystem::detect(World& world, size_t& collisionCount, ArenaAllocator& allocator)
     {
-        std::vector<Collision> collisions;
+        collisionCount = 0;
+        Collision* collisions = nullptr;
 
         // Array of layers, where every array is a vector of entities
         std::vector<Entity> colliderEntities[MAX_COLLISION_LAYER_COUNT];
@@ -61,7 +63,13 @@ namespace EngineCore
                             continue;
                         }
 
-                        collisions.push_back(Collision{entityA.id(), entityB.id()});
+                        auto newCollisionPtr = allocator.allocate<Collision>(1);
+                        if (newCollisionPtr == nullptr)
+                            return collisions;
+                        *newCollisionPtr = Collision{entityA.id(), entityB.id()};;
+                        collisionCount++;
+                        if (collisions == nullptr)
+                            collisions = newCollisionPtr;
                     }
                 }
             }
@@ -70,10 +78,12 @@ namespace EngineCore
         return collisions;
     }
 
-    void CollisionSystem::resolve(World& world, std::vector<Collision>& collisions)
+    void CollisionSystem::resolve(World& world, Collision collisions[], size_t collisionCount)
     {
-        for (auto& collision : collisions)
+        for (size_t i = 0; i < collisionCount; i++)
         {
+            Collision collision = collisions[i];
+
             auto optA = world.findEntity(collision.a);
             auto optB = world.findEntity(collision.b);
             if (!optA || !optB)

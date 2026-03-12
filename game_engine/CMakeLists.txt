@@ -85,6 +85,7 @@ add_library(engine_core STATIC
         engine_core/World.cpp
         engine_core/World.h
         engine_core/FrameData.h
+        engine_core/memory_management/ArenaAllocator.h
 )
 target_include_directories(engine_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 

@@ -16,8 +16,8 @@ namespace EngineRuntime
         virtual void onStart(World& world) = 0;
         virtual void onUpdateBegin(World& world) = 0;
         virtual void onUpdatePostKinematics(World& world) = 0;
-        virtual void onUpdatePostCollisionDetection(World& world, std::vector<Collision>& collisions) = 0;
-        virtual void onUpdatePostCollisionResolution(World& world, std::vector<Collision>& collisions) = 0;
+        virtual void onUpdatePostCollisionDetection(World& world, Collision collisions[], size_t collisionCount) = 0;
+        virtual void onUpdatePostCollisionResolution(World& world, Collision collisions[], size_t collisionCount) = 0;
 
         virtual ~IGame() = default;
     };

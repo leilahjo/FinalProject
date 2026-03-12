@@ -4,9 +4,9 @@
 
 #ifndef ENGINE_CORE_COLLISIONSYSTEM_H
 #define ENGINE_CORE_COLLISIONSYSTEM_H
-#include <vector>
 
 #include "../ecs/ECSTypes.h"
+#include "engine_core/memory_management/ArenaAllocator.h"
 
 namespace EngineCore
 {
@@ -25,8 +25,8 @@ namespace EngineCore
 
         void enableCollisions(ColliderLayerId a, ColliderLayerId b, bool enabled);
 
-        std::vector<Collision> detect(World& world);
-        void resolve(World& world, std::vector<Collision>& collisions);
+        Collision* detect(World& world, size_t& collisionCount, ArenaAllocator& allocator);
+        void resolve(World& world, Collision collisions[], size_t collisionCount);
 
     private:
         static void separate(Entity& a, Entity& b);

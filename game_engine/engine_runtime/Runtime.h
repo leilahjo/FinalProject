@@ -25,6 +25,7 @@ namespace EngineRuntime
         World world = World(FRAME_DT);
         Renderer renderer;
         InputManager inputManager;
+        ArenaAllocator frameAllocator = ArenaAllocator(100 * 1024 * 1024); // 100 MB.
 
         FrameData frameData = {};
 

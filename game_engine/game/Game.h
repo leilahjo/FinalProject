@@ -31,8 +31,9 @@ namespace Game
         void onStart(World& world) override;
         void onUpdateBegin(World& world) override;
         void onUpdatePostKinematics(World& world) override;
-        void onUpdatePostCollisionDetection(World& world, std::vector<Collision>& collisions) override;
-        void onUpdatePostCollisionResolution(World& world, std::vector<Collision>& vector) override;
+        void onUpdatePostCollisionDetection(World& world, Collision collisions[], size_t collisionCount) override;
+        void onUpdatePostCollisionResolution(World& world, Collision collisions[], size_t collisionCount) override;
+
         int run();
 
         enum EntityType : EntityTypeId

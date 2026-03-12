@@ -30,16 +30,19 @@ namespace EngineRuntime
             game.onUpdateBegin(world);
             world.kinematicsSystem.update(world);
             game.onUpdatePostKinematics(world);
-            auto collisions = world.collisionSystem.detect(world);
-            game.onUpdatePostCollisionDetection(world, collisions);
-            world.collisionSystem.resolve(world, collisions);
-            game.onUpdatePostCollisionResolution(world, collisions);
+            size_t collisionCount = 0;
+            auto collisions = world.collisionSystem.detect(world, collisionCount, frameAllocator);
+            game.onUpdatePostCollisionDetection(world, collisions, collisionCount);
+            world.collisionSystem.resolve(world, collisions, collisionCount);
+            game.onUpdatePostCollisionResolution(world, collisions, collisionCount);
             world.animationSystem.update(world);
             world.cleanup();
 
             auto drawStart = clock::now();
             renderer.draw(frameData, world, lastFrameDrawDurationUs);
             auto drawEnd = clock::now();
+
+            frameAllocator.resetFully();
 
             if (frameData.workDurationUs > 16'666)
             {

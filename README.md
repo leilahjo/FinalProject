@@ -1,60 +1,54 @@
-# Game Engine Programming Project Proposal
+# Homework Instructions
 
-Write the proposal for your project that adheres to the [guidelines in the syllabus](https://docs.google.com/spreadsheets/d/16_N4rq2cUvFVjczFWrn0veSouctNHb8Fo4ANjF5FmC8/edit?usp=sharing). 
+1. Add intra-layer ordering to `Renderer` by sorting by y coordinate. Within a layer (including the "unlayered" entities vector), entities with lower world-space y should be drawn later than entities with higher world-space y. It may be prudent to temporarily disable rock-on-rock collisions to make testing this easier, and give them a very low initial velocity limited to `0.01`. Make the intra-layer ordering configurable by having a `bool useIntraLayerOrdering[]` in `Renderer`, one boolean per layer, and a final `bool` for unlayered entities.
 
-### Grading
-As stated in the syllabus, your proposal is worth 10% of your project grade.
+2. In class we replaced all `std::vector<Collision>` usages with `Collision*` and `size_t collisionCount`. We did this so we could use the `ArenaAllocator` thereby avoiding all heap allocation for collision processing. This works well from a performance perspective but it's inconvenient and error-prone. And we can make it even faster (see extra credit)!
 
-### Guidance
+    Define a `ScratchBuffer<T>` that wraps a pointer which is allocated by an `ArenaAllocator` passed in to its constructor. Minimally, you should implement all of the signatures below. Do this in `engine_core/memory_management/ScratchBuffer.h`.
 
-Remember that you have some flexibility in whether to focus on the Game or the Engine, but you must have at least 5 complexity points for both and a total of 20. You may fork the class game (the shmup), but to get any game points you must change or improve it.
+    ```
+    template<typename T>
+    struct ScratchBuffer {
+        // ScratchBuffer requires exclusive control of the allocator while elements are being appended.
+        ScratchBuffer(std::unique_ptr<ArenaAllocator> allocator);
 
-**Engine Tasks**
+        // Returns true if there was sufficient space left in the allocator to append the desired element, otherwise false.
+        bool append(const T& value);
 
-To assist with task engine task selection and scoring, see this [table of canditate engine tasks](https://docs.google.com/spreadsheets/d/16_N4rq2cUvFVjczFWrn0veSouctNHb8Fo4ANjF5FmC8/edit?usp=sharing). The table may include tasks that your classmates have proposed, and those are fair game.
+        T& operator[](size_t i);
+        const T& operator[](size_t i) const;
 
-***Important:*** If you are planning an engine task that is not in the table above, you must ask about it in the [#project-questions](https://discord.com/channels/1461480080130703628/1461485336306909326) channel on Discord. Within 48 hours, the instructor will
-- approve the task and assign a point value or
-- suggest changes and assign a point value or
-- reject the task
+        size_t size() const;
 
-**Game Tasks** 
+        // When elements are no longer being added, relinquish control of the allocator.
+        std::unique_ptr<ArenaAllocator> relinquishAllocator();
+    private:
+        // ...
+    };
+    ```
 
-Game task are more open ended. Estimate game task complexity by taking the number of hours you think it will take to implement and dividing it by 2. The instructor will adjust your estimates when providing feedback. This adjustment is for normalization to ensure fairness when grading. It does not mean your estimate was "wrong" (although software estimates usually *are* wrong).
+    Some guidance:
+    - The general usage pattern for this scratch buffer should be
+        1. Instantiate a scratch buffer which holds exclusive control over the underlying allocator while being used for appending items.
+        2. Append a bunch of items to it.
+        3. Relinquish control of the underlying allocator.
+        4. Use the `ScratchBuffer` for **reads only** from now on.
+    - Do not worry about C++ container semantics (Copy constructors, copy assignment operators, etc.), you can assume T is trivially copyable.
 
-It's a good idea to list more points than you need for this so that if your points are adjusted down you don't receive a grade for insufficient complexity. You don't have to implement everything you propose here!
 
-***Your proposal must follow this format:***
+3. Replace all of the `Collision*` and `size_t collisionCount` pairs that we pass around with `ScratchBuffer<Collision>` instead.
 
-# [Project Title]
-*[student name]*
+    **Don't forget:** the point of using the arena allocator is to avoid heap allocations. Make sure you don't introduce new heap allocations (however small) as part of this assignment. Your solution should not call `new`, `delete`, or create any new `std::vector` growth in the collision-processing path.
 
-## Description
+### Code Style
 
-*Write a few paragraphs describing the project. You should explain the rules of the game, its inputs, etc. You should also describe, at a high level, the enhancements you plan to make to the engine.*
+Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bGHQSDmEYUMFrJsHvl4FQDzDaK-1RiZd-cGi014s/edit?usp=sharingODO) when writing your code.
 
-## Game Tasks
-*Complexity Point Subtotal: [N]*
+## User Guide
 
-#### Task 1 - [N] Complexity Points
+*Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should write at least 1 paragraph describing your approach to the problem. Also include any inputs you've added or modified as part of the assignment, and exactly what they do.*
 
-*A short description of the task.*
+## Extra Credit
+*Worth up to 5% of the assignment point total. Can also be counted as 0.5 points toward the project "complexity score" if used in an appropriate way for your game.*
 
-*An explanation as to how this task fits into your project as a whole.*
-
-#### Task 2 - [N] Complexity Points
-
-*etc.*
-
-## Engine Tasks
-*Complexity Point Subtotal: [N]*
-
-#### Task 1 - [N] Complexity Points
-
-*A short description of the task.*
-
-*An explanation as to how this task fits into your project as a whole.*
-
-#### Task 2 - [N] Complexity Points
-
-*etc.*
+You *can* still emulate the behavior of `vector` that doubles the "capacity" of the `ScratchBuffer` when `append` exceeds the current capacity. Write a paragraph explaining why we might want to and why it can be done without moving any data (unlike vector's implementation). Then do it. Be sure to handle allocator size limits correctly here.

@@ -188,10 +188,12 @@ namespace Game
     {
     }
 
-    void Game::onUpdatePostCollisionDetection(World& world, std::vector<Collision>& collisions)
+    void Game::onUpdatePostCollisionDetection(World& world, Collision collisions[], size_t collisionCount)
     {
-        for (auto& collision : collisions)
+        for (size_t i = 0; i < collisionCount; i++)
         {
+            Collision collision = collisions[i];
+
             auto entityA = world.findEntity(collision.a).value();
             auto entityB = world.findEntity(collision.b).value();
 
@@ -208,7 +210,7 @@ namespace Game
         }
     }
 
-    void Game::onUpdatePostCollisionResolution(World& world, std::vector<Collision>& collisions)
+    void Game::onUpdatePostCollisionResolution(World& world, Collision collisions[], size_t collisionCount)
     {
         world.forEach(Archetype::COMP_ANIMATION | Archetype::COMP_COLOR,
                       [](Entity entity)
