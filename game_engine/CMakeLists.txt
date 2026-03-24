@@ -53,6 +53,20 @@ target_include_directories(rendering PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_S
 target_include_directories(rendering PRIVATE ${RAYLIB_ROOT}/src)
 
 # ==========================================
+# Audio
+# ==========================================
+add_library(audio STATIC
+        audio/AudioManager.cpp
+        audio/AudioManager.h
+        audio/Audio.h
+        audio/SoundEffect.cpp
+        audio/SoundEffect.h
+        audio/AudioTypes.h
+)
+target_include_directories(audio PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories(audio PRIVATE ${RAYLIB_ROOT}/src)
+
+# ==========================================
 # Input
 # ==========================================
 add_library(input STATIC
@@ -93,6 +107,7 @@ target_link_libraries(game_engine PRIVATE engine_runtime)
 
 target_link_libraries(engine_runtime PUBLIC engine_core)
 target_link_libraries(engine_runtime PUBLIC rendering)
+target_link_libraries(engine_runtime PUBLIC audio)
 target_link_libraries(engine_runtime PUBLIC input)
 target_link_libraries(engine_runtime PRIVATE raylib)
 target_include_directories(engine_runtime PRIVATE ${RAYLIB_ROOT}/src)
@@ -100,6 +115,8 @@ target_include_directories(engine_runtime PRIVATE ${RAYLIB_ROOT}/src)
 target_link_libraries(rendering PUBLIC engine_core)
 target_link_libraries(rendering PUBLIC raylib)
 target_include_directories(rendering PRIVATE ${RAYLIB_ROOT}/src)
+
+target_link_libraries(audio PRIVATE raylib)
 
 target_link_libraries(input PRIVATE raylib)
 

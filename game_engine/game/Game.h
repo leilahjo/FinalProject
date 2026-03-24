@@ -28,6 +28,8 @@ namespace Game
         AnimationId simpleAnimationId;
         AnimationId playerRunAnimationId;
 
+        SoundId dootSoundId;
+
         void onStart(World& world) override;
         void onUpdateBegin(World& world) override;
         void onUpdatePostKinematics(World& world) override;

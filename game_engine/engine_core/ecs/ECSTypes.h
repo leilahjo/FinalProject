@@ -60,6 +60,8 @@ namespace EngineCore
     static constexpr SpriteId INVALID_SPRITE_ID = -1; //0xFFFFFFFF
 
     using EntityTypeId = uint16_t;
+
+    using SoundId = uint32_t;
 }
 
 #endif //ENGINE_CORE_ECSTYPES_H

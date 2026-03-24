@@ -5,7 +5,6 @@
 #include "Game.h"
 
 #include <cmath>
-#include "../engine_core/util/Random.h"
 
 namespace Game
 {
@@ -30,6 +29,8 @@ namespace Game
 
         rockSpriteId = runtime.renderer.spriteManager.createSprite("assets/rock.png", 1, 1, 0);
         playerRunSpriteSheetId = runtime.renderer.spriteManager.createSprite("assets/player_run.png", 6, 4, 5);
+
+        dootSoundId = runtime.audioManager.loadAudioAsset("assets/doot.wav", 10, Audio::REPLACE);
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
@@ -131,7 +132,7 @@ namespace Game
 
         if (runtime.inputManager.keySpace)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
                 world.createEntity(animatedSquareArchetype,
                                    player.x(), player.y(),
@@ -197,15 +198,19 @@ namespace Game
             auto entityA = world.findEntity(collision.a).value();
             auto entityB = world.findEntity(collision.b).value();
 
-            // This is a bit of a hack, because we don't have a better way to identify types of entities (yet).
-            if (entityA.colliderLayerId() == LAYER_ANIMATED_SQUARES && entityB.colliderLayerId() == LAYER_ROCKS)
+            if (!entityA.hasEntityType() || !entityB.hasEntityType())
+                continue;
+
+            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ROCK)
                 entityA.state() |= Entity::STATE_DESTROYED;
-            if (entityA.colliderLayerId() == LAYER_ROCKS && entityB.colliderLayerId() == LAYER_ANIMATED_SQUARES)
+            if (entityA.entityTypeId() == ENTITY_TYPE_ROCK && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
                 entityB.state() |= Entity::STATE_DESTROYED;
-            if (entityA.colliderLayerId() == LAYER_ANIMATED_SQUARES && entityB.colliderLayerId() == LAYER_ANIMATED_SQUARES)
+            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
             {
                 AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
                 AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);
+
+                runtime.audioManager.playOneshot(dootSoundId);
             }
         }
     }

@@ -9,6 +9,7 @@
 #include "rendering/Rendering.h"
 
 #include "IGame.h"
+#include "audio/AudioManager.h"
 #include "input/InputManager.h"
 
 namespace EngineRuntime
@@ -24,6 +25,7 @@ namespace EngineRuntime
     {
         World world = World(FRAME_DT);
         Renderer renderer;
+        Audio::AudioManager audioManager;
         InputManager inputManager;
         ArenaAllocator frameAllocator = ArenaAllocator(100 * 1024 * 1024); // 100 MB.
 
