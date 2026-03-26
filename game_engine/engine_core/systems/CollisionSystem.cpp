@@ -66,7 +66,7 @@ namespace EngineCore
                         auto newCollisionPtr = allocator.allocate<Collision>(1);
                         if (newCollisionPtr == nullptr)
                             return collisions;
-                        *newCollisionPtr = Collision{entityA.id(), entityB.id()};;
+                        *newCollisionPtr = Collision{entityA.id(), entityB.id()};
                         collisionCount++;
                         if (collisions == nullptr)
                             collisions = newCollisionPtr;

@@ -56,12 +56,22 @@ namespace EngineCore
         EntityLocation location;
     };
 
-    using SpriteId = uint32_t;
-    static constexpr SpriteId INVALID_SPRITE_ID = -1; //0xFFFFFFFF
+    struct SpriteId
+    {
+        uint16_t index;
+        uint32_t generation;
+    };
+    static constexpr SpriteId INVALID_SPRITE_ID = {static_cast<uint16_t>(-1), static_cast<uint16_t>(-1)};
 
     using EntityTypeId = uint16_t;
 
-    using SoundId = uint32_t;
+    struct SoundId
+    {
+        uint16_t index;
+        uint32_t generation;
+    };
+
+    static constexpr SoundId INVALID_SOUND_ID = {static_cast<uint16_t>(-1), static_cast<uint16_t>(-1)};
 }
 
 #endif //ENGINE_CORE_ECSTYPES_H

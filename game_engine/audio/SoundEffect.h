@@ -19,12 +19,24 @@ namespace Audio
         SoundEffect() = default;
 
         void load(const std::string& path, uint8_t maxVoices, VoiceExhaustionBehavior behavior);
+        void unload();
         bool playOneShot();
+
+        // Copy semantics (disallowed)
+        SoundEffect(const SoundEffect&) = delete;
+        SoundEffect& operator=(const SoundEffect&) = delete;
+
+        // Move semantics
+        SoundEffect& operator=(SoundEffect&& other) = delete;
+        SoundEffect(SoundEffect&& other) noexcept;
+
+        friend struct AudioManager;
 
     private:
         std::vector<Sound> voices;
         uint8_t nextVoiceIndex = 0;
         VoiceExhaustionBehavior voiceExhaustionBehavior = DROP;
+        uint32_t generation = 1;
     };
 }
 

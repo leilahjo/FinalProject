@@ -27,10 +27,12 @@ namespace Game
         simpleAnimationId = world.animationSystem.createAnimation(STOP_AT_END, 1);
         playerRunAnimationId = world.animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
 
-        rockSpriteId = runtime.renderer.spriteManager.createSprite("assets/rock.png", 1, 1, 0);
-        playerRunSpriteSheetId = runtime.renderer.spriteManager.createSprite("assets/player_run.png", 6, 4, 5);
+        rockSpriteId = runtime.renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
+        // runtime.renderer.spriteManager.unloadSprite(rockSpriteId);
+        playerRunSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
 
         dootSoundId = runtime.audioManager.loadAudioAsset("assets/doot.wav", 10, Audio::REPLACE);
+        // runtime.audioManager.unloadAudioAsset(dootSoundId);
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(

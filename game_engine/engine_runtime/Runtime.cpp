@@ -17,7 +17,8 @@ namespace EngineRuntime
     int Runtime::run(IGame& game, int windowWidth, int windowHeight, const std::string& windowTitle)
     {
         InitWindow(windowWidth, windowHeight, windowTitle.c_str());
-        audioManager.initialize();
+        audioManager.initialize(128);
+        renderer.spriteManager.initialize(128);
 
         game.onStart(world);
 

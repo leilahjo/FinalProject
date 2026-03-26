@@ -17,13 +17,17 @@ namespace Audio
 
     struct AudioManager
     {
-        void initialize();
+        void initialize(uint16_t maxEffects);
+        void deinitialize();
 
         SoundId loadAudioAsset(const std::string& path, uint8_t maxVoices, VoiceExhaustionBehavior behavior);
+        bool unloadAudioAsset(SoundId soundId);
         bool playOneshot(SoundId soundId);
 
     private:
         std::vector<SoundEffect> soundEffects;
+        std::vector<uint16_t> freeIndices;
+        uint16_t maxEffects = 0;
     };
 }
 
