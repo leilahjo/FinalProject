@@ -15,7 +15,7 @@ namespace Rendering
     {
         Sprite() = default;
 
-        void load(const std::string& sourceFile, uint16_t colCt, uint16_t rowCt, uint16_t crop = 0);
+        void load(const std::string& sourceFile, uint16_t colCt = 1, uint16_t rowCt = 1, uint16_t crop = 0);
         void unload();
 
         Rectangle getSourceRect(uint16_t frameIndex);
@@ -33,14 +33,14 @@ namespace Rendering
         friend struct Renderer;
 
     private:
-        Texture2D texture2D;
+        Texture2D texture2D{};
         uint32_t generation = 1;
 
-        uint16_t colCt;
-        uint16_t rowCt;
-        uint32_t colWidth;
-        uint32_t rowHeight;
-        uint16_t crop;
+        uint16_t colCt = 1;
+        uint16_t rowCt = 1;
+        uint32_t colWidth = 0;
+        uint32_t rowHeight = 0;
+        uint16_t crop = 0;
     };
 }
 

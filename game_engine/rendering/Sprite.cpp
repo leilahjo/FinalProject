@@ -31,8 +31,8 @@ namespace Rendering
 
     Rectangle Sprite::getSourceRect(uint16_t frameIndex)
     {
-        const uint16_t col = static_cast<uint16_t>(frameIndex % colCt);
-        const uint16_t row = static_cast<uint16_t>(frameIndex / colCt);
+        const auto col = static_cast<uint16_t>(frameIndex % colCt);
+        const auto row = static_cast<uint16_t>(frameIndex / colCt);
 
         return Rectangle{
             static_cast<float>(col * colWidth + crop),
@@ -53,13 +53,13 @@ namespace Rendering
     }
 
     Sprite::Sprite(Sprite&& other) noexcept
-         : texture2D(other.texture2D)
-           , generation(other.generation)
-           , colCt(other.colCt)
-           , rowCt(other.rowCt)
-           , colWidth(other.colWidth)
-           , rowHeight(other.rowHeight)
-           , crop(other.crop)
+        : texture2D(other.texture2D)
+          , generation(other.generation)
+          , colCt(other.colCt)
+          , rowCt(other.rowCt)
+          , colWidth(other.colWidth)
+          , rowHeight(other.rowHeight)
+          , crop(other.crop)
     {
         other.texture2D = {};
         other.colCt = 1;

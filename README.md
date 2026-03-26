@@ -2,11 +2,13 @@
 
 We'll add real-time spacial attenuation and stereo panning to "doot" sound playback in the class repo.
 
-1. Add a `PlaybackId` that uniquely identifies a playing voice. Update `AudioManager::playOneshot` to return it. It will need a sensical `INVALID` value.
+1. Add a `PlaybackId` that uniquely identifies a playing voice. Update `AudioManager::playOneshot` to return it. It will need a sensical `INVALID` value. 
 
     A `PlaybackId` must uniquely identify
     - One *specific voice instance,*
     - belonging to one *specific sound effect.*
+
+It should not contain a raylib `Sound` directly or transitively, it ony *identifies* one.
 
 2. Declare and define a `AudioManager::setSoundVolume(PlaybackId, float volume)` which calls raylib's `SetSoundVolume(Sound, float volume)` appropriately.
 
@@ -16,12 +18,15 @@ We'll add real-time spacial attenuation and stereo panning to "doot" sound playb
 
     Again, you will need to resolve the correct `voice` within the correct `SoundEffect` using your `PlaybackId`.
 
-4. Update `Game::onUpdatePostCollisions` to use `AudioManager::SetSoundVolume` to implement linear distance attenuation such that a "doot" at exactly the player's position has volume 1, while a "doot" at the (largest-dimension) edge of the screen has volume 0.
+4. Update `Game::onUpdatePostCollisions` to use `AudioManager::SetSoundVolume` to implement linear distance attenuation such that a "doot" at exactly the player's position has volume 1, while a "doot" at the (largest-dimension) edge of the screen has volume 0. You do not need to continuously update the volume, just set it once, when playback starts.
 
 5. Update `Game::onUpdatePostCollisions` to use `AudioManager::SetSoundpan` so that the "doot" sound pans linearly.
     - At the left edge of the screen, pan = 0.0f.
     - At the right edge of the screen, pan = 1.0f.
     - At intermediate X values, pan should interpolate linearly.
+    - You do not need to continuously update the pan, just set it once, when playback starts.
+
+*Note: You might wonder exactly what position to use for representing the position of the sound emission. You can choose any of: the midpoint of the two colliding squares, or either square's center.* 
 
 ### Code Style
 

@@ -11,8 +11,8 @@ namespace Rendering
     {
         sprites.resize(maxSprites);
         freeIndices.resize(maxSprites);
-        for (size_t i = 0; i < maxSprites; i++)
-            freeIndices[i] = i;
+        for (size_t i = 0; i < freeIndices.size(); i++)
+            freeIndices[i] = maxSprites - i - 1;
     }
 
     void SpriteManager::uninitialize()

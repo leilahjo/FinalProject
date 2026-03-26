@@ -61,7 +61,8 @@ namespace EngineCore
         uint16_t index;
         uint32_t generation;
     };
-    static constexpr SpriteId INVALID_SPRITE_ID = {static_cast<uint16_t>(-1), static_cast<uint16_t>(-1)};
+
+    static constexpr SpriteId INVALID_SPRITE_ID = {static_cast<uint16_t>(-1), static_cast<uint32_t>(-1)};
 
     using EntityTypeId = uint16_t;
 
