@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include <cmath>
+#include <filesystem>
 
 namespace Game
 {
@@ -93,9 +94,8 @@ namespace Game
                                       playerRunSpriteSheetId,
                                       ENTITY_TYPE_PLAYER,
                                       INVALID_BEHAVIOR_ID);
-        runtime.behaviorManager.setGlobalEntityId("PLAYER_ID", playerId);
-
         AnimationSystem::startAnimation(world, playerId, playerRunAnimationId);
+        runtime.behaviorManager.setGlobalEntityId("PLAYER_ID", playerId);
 
         // Double-unit "border" squares
         world.createEntity(borderArchetype,
@@ -120,7 +120,6 @@ namespace Game
                            INVALID_SPRITE_ID,
                            ENTITY_TYPE_NONE,
                            INVALID_BEHAVIOR_ID);
-
         for (int i = 1; i < 10; i++)
             world.createEntity(rockArchetype,
                                0, 0,
@@ -197,7 +196,7 @@ namespace Game
                     continue;
 
                 //Bottom
-                if (entity.y() - entity.height() / 2 < -1)
+                if (entity.y() - entity.height() / 2 < -1 && archetype->hasState())
                     entity.state() |= Entity::STATE_DESTROYED;
                 //Top
                 if (entity.y() + entity.height() / 2 > 1)

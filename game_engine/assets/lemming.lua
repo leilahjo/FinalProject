@@ -12,8 +12,8 @@ return function(entities, entityProvider)
         local distSq = (dx * dx) + (dy * dy)
         if distSq < (CHASE_RADIUS * CHASE_RADIUS) then
             local dist = math.sqrt(distSq)
-            entity.vx = - (dx / dist) * SPEED
-            entity.vy = - (dy / dist) * SPEED
+            entity.vx = (dx / dist) * SPEED
+            entity.vy = (dy / dist) * SPEED
         elseif entity.vx ~= 0 or entity.vy ~= 0 then
             entity.vx = 0
             entity.vy = 0
