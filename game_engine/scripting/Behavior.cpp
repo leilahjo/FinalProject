@@ -34,7 +34,7 @@ namespace Scripting
 
     void Behavior::unload()
     {
-        updateFunction = sol::nil;
+        updateFunction = sol::lua_nil;
         generation++;
     }
 }
