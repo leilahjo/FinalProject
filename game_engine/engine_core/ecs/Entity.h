@@ -15,7 +15,7 @@ namespace EngineCore
 {
     struct Archetype;
 
-    // Represents an entity in the game world. The struct itself is a lightweight view
+    // Represents an entity in the game world. The struct itself is a lightweight proxy
     // into the arrays of an archetype.
     struct Entity
     {
@@ -56,6 +56,8 @@ namespace EngineCore
 
         EntityTypeId& entityTypeId();
 
+        BehaviorId& behaviorId();
+
         float left();
         float right();
         float top();
@@ -67,6 +69,7 @@ namespace EngineCore
         bool hasSprite();
         bool hasColor();
         bool hasEntityType();
+        bool hasBehavior();
     };
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs);

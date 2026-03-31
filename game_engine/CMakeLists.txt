@@ -3,12 +3,44 @@ project(game_engine)
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
+
+# ==========================================
+# External Dependencies
+# ==========================================
 FetchContent_Declare(
         raylib
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
         GIT_TAG 5.5
 )
 FetchContent_MakeAvailable(raylib)
+
+FetchContent_Declare(
+        sol2
+        GIT_REPOSITORY https://github.com/ThePhD/sol2.git
+        GIT_TAG develop # v3.3.1
+)
+FetchContent_MakeAvailable(sol2)
+
+# ==========================================
+# Fetch official Lua source manually
+# ==========================================
+set(LUA_VERSION "5.4.6")
+set(LUA_TAR "${CMAKE_BINARY_DIR}/lua-${LUA_VERSION}.tar.gz")
+set(LUA_SRC_DIR "${CMAKE_BINARY_DIR}/lua-${LUA_VERSION}/src")
+# Only download and extract if we haven't already
+if(NOT EXISTS "${LUA_SRC_DIR}/lua.h")
+    message(STATUS "Downloading and extracting Lua ${LUA_VERSION}...")
+    file(DOWNLOAD https://www.lua.org/ftp/lua-${LUA_VERSION}.tar.gz ${LUA_TAR})
+    file(ARCHIVE_EXTRACT INPUT ${LUA_TAR} DESTINATION ${CMAKE_BINARY_DIR})
+endif()
+# Gather the C files, excluding the standalone executables
+file(GLOB LUA_SOURCES "${LUA_SRC_DIR}/*.c")
+list(REMOVE_ITEM LUA_SOURCES
+        "${LUA_SRC_DIR}/lua.c"
+        "${LUA_SRC_DIR}/luac.c"
+)
+add_library(lua STATIC ${LUA_SOURCES})
+target_include_directories(lua PUBLIC "${LUA_SRC_DIR}")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -77,6 +109,19 @@ target_include_directories(input PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURC
 target_include_directories(input PRIVATE ${RAYLIB_ROOT}/src)
 
 # ==========================================
+# Scripting
+# ==========================================
+add_library(scripting STATIC
+        scripting/BehaviorManager.cpp
+        scripting/BehaviorManager.h
+        scripting/Scripting.h
+        scripting/Behavior.h
+        scripting/Behavior.cpp
+        scripting/EntityProvider.h
+)
+target_include_directories(scripting PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
+# ==========================================
 # Engine Core
 # ==========================================
 add_library(engine_core STATIC
@@ -109,6 +154,7 @@ target_link_libraries(engine_runtime PUBLIC engine_core)
 target_link_libraries(engine_runtime PUBLIC rendering)
 target_link_libraries(engine_runtime PUBLIC audio)
 target_link_libraries(engine_runtime PUBLIC input)
+target_link_libraries(engine_runtime PUBLIC scripting)
 target_link_libraries(engine_runtime PRIVATE raylib)
 target_include_directories(engine_runtime PRIVATE ${RAYLIB_ROOT}/src)
 
@@ -120,11 +166,19 @@ target_link_libraries(audio PRIVATE raylib)
 
 target_link_libraries(input PRIVATE raylib)
 
+target_link_libraries(scripting PUBLIC engine_core)
+target_link_libraries(scripting PUBLIC sol2)
+target_link_libraries(scripting PUBLIC lua)
+
 if (WIN32)
     target_link_libraries(game_engine PRIVATE winmm)
 endif ()
 
 add_compile_definitions($<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>)
+
+target_compile_definitions(game_engine
+        PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
+)
 
 add_custom_command(
         TARGET game_engine POST_BUILD

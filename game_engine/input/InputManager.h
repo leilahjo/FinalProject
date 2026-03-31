@@ -16,6 +16,8 @@ namespace Input
 
         bool keySpace = false;
 
+        bool keyF5Pressed = false;
+
         void update();
     };
 }

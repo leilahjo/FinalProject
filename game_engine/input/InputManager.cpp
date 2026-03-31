@@ -16,5 +16,7 @@ namespace Input
         this->keyUp = IsKeyDown(KEY_UP);
 
         this->keySpace = IsKeyDown(KEY_SPACE);
+
+        this->keyF5Pressed = IsKeyPressed(KEY_R);
     }
 }

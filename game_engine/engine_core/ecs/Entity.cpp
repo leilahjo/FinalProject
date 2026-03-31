@@ -21,6 +21,7 @@ namespace EngineCore
     ColliderLayerId& Entity::colliderLayerId() { return entityLocation.archetype->colliderLayerId[entityLocation.entityIndex]; }
     AnimationData& Entity::animation() { return entityLocation.archetype->animationData[entityLocation.entityIndex]; }
     SpriteId& Entity::spriteId() { return entityLocation.archetype->spriteId[entityLocation.entityIndex]; }
+    BehaviorId& Entity::behaviorId() { return entityLocation.archetype->behaviorId[entityLocation.entityIndex]; }
 
     float Entity::right() { return x() + width() / 2; }
     float Entity::left() { return x() - width() / 2; }
@@ -31,6 +32,7 @@ namespace EngineCore
     bool Entity::hasSprite() { return entityLocation.archetype->hasSprite(); }
     bool Entity::hasColor() { return entityLocation.archetype->hasColor(); }
     bool Entity::hasEntityType() { return entityLocation.archetype->hasEntityType(); }
+    bool Entity::hasBehavior() { return entityLocation.archetype->hasBehavior(); }
 
     Entity::State operator|(Entity::State lhs, Entity::State rhs)
     {

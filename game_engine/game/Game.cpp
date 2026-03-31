@@ -19,6 +19,9 @@ namespace Game
         world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ANIMATED_SQUARES, true);
         world.collisionSystem.enableCollisions(LAYER_ROCKS, LAYER_ROCKS, true);
         world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCKS, true);
+        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_LEMMINGS, true);
+        world.collisionSystem.enableCollisions(LAYER_LEMMINGS, LAYER_LEMMINGS, true);
+        world.collisionSystem.enableCollisions(LAYER_LEMMINGS, LAYER_ROCKS, true);
 
         runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 0;
         runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 1;
@@ -30,9 +33,14 @@ namespace Game
         rockSpriteId = runtime.renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
         // runtime.renderer.spriteManager.unloadSprite(rockSpriteId);
         playerRunSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
+        lemmingSpriteId = runtime.renderer.spriteManager.loadSprite("assets/lemming.png");
 
         dootSoundId = runtime.audioManager.loadAudioAsset("assets/doot.wav", 10, Audio::REPLACE);
         // runtime.audioManager.unloadAudioAsset(dootSoundId);
+
+        lemmingBehaviorId = runtime.behaviorManager.loadBehavior(
+            (std::filesystem::path(PROJECT_ROOT) / "assets/lemming.lua").string()
+        );
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
         borderArchetype = world.createArchetype(
@@ -65,6 +73,14 @@ namespace Game
             | Archetype::COMP_COLLIDER
             | Archetype::COMP_ANIMATION
             | Archetype::COMP_TYPE);
+        lemmingArchetype = world.createArchetype(
+            Archetype::COMP_POSITION
+            | Archetype::COMP_VELOCITY
+            | Archetype::COMP_SIZE
+            | Archetype::COMP_STATE
+            | Archetype::COMP_COLLIDER
+            | Archetype::COMP_SPRITE
+            | Archetype::COMP_BEHAVIOR);
 
         playerId = world.createEntity(playerArchetype,
                                       0, 0,
@@ -75,8 +91,9 @@ namespace Game
                                       ColliderShape::RECT, LAYER_PLAYER,
                                       {},
                                       playerRunSpriteSheetId,
-                                      ENTITY_TYPE_PLAYER);
-
+                                      ENTITY_TYPE_PLAYER,
+                                      INVALID_BEHAVIOR_ID);
+        runtime.behaviorManager.setGlobalEntityId("PLAYER_ID", playerId);
 
         AnimationSystem::startAnimation(world, playerId, playerRunAnimationId);
 
@@ -90,7 +107,8 @@ namespace Game
                            ColliderShape::RECT, LAYER_NONE,
                            {},
                            INVALID_SPRITE_ID,
-                           ENTITY_TYPE_NONE);
+                           ENTITY_TYPE_NONE,
+                           INVALID_BEHAVIOR_ID);
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
@@ -100,7 +118,8 @@ namespace Game
                            ColliderShape::RECT, LAYER_NONE,
                            {},
                            INVALID_SPRITE_ID,
-                           ENTITY_TYPE_NONE);
+                           ENTITY_TYPE_NONE,
+                           INVALID_BEHAVIOR_ID);
 
         for (int i = 1; i < 10; i++)
             world.createEntity(rockArchetype,
@@ -112,7 +131,21 @@ namespace Game
                                ColliderShape::RECT, LAYER_ROCKS,
                                {},
                                rockSpriteId,
-                               ENTITY_TYPE_ROCK);
+                               ENTITY_TYPE_ROCK,
+                               INVALID_BEHAVIOR_ID);
+        for (int i = 0; i < 10; i++)
+            world.createEntity(lemmingArchetype,
+                               randomFloat(-1, 1), randomFloat(-1, 1),
+                               0, 0,
+                               0.1 * 64 / 144, 0.1,
+                               red,
+                               Entity::STATE_DEFAULT,
+                               ColliderShape::RECT, LAYER_LEMMINGS,
+                               {},
+                               lemmingSpriteId,
+                               ENTITY_TYPE_NONE,
+                               lemmingBehaviorId
+            );
     }
 
     void Game::onUpdateBegin(World& world)
@@ -146,7 +179,8 @@ namespace Game
                                    ColliderShape::RECT, LAYER_ANIMATED_SQUARES,
                                    {},
                                    INVALID_SPRITE_ID,
-                                   ENTITY_TYPE_ANIMATED_SQUARE);
+                                   ENTITY_TYPE_ANIMATED_SQUARE,
+                                   INVALID_BEHAVIOR_ID);
             }
         }
 
@@ -207,7 +241,8 @@ namespace Game
                 entityA.state() |= Entity::STATE_DESTROYED;
             if (entityA.entityTypeId() == ENTITY_TYPE_ROCK && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
                 entityB.state() |= Entity::STATE_DESTROYED;
-            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
+            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() ==
+                ENTITY_TYPE_ANIMATED_SQUARE)
             {
                 AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
                 AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);

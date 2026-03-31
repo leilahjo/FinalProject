@@ -11,6 +11,7 @@
 #include "IGame.h"
 #include "audio/AudioManager.h"
 #include "input/InputManager.h"
+#include "scripting/BehaviorManager.h"
 
 namespace EngineRuntime
 {
@@ -20,13 +21,16 @@ namespace EngineRuntime
     using namespace EngineCore;
     using namespace Rendering;
     using namespace Input;
+    using namespace Audio;
+    using namespace Scripting;
 
     struct Runtime
     {
         World world = World(FRAME_DT);
         Renderer renderer;
-        Audio::AudioManager audioManager;
+        AudioManager audioManager;
         InputManager inputManager;
+        BehaviorManager behaviorManager;
         ArenaAllocator frameAllocator = ArenaAllocator(100 * 1024 * 1024); // 100 MB.
 
         FrameData frameData = {};

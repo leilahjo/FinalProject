@@ -19,6 +19,7 @@ namespace EngineRuntime
         InitWindow(windowWidth, windowHeight, windowTitle.c_str());
         renderer.spriteManager.initialize(128);
         audioManager.initialize(128);
+        behaviorManager.initialize(128);
 
         game.onStart(world);
 
@@ -38,6 +39,9 @@ namespace EngineRuntime
             world.collisionSystem.resolve(world, collisions, collisionCount);
             game.onUpdatePostCollisionResolution(world, collisions, collisionCount);
             world.animationSystem.update(world);
+            if (inputManager.keyF5Pressed)
+                behaviorManager.reloadAllBehaviors();
+            behaviorManager.update(world);
             world.cleanup();
 
             auto drawStart = clock::now();

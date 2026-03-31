@@ -33,7 +33,8 @@ namespace EngineCore
                                  ColliderShape colliderShape, ColliderLayerId colliderLayerId,
                                  AnimationData animationData,
                                  SpriteId spriteId,
-                                 EntityTypeId entityType)
+                                 EntityTypeId entityType,
+                                 BehaviorId behaviorId)
     {
         if (freeIndices.empty())
             return INVALID_ENTITY_ID;
@@ -53,7 +54,8 @@ namespace EngineCore
                                                           colliderShape, colliderLayerId,
                                                           animationData,
                                                           spriteId,
-                                                          entityType);
+                                                          entityType,
+                                                          behaviorId);
 
         entityRecord.location = {archetype, entityIndex};
 

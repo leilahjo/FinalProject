@@ -21,9 +21,13 @@ namespace Game
         Archetype* rockArchetype;
         Archetype* animatedSquareArchetype;
         Archetype* playerArchetype;
+        Archetype* lemmingArchetype;
 
         SpriteId playerRunSpriteSheetId;
         SpriteId rockSpriteId;
+        SpriteId lemmingSpriteId;
+
+        BehaviorId lemmingBehaviorId;
 
         AnimationId simpleAnimationId;
         AnimationId playerRunAnimationId;
@@ -52,6 +56,7 @@ namespace Game
             LAYER_PLAYER,
             LAYER_ROCKS,
             LAYER_ANIMATED_SQUARES,
+            LAYER_LEMMINGS
         };
     };
 }

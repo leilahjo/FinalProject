@@ -26,7 +26,8 @@ namespace EngineCore
             COMP_COLLIDER = 1 << 5,
             COMP_ANIMATION = 1 << 6,
             COMP_SPRITE = 1 << 7,
-            COMP_TYPE = 1 << 8
+            COMP_TYPE = 1 << 8,
+            COMP_BEHAVIOR = 1 << 9
         };
 
         //Fixed per archetype.
@@ -65,6 +66,9 @@ namespace EngineCore
         // Type Component
         std::vector<EntityTypeId> entityType;
 
+        // Behavior Component
+        std::vector<BehaviorId> behaviorId;
+
         EntityIndex createEntity(EntityId entityId,
                                  float x, float y,
                                  float vx, float vy,
@@ -74,7 +78,8 @@ namespace EngineCore
                                  ColliderShape collisionShape, ColliderLayerId collisionLayerId,
                                  AnimationData animationData,
                                  SpriteId spriteId,
-                                 EntityTypeId typeId);
+                                 EntityTypeId typeId,
+                                 BehaviorId behaviorId);
 
         // Returns the Entity Id of the moved data, if any data was moved.
         EntityId removeEntity(EntityIndex entityIndex);
@@ -88,6 +93,7 @@ namespace EngineCore
         bool hasAnimation() { return componentMask & COMP_ANIMATION; }
         bool hasSprite() { return componentMask & COMP_SPRITE; }
         bool hasEntityType() { return componentMask & COMP_TYPE; }
+        bool hasBehavior() { return componentMask & COMP_BEHAVIOR; }
 
         size_t getEntityCount() const { return n; }
 

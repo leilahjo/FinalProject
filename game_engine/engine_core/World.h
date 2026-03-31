@@ -45,7 +45,8 @@ namespace EngineCore
                               ColliderShape colliderShape, ColliderLayerId colliderLayerId,
                               AnimationData animationData,
                               SpriteId spriteId,
-                              EntityTypeId entityType);
+                              EntityTypeId entityType,
+                              BehaviorId behaviorId);
 
         bool removeEntity(EntityId entityId);
 

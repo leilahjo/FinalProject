@@ -73,6 +73,14 @@ namespace EngineCore
     };
 
     static constexpr SoundId INVALID_SOUND_ID = {static_cast<uint16_t>(-1), static_cast<uint16_t>(-1)};
+
+    struct BehaviorId
+    {
+        uint16_t index;
+        uint32_t generation;
+        bool operator==(const BehaviorId& behaviorId) const = default;
+    };
+    static constexpr BehaviorId INVALID_BEHAVIOR_ID = {static_cast<uint16_t>(-1), static_cast<uint32_t>(-1)};
 }
 
 #endif //ENGINE_CORE_ECSTYPES_H
