@@ -21,16 +21,21 @@ namespace Game
         Archetype* rockArchetype;
         Archetype* animatedSquareArchetype;
         Archetype* playerArchetype;
-        Archetype* lemmingArchetype;
+        Archetype* faunaArchetype;
 
         SpriteId playerRunSpriteSheetId;
         SpriteId rockSpriteId;
         SpriteId lemmingSpriteId;
+        SpriteId pigSpriteSheetId;
+        SpriteId chickenSpriteSheetId;
+        SpriteId sheepSpriteSheetId;
 
         BehaviorId lemmingBehaviorId;
+        BehaviorId faunaBehaviorId;
 
         AnimationId simpleAnimationId;
         AnimationId playerRunAnimationId;
+        AnimationId faunaIdleAnimation;
 
         SoundId dootSoundId;
 
@@ -48,6 +53,7 @@ namespace Game
             ENTITY_TYPE_PLAYER,
             ENTITY_TYPE_ROCK,
             ENTITY_TYPE_ANIMATED_SQUARE,
+            ENTITY_TYPE_FAUNA
         };
 
         enum Layers : ColliderLayerId
@@ -56,7 +62,8 @@ namespace Game
             LAYER_PLAYER,
             LAYER_ROCKS,
             LAYER_ANIMATED_SQUARES,
-            LAYER_LEMMINGS
+            LAYER_FAUNA,
+			LAYER_LEMMINGS,
         };
     };
 }

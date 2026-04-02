@@ -1,32 +1,24 @@
 # Homework Instructions
 
-We'll add real-time spacial attenuation and stereo panning to "doot" sound playback in the class repo.
+The goal is to have a Lua script that
+1. Spawns 50 sheep at 5 seconds of **game** time
+2. Spawns 50 chickens at 10 seconds of **game** time
+3. Spawns 50 pigs at 10 seconds of **real** time
 
-1. Add a `PlaybackId` that uniquely identifies a playing voice. Update `AudioManager::playOneshot` to return it. It will need a sensical `INVALID` value. 
+This means we'll be tying 3 concepts together: timing, Lua scripting, and prefabs. 
 
-    A `PlaybackId` must uniquely identify
-    - One *specific voice instance,*
-    - belonging to one *specific sound effect.*
+The following instructions break this goal down into high level tasks, but the tasks themselves are left for you to figure out.
 
-It should not contain a raylib `Sound` directly or transitively, it ony *identifies* one.
-
-2. Declare and define a `AudioManager::setSoundVolume(PlaybackId, float volume)` which calls raylib's `SetSoundVolume(Sound, float volume)` appropriately.
-
-    You will need to resolve the correct `voice` within the correct `SoundEffect` using your `PlaybackId`.
-
-3. Declare and define a `AudioManager::setSoundPan(PlaybackId, float pan)` which calls raylib's `SetSoundPan(Sound, float pan)` appropriately.
-
-    Again, you will need to resolve the correct `voice` within the correct `SoundEffect` using your `PlaybackId`.
-
-4. Update `Game::onUpdatePostCollisions` to use `AudioManager::SetSoundVolume` to implement linear distance attenuation such that a "doot" at exactly the player's position has volume 1, while a "doot" at the (largest-dimension) edge of the screen has volume 0. You do not need to continuously update the volume, just set it once, when playback starts.
-
-5. Update `Game::onUpdatePostCollisions` to use `AudioManager::SetSoundpan` so that the "doot" sound pans linearly.
-    - At the left edge of the screen, pan = 0.0f.
-    - At the right edge of the screen, pan = 1.0f.
-    - At intermediate X values, pan should interpolate linearly.
-    - You do not need to continuously update the pan, just set it once, when playback starts.
-
-*Note: You might wonder exactly what position to use for representing the position of the sound emission. You can choose any of: the midpoint of the two colliding squares, or either square's center.* 
+1. Remove the `for` loops in `Game::onStart` that spawn 50 of each animal.
+2. Add two fields to `FrameData`
+   1. `double elapsedGameTimeS;` *the amount of **game** time, in seconds, since the engine started running. This must be a multiple of the number of `frame`s that have elapsed.*
+   2. `double elapsedRealTimeS;` *the amount of **real** time, in seconds, since the engine started running. This is expected to drift very slightly from `elapsedGameTimeS` over time.*
+3. Update `BehaviorManager` to pass both elapsed timers and the frame counter to Lua behavior scripts via a single new parameter: a struct that has those 3 fields.
+4. Define a `PrefabProvider` struct, analogous to `EntityProvider`, that exposes a `spawnPrefab(string prefabName, float x, float y)` function. This new function should call `prefabManager.spawnPrefab`. Naturally this means that `PrefabProvider` will need to hold a reference to both `World` and `PrefabManager`.
+5. Update `BehaviorManager` to bind the `spawnPrefab` function and pass the `PrefabProvider` to Lua behavior scripts.
+6. Write a Lua script that spawns the correct prefabs at the correct times (see top of these instructions). Make sure your logic **guarentees** that exactly the number of animals specified are spawned no matter what. No more. No less. Spawn animals with random positions within [-2, 2], [-2, 2].
+7. Add a new entity with only one component: `COMP_BEHAVIOR`. Attach the Lua script that spawns entities to this entity.
+8. Test your work.
 
 ### Code Style
 
@@ -37,6 +29,8 @@ Make sure you follow the [style guide](https://docs.google.com/document/d/1ik2bG
 *Write a short "user guide" for your work below (you are expected to modify this file). Minimally, you should write at least 1 paragraph describing your approach to the problem. Also include any inputs you've added or modified as part of the assignment, and exactly what they do.*
 
 ## Extra Credit
-*Worth up to 5% of the assignment point total. Can also be counted as 0.5 points toward the project "complexity score" if used in an appropriate way for your game.*
+*Worth up to 5% of the assignment point total.*
 
-There are quite a few patterns common to both `Sprite` and `SoundEffect`, as well as `SpriteManager` and `AudioManager`. Use polymorphism or composition to reduce the redundancy.
+The addition of a new "provider" parameter for every engine subsystem we want scripts to interact with won't scale well from a software architecture standpoint.
+
+To address that, rename `EntityProvider` to `EngineApi` and add the `spawnPrefab` function to it. Remove the `PrefabProvider`.

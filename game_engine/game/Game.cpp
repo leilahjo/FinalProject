@@ -20,27 +20,35 @@ namespace Game
         world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ANIMATED_SQUARES, true);
         world.collisionSystem.enableCollisions(LAYER_ROCKS, LAYER_ROCKS, true);
         world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCKS, true);
-        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_LEMMINGS, true);
-        world.collisionSystem.enableCollisions(LAYER_LEMMINGS, LAYER_LEMMINGS, true);
-        world.collisionSystem.enableCollisions(LAYER_LEMMINGS, LAYER_ROCKS, true);
+        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_FAUNA, true);
+        world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_FAUNA, true);
+        world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_ROCKS, true);
 
         runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 0;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 1;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 2;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 1;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 2;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 3;
 
         simpleAnimationId = world.animationSystem.createAnimation(STOP_AT_END, 1);
         playerRunAnimationId = world.animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
+        faunaIdleAnimation = world.animationSystem.createAnimation(LOOP, 1, 0, 4);
 
         rockSpriteId = runtime.renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
         // runtime.renderer.spriteManager.unloadSprite(rockSpriteId);
         playerRunSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
         lemmingSpriteId = runtime.renderer.spriteManager.loadSprite("assets/lemming.png");
+        chickenSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/chicken_idle.png", 4, 1);
+        sheepSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/sheep_idle.png", 4, 1);
+        pigSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/pig_idle.png", 4, 1);
 
         dootSoundId = runtime.audioManager.loadAudioAsset("assets/doot.wav", 10, Audio::REPLACE);
         // runtime.audioManager.unloadAudioAsset(dootSoundId);
 
         lemmingBehaviorId = runtime.behaviorManager.loadBehavior(
             (std::filesystem::path(PROJECT_ROOT) / "assets/lemming.lua").string()
+        );
+        faunaBehaviorId = runtime.behaviorManager.loadBehavior(
+            (std::filesystem::path(PROJECT_ROOT) / "assets/fauna.lua").string()
         );
 
         // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
@@ -73,15 +81,51 @@ namespace Game
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
             | Archetype::COMP_ANIMATION
-            | Archetype::COMP_TYPE);
-        lemmingArchetype = world.createArchetype(
+			| Archetype::COMP_TYPE);
+        faunaArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
             | Archetype::COMP_SIZE
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
+            | Archetype::COMP_ANIMATION
             | Archetype::COMP_SPRITE
-            | Archetype::COMP_BEHAVIOR);
+            | Archetype::COMP_BEHAVIOR
+            | Archetype::COMP_TYPE);
+
+        runtime.prefabManager.registerPrefab("sheep", Prefab{
+                                                 faunaArchetype,
+                                                 sheepSpriteSheetId,
+                                                 0.10, 0.10,
+                                                 white,
+                                                 Entity::STATE_DEFAULT,
+                                                 ColliderShape::RECT, LAYER_FAUNA,
+                                                 AnimationData{faunaIdleAnimation, -1, -1, AnimationData::PLAYING},
+                                                 ENTITY_TYPE_FAUNA,
+                                                 faunaBehaviorId
+                                             });
+        runtime.prefabManager.registerPrefab("chicken", Prefab{
+                                                 faunaArchetype,
+                                                 chickenSpriteSheetId,
+                                                 0.10, 0.10,
+                                                 white,
+                                                 Entity::STATE_DEFAULT,
+                                                 ColliderShape::RECT, LAYER_FAUNA,
+                                                 AnimationData{faunaIdleAnimation, -1, -1, AnimationData::PLAYING},
+                                                 ENTITY_TYPE_FAUNA,
+                                                 faunaBehaviorId
+                                             });
+        runtime.prefabManager.registerPrefab("pig", Prefab{
+                                                 faunaArchetype,
+                                                 pigSpriteSheetId,
+                                                 0.10, 0.10,
+                                                 white,
+                                                 Entity::STATE_DEFAULT,
+                                                 ColliderShape::RECT, LAYER_FAUNA,
+                                                 AnimationData{faunaIdleAnimation, -1, -1, AnimationData::PLAYING},
+                                                 ENTITY_TYPE_FAUNA,
+                                                 faunaBehaviorId
+                                             });
 
         playerId = world.createEntity(playerArchetype,
                                       0, 0,
@@ -101,7 +145,7 @@ namespace Game
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
-                           2, 2,
+                           4, 4,
                            yellow,
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
@@ -112,7 +156,7 @@ namespace Game
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
-                           1.95, 1.95,
+                           3.95, 3.95,
                            rayWhite,
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
@@ -133,18 +177,30 @@ namespace Game
                                ENTITY_TYPE_ROCK,
                                INVALID_BEHAVIOR_ID);
         for (int i = 0; i < 10; i++)
-            world.createEntity(lemmingArchetype,
+            world.createEntity(faunaArchetype,
                                randomFloat(-1, 1), randomFloat(-1, 1),
                                0, 0,
                                0.1 * 64 / 144, 0.1,
                                red,
                                Entity::STATE_DEFAULT,
-                               ColliderShape::RECT, LAYER_LEMMINGS,
+                               ColliderShape::RECT, LAYER_FAUNA,
                                {},
                                lemmingSpriteId,
-                               ENTITY_TYPE_NONE,
+                               ENTITY_TYPE_FAUNA,
                                lemmingBehaviorId
             );
+        for (int i = 0; i < 50; i++)
+            runtime.prefabManager.spawnPrefab("pig", world,
+                                              randomFloat(-2, 2),
+                                              randomFloat(-2, 2));
+        for (int i = 0; i < 50; i++)
+            runtime.prefabManager.spawnPrefab("sheep", world,
+                                              randomFloat(-2, 2),
+                                              randomFloat(-2, 2));
+        for (int i = 0; i < 50; i++)
+            runtime.prefabManager.spawnPrefab("chicken", world,
+                                              randomFloat(-2, 2),
+                                              randomFloat(-2, 2));
     }
 
     void Game::onUpdateBegin(World& world)
@@ -196,22 +252,22 @@ namespace Game
                     continue;
 
                 //Bottom
-                if (entity.y() - entity.height() / 2 < -1 && archetype->hasState())
+                if (entity.y() - entity.height() / 2 < -2 && archetype->hasState())
                     entity.state() |= Entity::STATE_DESTROYED;
                 //Top
-                if (entity.y() + entity.height() / 2 > 1)
+                if (entity.y() + entity.height() / 2 > 2)
                 {
                     entity.vy() *= -1;
                     entity.y() -= 0.01f;
                 }
                 //Left
-                if (entity.x() - entity.width() / 2 < -1)
+                if (entity.x() - entity.width() / 2 < -2)
                 {
                     entity.vx() *= -1;
                     entity.x() += 0.01f;
                 }
                 //Right
-                if (entity.x() + entity.width() / 2 > 1)
+                if (entity.x() + entity.width() / 2 > 2)
                 {
                     entity.vx() *= -1;
                     entity.x() -= 0.01f;
@@ -240,8 +296,7 @@ namespace Game
                 entityA.state() |= Entity::STATE_DESTROYED;
             if (entityA.entityTypeId() == ENTITY_TYPE_ROCK && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
                 entityB.state() |= Entity::STATE_DESTROYED;
-            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() ==
-                ENTITY_TYPE_ANIMATED_SQUARE)
+            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
             {
                 AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
                 AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);

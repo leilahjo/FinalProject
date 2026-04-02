@@ -11,7 +11,7 @@
 #include "IGame.h"
 #include "audio/AudioManager.h"
 #include "input/InputManager.h"
-#include "scripting/BehaviorManager.h"
+#include "scripting/Scripting.h"
 
 namespace EngineRuntime
 {
@@ -31,7 +31,8 @@ namespace EngineRuntime
         AudioManager audioManager;
         InputManager inputManager;
         BehaviorManager behaviorManager;
-        ArenaAllocator frameAllocator = ArenaAllocator(100 * 1024 * 1024); // 100 MB.
+        PrefabManager prefabManager;
+        ArenaAllocator frameAllocator = ArenaAllocator(100 * 1024 * 1024);
 
         FrameData frameData = {};
 

@@ -3,12 +3,16 @@
 //
 
 #include "AnimationSystem.h"
+
+#include <cassert>
+
 #include "../World.h"
 
 namespace EngineCore
 {
     uint16_t Animation::getCurrentFrameIndex(float progress)
     {
+        assert(frameCount > 0);
         auto frameOffset = static_cast<uint16_t>(progress * frameCount);
         if (frameOffset > frameCount - 1)
             frameOffset = frameCount - 1;

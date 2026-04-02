@@ -7,5 +7,7 @@
 
 #include "BehaviorManager.h"
 #include "Behavior.h"
+#include "Prefab.h"
+#include "PrefabManager.h"
 
 #endif //GAME_ENGINE_SCRIPTING_H

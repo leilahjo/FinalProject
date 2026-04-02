@@ -118,6 +118,9 @@ add_library(scripting STATIC
         scripting/Behavior.h
         scripting/Behavior.cpp
         scripting/EntityProvider.h
+        scripting/Prefab.h
+        scripting/PrefabManager.cpp
+        scripting/PrefabManager.h
 )
 target_include_directories(scripting PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
