@@ -5,7 +5,6 @@
 #include "Game.h"
 
 #include <cmath>
-#include <filesystem>
 
 namespace Game
 {
@@ -24,14 +23,14 @@ namespace Game
         world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_FAUNA, true);
         world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_ROCKS, true);
 
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 0;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 1;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 2;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 3;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 1;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 2;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 3;
+        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 4;
 
         simpleAnimationId = world.animationSystem.createAnimation(STOP_AT_END, 1);
         playerRunAnimationId = world.animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
-        faunaIdleAnimation = world.animationSystem.createAnimation(LOOP, 1, 0, 4);
+        animalIdleAnimation = world.animationSystem.createAnimation(LOOP, 1, 0, 4);
 
         rockSpriteId = runtime.renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
         // runtime.renderer.spriteManager.unloadSprite(rockSpriteId);
@@ -100,7 +99,7 @@ namespace Game
                                                  white,
                                                  Entity::STATE_DEFAULT,
                                                  ColliderShape::RECT, LAYER_FAUNA,
-                                                 AnimationData{faunaIdleAnimation, -1, -1, AnimationData::PLAYING},
+                                                 AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
                                                  faunaBehaviorId
                                              });
@@ -111,7 +110,7 @@ namespace Game
                                                  white,
                                                  Entity::STATE_DEFAULT,
                                                  ColliderShape::RECT, LAYER_FAUNA,
-                                                 AnimationData{faunaIdleAnimation, -1, -1, AnimationData::PLAYING},
+                                                 AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
                                                  faunaBehaviorId
                                              });
@@ -122,7 +121,7 @@ namespace Game
                                                  white,
                                                  Entity::STATE_DEFAULT,
                                                  ColliderShape::RECT, LAYER_FAUNA,
-                                                 AnimationData{faunaIdleAnimation, -1, -1, AnimationData::PLAYING},
+                                                 AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
                                                  faunaBehaviorId
                                              });
@@ -320,7 +319,7 @@ namespace Game
                       });
 
         auto player = world.findEntity(playerId).value();
-        runtime.renderer.viewPointX = player.x();
-        runtime.renderer.viewPointY = player.y();
+        world.viewportX = player.x();
+        world.viewportY = player.y();
     }
 }

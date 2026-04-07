@@ -5,53 +5,139 @@
 #include <cmath>
 
 #include "Renderer.h"
+
+#include <algorithm>
+
 #include "raylib.h"
+#include "RenderProxy.h"
 
 namespace Rendering
 {
-    void Renderer::draw(FrameData& frameData, World& world, uint64_t drawDurationUs)
+    void Renderer::frameSync(FrameData& frameData, World& world)
     {
-        BeginDrawing();
-        ClearBackground(std::bit_cast<::Color>(world.backgroundColor));
+        renderFrame.backgroundColor = world.backgroundColor;
+        renderFrame.frameData = frameData;
+        renderFrame.viewportX = world.viewportX;
+        renderFrame.viewportY = world.viewportY;
 
-        std::vector<Entity> renderLayers[256];
-        std::vector<Entity> unlayeredEntities;
+        float windowWidthPx = GetScreenWidth();
+        float windowHeightPx = GetScreenHeight();
+        float minDim = std::min(windowWidthPx, windowHeightPx);
+        float pxPerGameUnit = minDim / 2;
+        float viewPortWidth = windowWidthPx / pxPerGameUnit;
+        float viewPortHeight = windowHeightPx / pxPerGameUnit;
+
+        float viewPortLeft = world.viewportX - viewPortWidth / 2;
+        float viewPortRight = world.viewportX + viewPortWidth / 2;
+        float viewPortTop = world.viewportY + viewPortHeight / 2;
+        float viewPortBottom = world.viewportY - viewPortHeight / 2;
+
+        renderFrame.renderProxies = nullptr;
+        renderFrame.renderProxyCount = 0;
+        renderFrame.allocator.resetFully();
         world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE,
                       [&](Entity entity)
                       {
-                          if (!entity.hasEntityType())
-                          {
-                              unlayeredEntities.push_back(entity);
+                          // View port culling.
+                          if (entity.left() > viewPortRight
+                              || entity.right() < viewPortLeft
+                              || entity.bottom() > viewPortTop
+                              || entity.top() < viewPortBottom)
                               return;
-                          }
 
-                          auto it = typeToRenderLayer.find(entity.entityTypeId());
-                          if (it == typeToRenderLayer.end())
-                          {
-                              unlayeredEntities.push_back(entity);
+                          auto renderProxy = renderFrame.allocator.allocate<RenderProxy>(1);
+                          if (renderProxy == nullptr)
                               return;
-                          }
+                          if (renderFrame.renderProxies == nullptr)
+                              renderFrame.renderProxies = renderProxy;
+                          renderFrame.renderProxyCount++;
 
-                          renderLayers[it->second].push_back(entity);
+                          renderProxy->hasType = entity.hasEntityType();
+                          if (renderProxy->hasType)
+                              renderProxy->typeId = entity.entityTypeId();
+
+                          renderProxy->x = entity.x();
+                          renderProxy->y = entity.y();
+
+                          renderProxy->width = entity.width();
+                          renderProxy->height = entity.height();
+
+                          renderProxy->hasColor = entity.hasColor();
+                          if (renderProxy->hasColor)
+                              renderProxy->color = entity.color();
+
+                          renderProxy->hasSprite = entity.hasSprite();
+                          if (renderProxy->hasSprite)
+                              renderProxy->spriteId = entity.spriteId();
+
+                          if (entity.hasAnimation() && renderProxy->hasSprite)
+                          {
+                              Animation* animation = world.animationSystem.getAnimation(entity.animation().animationId);
+                              if (animation)
+                              {
+                                  renderProxy->hasAnimationFrameIndex = true;
+                                  renderProxy->animationFrameIndex = animation->getCurrentFrameIndex(
+                                      entity.animation().progress);
+                              }
+                              else
+                                  renderProxy->hasAnimationFrameIndex = false;
+                          }
+                          else
+                              renderProxy->hasAnimationFrameIndex = false;
+
+                          renderProxy->index = renderFrame.renderProxyCount;
                       });
+    }
 
-        if (typelessRenderPreference == RenderPreference::RENDER_FIRST)
-            for (auto& entity : unlayeredEntities)
-                drawEntity(entity, world);
-        for (auto& renderLayer : renderLayers)
-            for (auto& entity : renderLayer)
-                drawEntity(entity, world);
-        if (typelessRenderPreference == RenderPreference::RENDER_LAST)
-            for (auto& entity : unlayeredEntities)
-                drawEntity(entity, world);
+    void Renderer::sortRenderProxies()
+    {
+        for (size_t i = 0; i < renderFrame.renderProxyCount; i++)
+        {
+            auto& renderProxy = renderFrame.renderProxies[i];
+            auto candidateLayer = typeToRenderLayer.end();
+            if (renderProxy.hasType)
+                candidateLayer = typeToRenderLayer.find(renderProxy.typeId);
+            if (candidateLayer != typeToRenderLayer.end())
+                renderProxy.renderLayer = candidateLayer->second;
+            else
+                renderProxy.renderLayer = typelessRenderPreference == RenderPreference::RENDER_FIRST
+                                              ? 0
+                                              : std::numeric_limits<uint8_t>::max();
+        }
 
-        DrawText(TextFormat("FPS %f\nJitter: %lld us\nWork: %lld us\nDraw: %lld us", frameData.fps, frameData.jitterUs,
-                            frameData.workDurationUs, drawDurationUs), 0, 0, 36, ::GRAY);
+        std::sort(renderFrame.renderProxies,
+            renderFrame.renderProxies + renderFrame.renderProxyCount,
+                  [](const RenderProxy& a, const RenderProxy& b)
+                  {
+                      if (a.renderLayer != b.renderLayer)
+                          return a.renderLayer < b.renderLayer;
+                      if (a.y != b.y)
+                          return a.y < b.y;
+                      return a.index < b.index;
+                  });
+    }
+
+    void Renderer::draw(uint64_t drawDurationUs)
+    {
+        sortRenderProxies();
+
+        BeginDrawing();
+        ClearBackground(std::bit_cast<::Color>(renderFrame.backgroundColor));
+
+        for (size_t i = 0; i < renderFrame.renderProxyCount; i++)
+        {
+            auto& renderProxy = renderFrame.renderProxies[i];
+            drawEntity(renderProxy);
+        }
+
+        DrawText(TextFormat("FPS %f\nJitter: %lld us\nWork: %lld us\nDraw: %lld us", renderFrame.frameData.fps,
+                            renderFrame.frameData.jitterUs,
+                            renderFrame.frameData.workDurationUs, drawDurationUs), 0, 0, 36, ::GRAY);
 
         EndDrawing();
     }
 
-    void Renderer::drawEntity(Entity entity, World& world)
+    void Renderer::drawEntity(RenderProxy& entity)
     {
         double windowWidthPx = GetScreenWidth();
         double windowHeightPx = GetScreenHeight();
@@ -62,25 +148,21 @@ namespace Rendering
         double originXPx = windowWidthPx / 2;
         double originYPx = windowHeightPx / 2;
 
-        double objXPx = originXPx + (entity.x() - viewPointX) * pxPerGameUnit;
-        double objYPx = originYPx - (entity.y() - viewPointY) * pxPerGameUnit;
+        double objXPx = originXPx + (entity.x - renderFrame.viewportX) * pxPerGameUnit;
+        double objYPx = originYPx - (entity.y - renderFrame.viewportY) * pxPerGameUnit;
 
-        double objWidthPx = entity.width() * pxPerGameUnit;
-        double objHeightPx = entity.height() * pxPerGameUnit;
+        double objWidthPx = entity.width * pxPerGameUnit;
+        double objHeightPx = entity.height * pxPerGameUnit;
 
-
-        Animation* animation = entity.hasAnimation()
-                                   ? world.animationSystem.getAnimation(entity.animation().animationId)
-                                   : nullptr;
-        Sprite* sprite = entity.hasSprite()
-                             ? spriteManager.getSprite(entity.spriteId())
+        Sprite* sprite = entity.hasSprite
+                             ? spriteManager.getSprite(entity.spriteId)
                              : nullptr;
 
         if (sprite)
         {
             Rectangle srcRect;
-            if (animation)
-                srcRect = sprite->getSourceRect(animation->getCurrentFrameIndex(entity.animation().progress));
+            if (entity.hasAnimationFrameIndex)
+                srcRect = sprite->getSourceRect(entity.animationFrameIndex);
             else
                 srcRect = sprite->getSourceRect();
             DrawTexturePro(sprite->texture2D, srcRect, Rectangle{
@@ -91,7 +173,7 @@ namespace Rendering
                            },
                            {},
                            0,
-                           entity.hasColor() ? std::bit_cast<::Color>(entity.color()) : WHITE);
+                           entity.hasColor ? std::bit_cast<::Color>(entity.color) : WHITE);
         }
         else
         {
@@ -99,7 +181,7 @@ namespace Rendering
                           static_cast<int>(std::round(objYPx - objHeightPx / 2)),
                           static_cast<int>(std::round(objWidthPx)),
                           static_cast<int>(std::round(objHeightPx)),
-                          entity.hasColor() ? std::bit_cast<::Color>(entity.color()) : BLACK);
+                          entity.hasColor ? std::bit_cast<::Color>(entity.color) : BLACK);
         }
     }
 }

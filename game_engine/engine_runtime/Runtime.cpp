@@ -45,7 +45,8 @@ namespace EngineRuntime
             world.cleanup();
 
             auto drawStart = clock::now();
-            renderer.draw(frameData, world, lastFrameDrawDurationUs);
+            renderer.frameSync(frameData, world);
+            renderer.draw(lastFrameDrawDurationUs);
             auto drawEnd = clock::now();
 
             frameAllocator.resetFully();

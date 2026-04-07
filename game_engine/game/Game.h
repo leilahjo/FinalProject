@@ -35,7 +35,7 @@ namespace Game
 
         AnimationId simpleAnimationId;
         AnimationId playerRunAnimationId;
-        AnimationId faunaIdleAnimation;
+        AnimationId animalIdleAnimation;
 
         SoundId dootSoundId;
 

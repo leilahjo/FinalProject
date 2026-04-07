@@ -80,6 +80,8 @@ add_library(rendering STATIC
         rendering/Rendering.h
         rendering/SpriteManager.cpp
         rendering/SpriteManager.h
+        rendering/RenderProxy.h
+        rendering/RenderFrame.h
 )
 target_include_directories(rendering PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_include_directories(rendering PRIVATE ${RAYLIB_ROOT}/src)

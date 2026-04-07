@@ -7,6 +7,8 @@
 
 #include <unordered_map>
 
+#include "RenderFrame.h"
+#include "RenderProxy.h"
 #include "engine_core/EngineCore.h"
 
 #include "SpriteManager.h"
@@ -25,15 +27,20 @@ namespace Rendering
     {
         SpriteManager spriteManager;
 
-        float viewPointX = 0, viewPointY = 0;
-
+        // Valid layers are 1-254
         std::unordered_map<EntityTypeId, uint8_t> typeToRenderLayer;
         RenderPreference typelessRenderPreference = RenderPreference::RENDER_FIRST;
 
-        void draw(FrameData& frameData, World& world, uint64_t drawDurationUs);
+        RenderFrame renderFrame;
+
+        // Copy world / ECS data into a RenderFrame
+        void frameSync(FrameData& frameData, World& world);
+        // Draw a RenderFrame
+        void draw(uint64_t drawDurationUs);
 
     private:
-        void drawEntity(Entity entity, World& world);
+        void drawEntity(RenderProxy& entity);
+        void sortRenderProxies();
     };
 }
 

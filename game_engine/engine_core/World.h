@@ -27,6 +27,7 @@ namespace EngineCore
         const float frameDt;
 
         GameColor backgroundColor = rayWhite;
+		float viewportX = 0, viewportY = 0;
 
         CollisionSystem collisionSystem;
         AnimationSystem animationSystem;
