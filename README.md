@@ -16,7 +16,7 @@ std::mutex oneshotMutex;
 4. Implement the two new functions. Use a `FrameAllocator` or a `ScratchBuffer` to avoid heap allocations. You can use the same instance being used for `Collision`s, or a new instance. 
 5. Call `playAllQueuedOneshots()` in an appropriate place. Remember that Raylib APIs are designed to be called from the "main" thread, and that does apply to `PlaySound`.
 
-You should minimize the duration that locks are held.
+You should use the mutex to prevent concurrent access to the "queue" while minimizing the duration that locks are held.
 
 ### 2. Input
 
