@@ -5,6 +5,8 @@
 #ifndef ENGINE_RUNTIME_ENGINE_RUNTIME_H
 #define ENGINE_RUNTIME_ENGINE_RUNTIME_H
 
+#include <stop_token>
+
 #include "engine_core/EngineCore.h"
 #include "rendering/Rendering.h"
 
@@ -27,16 +29,17 @@ namespace EngineRuntime
     struct Runtime
     {
         World world = World(FRAME_DT);
-        Renderer renderer;
         AudioManager audioManager;
         InputManager inputManager;
         BehaviorManager behaviorManager;
         PrefabManager prefabManager;
-        ArenaAllocator frameAllocator = ArenaAllocator(100 * 1024 * 1024);
-
-        FrameData frameData = {};
 
         int run(IGame& game, int windowWidth, int windowHeight, const std::string& windowTitle);
+
+    private:
+        Renderer renderer;
+
+        uint64_t runEngineLoop(std::stop_token token, IGame& game);
     };
 }
 

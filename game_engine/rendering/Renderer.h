@@ -12,6 +12,7 @@
 #include "engine_core/EngineCore.h"
 
 #include "SpriteManager.h"
+#include "SwapBuffer.h"
 
 namespace Rendering
 {
@@ -31,16 +32,16 @@ namespace Rendering
         std::unordered_map<EntityTypeId, uint8_t> typeToRenderLayer;
         RenderPreference typelessRenderPreference = RenderPreference::RENDER_FIRST;
 
-        RenderFrame renderFrame;
+        SwapBuffer swapBuffer;
 
         // Copy world / ECS data into a RenderFrame
-        void frameSync(FrameData& frameData, World& world);
+        void frameSync(FrameData& frameData, World& world, RenderFrame& renderFrame);
         // Draw a RenderFrame
-        void draw(uint64_t drawDurationUs);
+        void draw(uint64_t drawDurationUs, RenderFrame& renderFrame);
 
     private:
-        void drawEntity(RenderProxy& entity);
-        void sortRenderProxies();
+        void drawEntity(RenderProxy& renderProxy, RenderFrame& renderFrame);
+        void sortRenderProxies(RenderFrame& renderFrame);
     };
 }
 

@@ -13,7 +13,7 @@ namespace Game
         return runtime.run(*this, 1600, 1200, "GEP");
     }
 
-    void Game::onStart(World& world)
+    void Game::onStart(World& world, Renderer& renderer)
     {
         world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ROCKS, true);
         world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ANIMATED_SQUARES, true);
@@ -23,22 +23,22 @@ namespace Game
         world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_FAUNA, true);
         world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_ROCKS, true);
 
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 1;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 2;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 3;
-        runtime.renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 4;
+        renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 1;
+        renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 2;
+        renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 3;
+        renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 4;
 
         simpleAnimationId = world.animationSystem.createAnimation(STOP_AT_END, 1);
         playerRunAnimationId = world.animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
         animalIdleAnimation = world.animationSystem.createAnimation(LOOP, 1, 0, 4);
 
-        rockSpriteId = runtime.renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
+        rockSpriteId = renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
         // runtime.renderer.spriteManager.unloadSprite(rockSpriteId);
-        playerRunSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
-        lemmingSpriteId = runtime.renderer.spriteManager.loadSprite("assets/lemming.png");
-        chickenSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/chicken_idle.png", 4, 1);
-        sheepSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/sheep_idle.png", 4, 1);
-        pigSpriteSheetId = runtime.renderer.spriteManager.loadSprite("assets/pig_idle.png", 4, 1);
+        playerRunSpriteSheetId = renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
+        lemmingSpriteId = renderer.spriteManager.loadSprite("assets/lemming.png", 1, 1, 0);
+        sheepSpriteSheetId = renderer.spriteManager.loadSprite("assets/sheep_idle.png", 4, 1, 0);
+        pigSpriteSheetId = renderer.spriteManager.loadSprite("assets/pig_idle.png", 4, 1, 0);
+        chickenSpriteSheetId = renderer.spriteManager.loadSprite("assets/chicken_idle.png", 4, 1, 0);
 
         dootSoundId = runtime.audioManager.loadAudioAsset("assets/doot.wav", 10, Audio::REPLACE);
         // runtime.audioManager.unloadAudioAsset(dootSoundId);
@@ -208,15 +208,15 @@ namespace Game
         Entity player = world.findEntity(playerId).value();
         player.vx() = 0;
         if (runtime.inputManager.keyLeft)
-            player.vx() = -1;
+            player.vx() -= 1;
         if (runtime.inputManager.keyRight)
-            player.vx() = 1;
+            player.vx() += 1;
 
         player.vy() = 0;
         if (runtime.inputManager.keyUp)
-            player.vy() = 1;
+            player.vy() += 1;
         if (runtime.inputManager.keyDown)
-            player.vy() = -1;
+            player.vy() -= 1;
 
 
         if (runtime.inputManager.keySpace)

@@ -39,7 +39,7 @@ namespace Game
 
         SoundId dootSoundId;
 
-        void onStart(World& world) override;
+        void onStart(World& world, Renderer& renderer) override;
         void onUpdateBegin(World& world) override;
         void onUpdatePostKinematics(World& world) override;
         void onUpdatePostCollisionDetection(World& world, Collision collisions[], size_t collisionCount) override;

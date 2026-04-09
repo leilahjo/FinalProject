@@ -13,7 +13,7 @@
 
 namespace Rendering
 {
-    void Renderer::frameSync(FrameData& frameData, World& world)
+    void Renderer::frameSync(FrameData& frameData, World& world, RenderFrame& renderFrame)
     {
         renderFrame.backgroundColor = world.backgroundColor;
         renderFrame.frameData = frameData;
@@ -89,7 +89,7 @@ namespace Rendering
                       });
     }
 
-    void Renderer::sortRenderProxies()
+    void Renderer::sortRenderProxies(RenderFrame& renderFrame)
     {
         for (size_t i = 0; i < renderFrame.renderProxyCount; i++)
         {
@@ -117,9 +117,9 @@ namespace Rendering
                   });
     }
 
-    void Renderer::draw(uint64_t drawDurationUs)
+    void Renderer::draw(uint64_t drawDurationUs, RenderFrame& renderFrame)
     {
-        sortRenderProxies();
+        sortRenderProxies(renderFrame);
 
         BeginDrawing();
         ClearBackground(std::bit_cast<::Color>(renderFrame.backgroundColor));
@@ -127,7 +127,7 @@ namespace Rendering
         for (size_t i = 0; i < renderFrame.renderProxyCount; i++)
         {
             auto& renderProxy = renderFrame.renderProxies[i];
-            drawEntity(renderProxy);
+            drawEntity(renderProxy, renderFrame);
         }
 
         DrawText(TextFormat("FPS %f\nJitter: %lld us\nWork: %lld us\nDraw: %lld us", renderFrame.frameData.fps,
@@ -137,7 +137,7 @@ namespace Rendering
         EndDrawing();
     }
 
-    void Renderer::drawEntity(RenderProxy& entity)
+    void Renderer::drawEntity(RenderProxy& entity, RenderFrame& renderFrame)
     {
         double windowWidthPx = GetScreenWidth();
         double windowHeightPx = GetScreenHeight();
