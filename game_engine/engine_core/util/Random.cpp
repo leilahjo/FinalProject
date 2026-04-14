@@ -5,9 +5,19 @@
 #include "Random.h"
 #include <random>
 
-float EngineCore::randomFloat(float min, float max)
+namespace EngineCore
 {
-    thread_local std::mt19937 rng{std::random_device{}()};
-    std::uniform_real_distribution dist(min, max);
-    return dist(rng);
+    static uint32_t globalSeed = std::random_device{}();
+
+    void setSeed(uint32_t seed)
+    {
+        globalSeed = seed;
+    }
+
+    float randomFloat(float min, float max)
+    {
+        thread_local std::mt19937 rng{globalSeed};
+        std::uniform_real_distribution dist(min, max);
+        return dist(rng);
+    }
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(game_engine)
-
+set(CMAKE_EXE_LINKER_FLAGS "-static") # For external profiling
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
@@ -65,6 +65,8 @@ add_library(engine_runtime STATIC
         engine_runtime/util/timing.h
         engine_runtime/IGame.h
         engine_runtime/Runtime.cpp
+        engine_core/util/BlockTimer.cpp
+        engine_core/util/BlockTimer.h
 )
 target_include_directories(engine_runtime PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_include_directories(engine_runtime PRIVATE ${RAYLIB_ROOT}/src)

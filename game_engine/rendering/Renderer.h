@@ -13,6 +13,7 @@
 
 #include "SpriteManager.h"
 #include "SwapBuffer.h"
+#include "engine_core/util/BlockTimer.h"
 
 namespace Rendering
 {
@@ -37,7 +38,7 @@ namespace Rendering
         // Copy world / ECS data into a RenderFrame
         void frameSync(FrameData& frameData, World& world, RenderFrame& renderFrame);
         // Draw a RenderFrame
-        void draw(uint64_t drawDurationUs, RenderFrame& renderFrame);
+        void draw(uint64_t drawDurationUs, RenderFrame& renderFrame, BlockTimer& renderLoopTimer);
 
     private:
         void drawEntity(RenderProxy& renderProxy, RenderFrame& renderFrame);

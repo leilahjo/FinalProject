@@ -14,13 +14,13 @@ namespace Rendering
 
     struct RenderFrame
     {
-        GameColor backgroundColor = blue;
-        FrameData frameData = {};
-        float viewportX = 0, viewportY = 0;
+        GameColor backgroundColor;
+        FrameData frameData;
+        float viewportX, viewportY;
 
         ArenaAllocator allocator = ArenaAllocator(10 * 1024 * 1024);
-        RenderProxy* renderProxies = nullptr;
-        uint32_t renderProxyCount = 0;
+        RenderProxy* renderProxies;
+        uint32_t renderProxyCount;
     };
 }
 

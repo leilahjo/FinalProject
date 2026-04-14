@@ -3,6 +3,7 @@ local SPEED = 0.25
 
 -- Return the function directly to the C++ Behavior::load method.
 return function(entities, entityProvider)
+    local start = os.clock()
     -- Fetch the player's Entity using the global PLAYER_ID injected by C++
     local player = entityProvider:getEntity(PLAYER_ID)
     for i = 1, #entities do
@@ -19,4 +20,6 @@ return function(entities, entityProvider)
             entity.vy = 0
         end
     end
+    local duration_us = (os.clock() - start) * 1e6
+--     print("[lua] : " .. duration_us .. " us")
 end

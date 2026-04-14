@@ -13,7 +13,7 @@ namespace EngineRuntime
 
     void initializeTiming(uint64_t targetFps);
 
-    FrameData frameSync();
+    FrameData frameSync(bool pace);
 
     void stopTiming();
 }

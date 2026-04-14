@@ -10,6 +10,7 @@
 
 #include "raylib.h"
 #include "RenderProxy.h"
+#include "engine_core/util/BlockTimer.h"
 
 namespace Rendering
 {
@@ -117,13 +118,16 @@ namespace Rendering
                   });
     }
 
-    void Renderer::draw(uint64_t drawDurationUs, RenderFrame& renderFrame)
+    void Renderer::draw(uint64_t drawDurationUs, RenderFrame& renderFrame, BlockTimer& renderLoopTimer)
     {
+        renderLoopTimer.startBlock("sortRenderProxies");
         sortRenderProxies(renderFrame);
 
+        renderLoopTimer.startBlock("setup");
         BeginDrawing();
         ClearBackground(std::bit_cast<::Color>(renderFrame.backgroundColor));
 
+        renderLoopTimer.startBlock("draw");
         for (size_t i = 0; i < renderFrame.renderProxyCount; i++)
         {
             auto& renderProxy = renderFrame.renderProxies[i];
@@ -132,8 +136,9 @@ namespace Rendering
 
         DrawText(TextFormat("FPS %f\nJitter: %lld us\nWork: %lld us\nDraw: %lld us", renderFrame.frameData.fps,
                             renderFrame.frameData.jitterUs,
-                            renderFrame.frameData.workDurationUs, drawDurationUs), 0, 0, 36, ::GRAY);
+                            renderFrame.frameData.workDurationUs, drawDurationUs), 0, 0, 36, ::GREEN);
 
+        renderLoopTimer.startBlock("EndDrawing");
         EndDrawing();
     }
 

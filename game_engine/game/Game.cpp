@@ -10,7 +10,7 @@ namespace Game
 {
     int Game::run()
     {
-        return runtime.run(*this, 1600, 1200, "GEP");
+        return runtime.run(*this, 1600, 1200, "GEP", 5 * 60);
     }
 
     void Game::onStart(World& world, Renderer& renderer)
@@ -19,9 +19,9 @@ namespace Game
         world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ANIMATED_SQUARES, true);
         world.collisionSystem.enableCollisions(LAYER_ROCKS, LAYER_ROCKS, true);
         world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCKS, true);
-        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_FAUNA, true);
-        world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_FAUNA, true);
-        world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_ROCKS, true);
+        // world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_FAUNA, true);
+        // world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_FAUNA, true);
+        // world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_ROCKS, true);
 
         renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 1;
         renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 2;
@@ -80,7 +80,7 @@ namespace Game
             | Archetype::COMP_STATE
             | Archetype::COMP_COLLIDER
             | Archetype::COMP_ANIMATION
-			| Archetype::COMP_TYPE);
+            | Archetype::COMP_TYPE);
         faunaArchetype = world.createArchetype(
             Archetype::COMP_POSITION
             | Archetype::COMP_VELOCITY
@@ -123,7 +123,7 @@ namespace Game
                                                  ColliderShape::RECT, LAYER_FAUNA,
                                                  AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
-                                                 faunaBehaviorId
+                                                 INVALID_BEHAVIOR_ID, //faunaBehaviorId
                                              });
 
         playerId = world.createEntity(playerArchetype,
@@ -144,7 +144,7 @@ namespace Game
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
-                           4, 4,
+                           8, 8,
                            yellow,
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
@@ -155,7 +155,7 @@ namespace Game
         world.createEntity(borderArchetype,
                            0, 0,
                            0, 0,
-                           3.95, 3.95,
+                           7.95, 7.95,
                            rayWhite,
                            Entity::STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
@@ -175,23 +175,23 @@ namespace Game
                                rockSpriteId,
                                ENTITY_TYPE_ROCK,
                                INVALID_BEHAVIOR_ID);
-        for (int i = 0; i < 10; i++)
-            world.createEntity(faunaArchetype,
-                               randomFloat(-1, 1), randomFloat(-1, 1),
-                               0, 0,
-                               0.1 * 64 / 144, 0.1,
-                               red,
-                               Entity::STATE_DEFAULT,
-                               ColliderShape::RECT, LAYER_FAUNA,
-                               {},
-                               lemmingSpriteId,
-                               ENTITY_TYPE_FAUNA,
-                               lemmingBehaviorId
-            );
-        for (int i = 0; i < 50; i++)
+        // for (int i = 0; i < 10; i++)
+        //     world.createEntity(faunaArchetype,
+        //                        randomFloat(-1, 1), randomFloat(-1, 1),
+        //                        0, 0,
+        //                        0.1 * 64 / 144, 0.1,
+        //                        red,
+        //                        Entity::STATE_DEFAULT,
+        //                        ColliderShape::RECT, LAYER_FAUNA,
+        //                        {},
+        //                        lemmingSpriteId,
+        //                        ENTITY_TYPE_FAUNA,
+        //                        lemmingBehaviorId
+        //     );
+        for (int i = 0; i < 400'000; i++)
             runtime.prefabManager.spawnPrefab("pig", world,
-                                              randomFloat(-2, 2),
-                                              randomFloat(-2, 2));
+                                              randomFloat(-4, 4),
+                                              randomFloat(-4, 4));
         for (int i = 0; i < 50; i++)
             runtime.prefabManager.spawnPrefab("sheep", world,
                                               randomFloat(-2, 2),
@@ -251,22 +251,22 @@ namespace Game
                     continue;
 
                 //Bottom
-                if (entity.y() - entity.height() / 2 < -2 && archetype->hasState())
+                if (entity.y() - entity.height() / 2 < -4 && archetype->hasState())
                     entity.state() |= Entity::STATE_DESTROYED;
                 //Top
-                if (entity.y() + entity.height() / 2 > 2)
+                if (entity.y() + entity.height() / 2 > 4)
                 {
                     entity.vy() *= -1;
                     entity.y() -= 0.01f;
                 }
                 //Left
-                if (entity.x() - entity.width() / 2 < -2)
+                if (entity.x() - entity.width() / 2 < -4)
                 {
                     entity.vx() *= -1;
                     entity.x() += 0.01f;
                 }
                 //Right
-                if (entity.x() + entity.width() / 2 > 2)
+                if (entity.x() + entity.width() / 2 > 4)
                 {
                     entity.vx() *= -1;
                     entity.x() -= 0.01f;

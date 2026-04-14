@@ -17,5 +17,6 @@
 #include "World.h"
 #include "FrameData.h"
 #include "memory_management/ArenaAllocator.h"
+#include "util/BlockTimer.h"
 
 #endif //GAME_ENGINE_ENGINECORE_H

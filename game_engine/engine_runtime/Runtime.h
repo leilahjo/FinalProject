@@ -34,12 +34,13 @@ namespace EngineRuntime
         BehaviorManager behaviorManager;
         PrefabManager prefabManager;
 
-        int run(IGame& game, int windowWidth, int windowHeight, const std::string& windowTitle);
+        int run(IGame& game, int windowWidth, int windowHeight, const std::string& windowTitle,
+                std::optional<uint32_t> benchmarkFrameLimit = std::nullopt);
 
     private:
         Renderer renderer;
 
-        uint64_t runEngineLoop(std::stop_token token, IGame& game);
+        uint64_t runEngineLoop(std::stop_token token, IGame& game, std::optional<uint32_t> benchmarkFrameLimit);
     };
 }
 

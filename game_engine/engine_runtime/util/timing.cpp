@@ -67,7 +67,7 @@ namespace EngineRuntime
         lastFrameStart = frameStart - std::chrono::nanoseconds(targetFrameDurationNs);
     }
 
-    FrameData frameSync()
+    FrameData frameSync(bool pace)
     {
         using clock = std::chrono::steady_clock;
         auto now = clock::now();
@@ -88,20 +88,23 @@ namespace EngineRuntime
         uint64_t elapsedFrameNs = std::chrono::duration_cast<std::chrono::nanoseconds>(now - frameStart).count();
         int64_t remainingNs = targetFrameDurationNs - elapsedFrameNs;
 
-        while (remainingNs > 3'000'000) // 3ms
+        if (pace)
         {
-            game_sleep(1);
-            now = clock::now();
-            elapsedFrameNs = std::chrono::duration_cast<std::chrono::nanoseconds>(now - frameStart).count();
-            remainingNs = targetFrameDurationNs - elapsedFrameNs;
-        }
+            while (remainingNs > 3'000'000) // 3ms
+            {
+                game_sleep(1);
+                now = clock::now();
+                elapsedFrameNs = std::chrono::duration_cast<std::chrono::nanoseconds>(now - frameStart).count();
+                remainingNs = targetFrameDurationNs - elapsedFrameNs;
+            }
 
-        while (true)
-        {
-            now = clock::now();
-            elapsedFrameNs = std::chrono::duration_cast<std::chrono::nanoseconds>(now - frameStart).count();
-            if (elapsedFrameNs >= targetFrameDurationNs)
-                break;
+            while (true)
+            {
+                now = clock::now();
+                elapsedFrameNs = std::chrono::duration_cast<std::chrono::nanoseconds>(now - frameStart).count();
+                if (elapsedFrameNs >= targetFrameDurationNs)
+                    break;
+            }
         }
 
         frameStart = now;

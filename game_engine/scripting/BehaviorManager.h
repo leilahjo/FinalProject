@@ -11,6 +11,7 @@
 
 #include "Behavior.h"
 #include "../engine_core/EngineCore.h"
+#include "engine_core/util/BlockTimer.h"
 
 namespace Scripting
 {
@@ -27,7 +28,7 @@ namespace Scripting
 
         void setGlobalEntityId(const std::string& variableName, EntityId id);
 
-        void update(World& world);
+        void update(World& world, BlockTimer& blockTimer);
 
     private:
         sol::state lua;

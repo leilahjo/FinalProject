@@ -16,7 +16,7 @@ namespace Scripting
         for (size_t i = 0; i < freeIndices.size(); i++)
             freeIndices[i] = maxBehaviors - i - 1;
 
-        lua.open_libraries(sol::lib::base, sol::lib::math);
+        lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::os);
 
         // Bind the inner EntityId struct
         lua.new_usertype<EntityId>("EntityId",
@@ -99,10 +99,12 @@ namespace Scripting
         lua[variableName] = id;
     }
 
-    void BehaviorManager::update(World& world)
+    void BehaviorManager::update(World& world, BlockTimer& blockTimer)
     {
+        blockTimer.startBlock("behavior startup");
         groups.clear();
 
+        blockTimer.startBlock("behavior grouping");
         // Step 1. Group entities by behavior and populate Entities for them.
         world.forEach(Archetype::COMP_BEHAVIOR, [&](Entity entity)
         {
@@ -117,21 +119,30 @@ namespace Scripting
 
         EntityProvider entityProvider{world};
 
+        blockTimer.startBlock("behavior execution");
+        BlockTimer behaviorExecutionTimer = BlockTimer("Behavior Execution");
         // Step 2. Execute behaviors for each group
         for (auto& [index, group] : groups)
         {
+            behaviorExecutionTimer.startBlock("check validity");
             auto& behavior = behaviors[index];
-
             if (!behavior.updateFunction.valid())
+            {
+                behaviorExecutionTimer.endFrame();
                 continue;
+            }
 
+            behaviorExecutionTimer.startBlock("update");
             // std::ref forces sol to pass by reference.
             auto result = behavior.updateFunction(std::ref(group.entities), std::ref(entityProvider));
+            behaviorExecutionTimer.startBlock("check result");
             if (!result.valid())
             {
                 sol::error err = result;
                 std::cerr << err.what() << std::endl;
             }
+            behaviorExecutionTimer.endFrame();
         }
+        // behaviorExecutionTimer.printStats();
     }
 }
