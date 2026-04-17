@@ -72,7 +72,7 @@ namespace EngineCore
         uint32_t generation;
     };
 
-    static constexpr SoundId INVALID_SOUND_ID = {static_cast<uint16_t>(-1), static_cast<uint16_t>(-1)};
+    static constexpr SoundId INVALID_SOUND_ID = {static_cast<uint16_t>(-1), static_cast<uint32_t>(-1)};
 
     struct BehaviorId
     {

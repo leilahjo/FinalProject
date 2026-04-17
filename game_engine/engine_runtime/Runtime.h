@@ -5,7 +5,8 @@
 #ifndef ENGINE_RUNTIME_ENGINE_RUNTIME_H
 #define ENGINE_RUNTIME_ENGINE_RUNTIME_H
 
-#include <stop_token>
+#include <atomic>
+#include <cstdint>
 
 #include "engine_core/EngineCore.h"
 #include "rendering/Rendering.h"
@@ -40,7 +41,7 @@ namespace EngineRuntime
     private:
         Renderer renderer;
 
-        uint64_t runEngineLoop(std::stop_token token, IGame& game, std::optional<uint32_t> benchmarkFrameLimit);
+        uint64_t runEngineLoop(std::atomic<bool>& stop, IGame& game, std::optional<uint32_t> benchmarkFrameLimit);
     };
 }
 

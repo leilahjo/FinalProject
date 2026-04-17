@@ -1,28 +1,26 @@
-local FLEE_RADIUS = 0.5
-local SPEED = 0.25
+local SPEED = 1.8
+local printed = false
 
 -- Return the function directly to the C++ Behavior::load method.
 return function(entities, entityProvider)
-    local start = os.clock()
-    -- Fetch the player's Entity using the global PLAYER_ID injected by C++
+    if not printed then
+        print("lua running")
+        printed = true
+    end
+
     local player = entityProvider:getEntity(PLAYER_ID)
---     for i = 1, #entities do
---         local entity = entities[i]
---         local dx = player.x - entity.x
---         local dy = player.y - entity.y
---         local distSq = (dx * dx) + (dy * dy)
---         if distSq < (FLEE_RADIUS * FLEE_RADIUS) then
---             local dist = math.sqrt(distSq)
---             entity.vx = -(dx / dist) * SPEED
---             entity.vy = -(dy / dist) * SPEED
---         elseif entity.vx ~= 0 or entity.vy ~= 0 then
---             entity.vx = 0
---             entity.vy = 0
---         end
---     end
+    if not player then
+        return
+    end
 
-    applyFleeBehavior(entities, player.x, player.y, FLEE_RADIUS, SPEED)
-
-    local duration_us = (os.clock() - start) * 1e6
---     print("[lua] : " .. duration_us .. " us")
+    for i = 1, #entities do
+        local entity = entities[i]
+        local dx = player.x - entity.x
+        local dy = player.y - entity.y
+        local dist = math.sqrt(dx * dx + dy * dy)
+        if dist > 0.001 then
+            entity.vx = (dx / dist) * SPEED
+            entity.vy = (dy / dist) * SPEED
+        end
+    end
 end
