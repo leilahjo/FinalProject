@@ -29,7 +29,7 @@ namespace EngineCore
                                  float vx, float vy,
                                  float width, float height,
                                  GameColor color,
-                                 Entity::State state,
+                                 State state,
                                  ColliderShape colliderShape, ColliderLayerId colliderLayerId,
                                  AnimationData animationData,
                                  SpriteId spriteId,
@@ -105,7 +105,7 @@ namespace EngineCore
             for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount();)
             {
                 auto entity = Entity{archetype.get(), entityIndex};
-                if (entity.state() & Entity::STATE_DESTROYED)
+                if (entity.state() & STATE_DESTROYED)
                     removeEntity(entity.id());
                 else
                     entityIndex++;

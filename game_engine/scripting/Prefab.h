@@ -19,7 +19,7 @@ namespace Scripting
         float width = 1;
         float height = 1;
         GameColor color = white;
-        Entity::State state = Entity::STATE_DEFAULT;
+        State state = STATE_DEFAULT;
         ColliderShape colliderShape = ColliderShape::RECT;
         ColliderLayerId colliderLayerId = DEFAULT_COLLISION_LAYER_ID;
         AnimationData animationData = {};

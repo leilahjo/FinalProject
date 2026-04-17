@@ -10,7 +10,7 @@ namespace Game
 {
     int Game::run()
     {
-        return runtime.run(*this, 1600, 1200, "GEP", 5 * 60);
+        return runtime.run(*this, 1600, 1200, "GEP");
     }
 
     void Game::onStart(World& world, Renderer& renderer)
@@ -95,9 +95,9 @@ namespace Game
         runtime.prefabManager.registerPrefab("sheep", Prefab{
                                                  faunaArchetype,
                                                  sheepSpriteSheetId,
-                                                 0.10, 0.10,
+                                                 0.05, 0.05,
                                                  white,
-                                                 Entity::STATE_DEFAULT,
+                                                 STATE_DEFAULT,
                                                  ColliderShape::RECT, LAYER_FAUNA,
                                                  AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
@@ -106,9 +106,9 @@ namespace Game
         runtime.prefabManager.registerPrefab("chicken", Prefab{
                                                  faunaArchetype,
                                                  chickenSpriteSheetId,
-                                                 0.10, 0.10,
+                                                 0.05, 0.05,
                                                  white,
-                                                 Entity::STATE_DEFAULT,
+                                                 STATE_DEFAULT,
                                                  ColliderShape::RECT, LAYER_FAUNA,
                                                  AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
@@ -117,13 +117,13 @@ namespace Game
         runtime.prefabManager.registerPrefab("pig", Prefab{
                                                  faunaArchetype,
                                                  pigSpriteSheetId,
-                                                 0.10, 0.10,
+                                                 0.01, 0.01,
                                                  white,
-                                                 Entity::STATE_DEFAULT,
+                                                 STATE_DEFAULT,
                                                  ColliderShape::RECT, LAYER_FAUNA,
                                                  AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
                                                  ENTITY_TYPE_FAUNA,
-                                                 INVALID_BEHAVIOR_ID, //faunaBehaviorId
+                                                 faunaBehaviorId //INVALID_BEHAVIOR_ID
                                              });
 
         playerId = world.createEntity(playerArchetype,
@@ -131,7 +131,7 @@ namespace Game
                                       0, 0,
                                       0.2, 0.2,
                                       green,
-                                      Entity::STATE_DEFAULT,
+                                      STATE_DEFAULT,
                                       ColliderShape::RECT, LAYER_PLAYER,
                                       {},
                                       playerRunSpriteSheetId,
@@ -146,7 +146,7 @@ namespace Game
                            0, 0,
                            8, 8,
                            yellow,
-                           Entity::STATE_DEFAULT,
+                           STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
                            {},
                            INVALID_SPRITE_ID,
@@ -157,7 +157,7 @@ namespace Game
                            0, 0,
                            7.95, 7.95,
                            rayWhite,
-                           Entity::STATE_DEFAULT,
+                           STATE_DEFAULT,
                            ColliderShape::RECT, LAYER_NONE,
                            {},
                            INVALID_SPRITE_ID,
@@ -169,7 +169,7 @@ namespace Game
                                randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
                                0.1 * 128 / 92, 0.1,
                                red,
-                               Entity::STATE_DEFAULT,
+                               STATE_DEFAULT,
                                ColliderShape::RECT, LAYER_ROCKS,
                                {},
                                rockSpriteId,
@@ -188,7 +188,7 @@ namespace Game
         //                        ENTITY_TYPE_FAUNA,
         //                        lemmingBehaviorId
         //     );
-        for (int i = 0; i < 400'000; i++)
+        for (int i = 0; i < 10'000; i++)
             runtime.prefabManager.spawnPrefab("pig", world,
                                               randomFloat(-4, 4),
                                               randomFloat(-4, 4));
@@ -229,7 +229,7 @@ namespace Game
                                    randomFloat(-0.25, 0.25),
                                    0.025, 0.025,
                                    blue,
-                                   Entity::STATE_DEFAULT,
+                                   STATE_DEFAULT,
                                    ColliderShape::RECT, LAYER_ANIMATED_SQUARES,
                                    {},
                                    INVALID_SPRITE_ID,
@@ -252,7 +252,7 @@ namespace Game
 
                 //Bottom
                 if (entity.y() - entity.height() / 2 < -4 && archetype->hasState())
-                    entity.state() |= Entity::STATE_DESTROYED;
+                    entity.state() |= STATE_DESTROYED;
                 //Top
                 if (entity.y() + entity.height() / 2 > 4)
                 {
@@ -292,10 +292,11 @@ namespace Game
                 continue;
 
             if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ROCK)
-                entityA.state() |= Entity::STATE_DESTROYED;
+                entityA.state() |= STATE_DESTROYED;
             if (entityA.entityTypeId() == ENTITY_TYPE_ROCK && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
-                entityB.state() |= Entity::STATE_DESTROYED;
-            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
+                entityB.state() |= STATE_DESTROYED;
+            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() ==
+                ENTITY_TYPE_ANIMATED_SQUARE)
             {
                 AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
                 AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);

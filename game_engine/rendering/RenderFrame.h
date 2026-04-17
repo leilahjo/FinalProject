@@ -18,7 +18,7 @@ namespace Rendering
         FrameData frameData;
         float viewportX, viewportY;
 
-        ArenaAllocator allocator = ArenaAllocator(10 * 1024 * 1024);
+        ArenaAllocator allocator = ArenaAllocator(100 * 1024 * 1024);
         RenderProxy* renderProxies;
         uint32_t renderProxyCount;
     };

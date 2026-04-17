@@ -36,13 +36,22 @@ namespace EngineCore
         // We're using unique_ptr because world is the exclusive "owner" of the archetypes.
         std::vector<std::unique_ptr<Archetype>> archetypes;
 
+        // 1MB allocator specifically for archetype queries
+        ArenaAllocator archetypeListAllocator{1 * 1024 * 1024};
+
+        // A lightweight view over our arena-allocated array
+        struct ArchetypeList {
+            Archetype** archetypes;
+            size_t count;
+        };
+
         Archetype* createArchetype(ComponentMask mask);
         EntityId createEntity(Archetype* archetype,
                               float x, float y,
                               float vx, float vy,
                               float width, float height,
                               GameColor color,
-                              Entity::State state,
+                              State state,
                               ColliderShape colliderShape, ColliderLayerId colliderLayerId,
                               AnimationData animationData,
                               SpriteId spriteId,
@@ -66,6 +75,24 @@ namespace EngineCore
                 for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); ++entityIndex)
                     callable(Entity{archetype.get(), entityIndex});
             }
+        }
+
+        ArchetypeList getMatchingArchetypes(ComponentMask mask)
+        {
+            archetypeListAllocator.resetFully();
+            auto** archetypeList = archetypeListAllocator.allocate<Archetype*>(archetypes.size());
+
+            size_t matchCount = 0;
+            for (const auto& archetype : archetypes)
+            {
+                if ((archetype->componentMask & mask) == mask)
+                {
+                    archetypeList[matchCount] = archetype.get();
+                    matchCount++;
+                }
+            }
+
+            return {archetypeList, matchCount};
         }
 
     private:

@@ -91,7 +91,7 @@ namespace EngineCore
 
             auto& a = optA.value();
             auto& b = optB.value();
-            if (a.state() & Entity::STATE_DESTROYED || b.state() & Entity::STATE_DESTROYED)
+            if (a.state() & STATE_DESTROYED || b.state() & STATE_DESTROYED)
                 continue;
 
             separate(a, b);

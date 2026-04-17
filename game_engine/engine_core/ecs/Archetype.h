@@ -10,7 +10,6 @@
 #include "AnimationData.h"
 #include "GameColor.h"
 #include "ECSTypes.h"
-#include "Entity.h"
 
 namespace EngineCore
 {
@@ -50,7 +49,7 @@ namespace EngineCore
         std::vector<GameColor> color;
 
         // State Component
-        std::vector<Entity::State> state;
+        std::vector<State> state;
 
         // Collider Component
         std::vector<ColliderShape> colliderShape;
@@ -74,7 +73,7 @@ namespace EngineCore
                                  float vx, float vy,
                                  float width, float height,
                                  GameColor color,
-                                 Entity::State state,
+                                 State state,
                                  ColliderShape collisionShape, ColliderLayerId collisionLayerId,
                                  AnimationData animationData,
                                  SpriteId spriteId,

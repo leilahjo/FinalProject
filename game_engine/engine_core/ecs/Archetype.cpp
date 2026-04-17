@@ -17,7 +17,7 @@ namespace EngineCore
         float vx, float vy,
         float width, float height,
         GameColor color,
-        Entity::State state,
+        State state,
         ColliderShape collisionShape, ColliderLayerId collisionLayerId,
         AnimationData animationData,
         SpriteId spriteId,

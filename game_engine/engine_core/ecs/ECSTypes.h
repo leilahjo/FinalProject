@@ -81,6 +81,14 @@ namespace EngineCore
         bool operator==(const BehaviorId& behaviorId) const = default;
     };
     static constexpr BehaviorId INVALID_BEHAVIOR_ID = {static_cast<uint16_t>(-1), static_cast<uint32_t>(-1)};
+
+    using StateMask = std::uint32_t;
+
+    enum State : StateMask
+    {
+        STATE_DEFAULT = 0,
+        STATE_DESTROYED = 1 << 0,
+    };
 }
 
 #endif //ENGINE_CORE_ECSTYPES_H

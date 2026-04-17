@@ -47,6 +47,30 @@ namespace Scripting
         // Bind the EntityProvider's getEntity function.
         lua.new_usertype<EntityProvider>("EntityProvider", "getEntity",
                                          &EntityProvider::getEntity);
+
+        lua.set_function("applyFleeBehavior",
+                         [](std::vector<Entity>& entities, float px, float py, float fleeRadius, float speed)
+                         {
+                             float radiusSq = fleeRadius * fleeRadius;
+                             for (auto& entity : entities)
+                             {
+                                 float dx = px - entity.x();
+                                 float dy = py - entity.y();
+                                 float distSq = (dx * dx) + (dy * dy);
+
+                                 if (distSq < radiusSq)
+                                 {
+                                     float dist = std::sqrt(distSq);
+                                     entity.vx() = -(dx / dist) * speed;
+                                     entity.vy() = -(dy / dist) * speed;
+                                 }
+                                 else if (entity.vx() != 0 || entity.vy() != 0)
+                                 {
+                                     entity.vx() = 0;
+                                     entity.vy() = 0;
+                                 }
+                             }
+                         });
     }
 
     void BehaviorManager::uninitialize()

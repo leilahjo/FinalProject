@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(game_engine)
-set(CMAKE_EXE_LINKER_FLAGS "-static") # For external profiling
+
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
@@ -28,11 +28,11 @@ set(LUA_VERSION "5.4.6")
 set(LUA_TAR "${CMAKE_BINARY_DIR}/lua-${LUA_VERSION}.tar.gz")
 set(LUA_SRC_DIR "${CMAKE_BINARY_DIR}/lua-${LUA_VERSION}/src")
 # Only download and extract if we haven't already
-if(NOT EXISTS "${LUA_SRC_DIR}/lua.h")
+if (NOT EXISTS "${LUA_SRC_DIR}/lua.h")
     message(STATUS "Downloading and extracting Lua ${LUA_VERSION}...")
     file(DOWNLOAD https://www.lua.org/ftp/lua-${LUA_VERSION}.tar.gz ${LUA_TAR})
     file(ARCHIVE_EXTRACT INPUT ${LUA_TAR} DESTINATION ${CMAKE_BINARY_DIR})
-endif()
+endif ()
 # Gather the C files, excluding the standalone executables
 file(GLOB LUA_SOURCES "${LUA_SRC_DIR}/*.c")
 list(REMOVE_ITEM LUA_SOURCES
@@ -139,7 +139,6 @@ add_library(engine_core STATIC
         engine_core/ecs/AnimationData.h
         engine_core/ecs/GameColor.h
         engine_core/ecs/ECSTypes.h
-        engine_core/ecs/Entity.cpp
         engine_core/ecs/Entity.h
         engine_core/systems/AnimationSystem.cpp
         engine_core/systems/AnimationSystem.h
@@ -188,6 +187,14 @@ add_compile_definitions($<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>)
 target_compile_definitions(game_engine
         PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
 )
+
+# Enable fast-math and SIMD support
+#target_compile_options(engine_core PRIVATE
+#        -O3
+#        -march=native
+#        -ffast-math
+#        -fopenmp-simd # Enables the #pragma omp simd directive
+#)
 
 add_custom_command(
         TARGET game_engine POST_BUILD
