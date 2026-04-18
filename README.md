@@ -1,3 +1,38 @@
+# Project proposal
+I plan to build a top-down arena survival shooter where the player controls a character in a single-screen arena and survives waves of enemies. The player aims with the mouse, shoots projectiles, avoids enemies, and collects pickups. The demo will use engine-level hitpoints, rotation, mouse input, particles, parallax background rendering, and toggleable debug rendering. The goal is to create a simple but polished playable demo that clearly shows ECS components, animation, collision, and engine improvements.
+
+## Build Instructions
+
+To build and run the game:
+
+1. Navigate to the game engine directory:
+   ```
+   cd game_engine
+   ```
+
+2. Create a build directory and configure with CMake:
+   ```
+   mkdir build && cd build
+   cmake -S .. -B .
+   ```
+
+3. Build the project:
+   ```
+   cmake --build . --config Release
+   ```
+
+4. Run the game:
+   ```
+   ./game_engine
+   ```
+
+## Controls
+- WASD or Arrow Keys: Move
+- Mouse: Aim
+- Left Click: Shoot
+- F1: Toggle debug overlay
+- R: Restart after death
+
 # Project Status Update Instructions
 
 **Points:** 50
@@ -18,3 +53,6 @@ In your submission, please provide:
 
 **Grading:**
 The progress update is a low-stakes assignment designed to keep you on track. The profiling is a little bit more involved.
+
+## Submission Notes
+The main game engine and project files are located in the `game_engine/` subdirectory. Build from there as described above. The root directory contains additional documentation and demo projects.
