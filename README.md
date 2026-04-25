@@ -1,6 +1,6 @@
 # Project Status Update Instructions
 
-**Points:** 5
+**Points:** 50
 
 **Objective:**
 The goal of this check-in is to ensure you are making steady progress on your project.
