@@ -13,6 +13,8 @@
 #include "systems/AnimationSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/KinematicsSystem.h"
+#include "systems/HpCheckSystem.h"
+#include "systems/ParticleSystem.h"
 #include "util/Random.h"
 #include "World.h"
 #include "FrameData.h"

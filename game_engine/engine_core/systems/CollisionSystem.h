@@ -5,12 +5,13 @@
 #ifndef ENGINE_CORE_COLLISIONSYSTEM_H
 #define ENGINE_CORE_COLLISIONSYSTEM_H
 
+#include <vector>
 #include "../ecs/ECSTypes.h"
+#include "../ecs/Entity.h"
 #include "engine_core/memory_management/ArenaAllocator.h"
 
 namespace EngineCore
 {
-    struct Entity;
     struct World;
 
     struct Collision
@@ -30,8 +31,8 @@ namespace EngineCore
 
     private:
         static void separate(Entity& a, Entity& b);
-        //Consider reducing the memory footprint by using bits rather than bytes.
         bool permittedLayerCollisions[MAX_COLLISION_LAYER_COUNT][MAX_COLLISION_LAYER_COUNT] = {{}};
+        std::vector<Entity> colliderEntities[MAX_COLLISION_LAYER_COUNT];
     };
 }
 

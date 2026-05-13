@@ -3,6 +3,7 @@
 //
 
 #include <vector>
+#include <cmath>
 
 #include "CollisionSystem.h"
 #include "../World.h"
@@ -21,12 +22,11 @@ namespace EngineCore
         collisionCount = 0;
         Collision* collisions = nullptr;
 
-        // Array of layers, where every array is a vector of entities
-        std::vector<Entity> colliderEntities[MAX_COLLISION_LAYER_COUNT];
+        for (auto& v : colliderEntities) v.clear();
         world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE | Archetype::COMP_COLLIDER,
-                      [&colliderEntities](Entity entity)
+                      [this](Entity entity)
                       {
-                          colliderEntities[entity.colliderLayerId()].push_back(entity);
+                          this->colliderEntities[entity.colliderLayerId()].push_back(entity);
                       });
 
         for (ColliderLayerId layerAId = 0; layerAId < MAX_COLLISION_LAYER_COUNT; layerAId++)
@@ -52,16 +52,30 @@ namespace EngineCore
                         auto& entityA = layerA[a];
                         auto& entityB = layerB[b];
 
-                        // Check whether AABBs overlap.
-                        // Note that these checks shouldn't be expected to have great cache locality. That's unavoidable
-                        // because we don't organize our entity data spatially.
-                        if (entityA.right() < entityB.left() ||
-                            entityA.left() > entityB.right() ||
-                            entityA.top() < entityB.bottom() ||
-                            entityA.bottom() > entityB.top())
+                        // Shape-aware overlap test.
+                        // Note: no spatial broadphase, so cache locality is limited by design.
+                        bool aCircle = entityA.colliderShape() == ColliderShape::CIRCLE;
+                        bool bCircle = entityB.colliderShape() == ColliderShape::CIRCLE;
+                        bool overlapping;
+
+                        if (aCircle && bCircle)
                         {
-                            continue;
+                            float ra = std::min(entityA.width(), entityA.height()) * 0.5f;
+                            float rb = std::min(entityB.width(), entityB.height()) * 0.5f;
+                            float dx = entityA.x() - entityB.x();
+                            float dy = entityA.y() - entityB.y();
+                            overlapping = (dx * dx + dy * dy) < (ra + rb) * (ra + rb);
                         }
+                        else
+                        {
+                            overlapping = !(entityA.right() < entityB.left() ||
+                                            entityA.left()  > entityB.right() ||
+                                            entityA.top()   < entityB.bottom() ||
+                                            entityA.bottom()> entityB.top());
+                        }
+
+                        if (!overlapping)
+                            continue;
 
                         auto newCollisionPtr = allocator.allocate<Collision>(1);
                         if (newCollisionPtr == nullptr)
@@ -110,17 +124,46 @@ namespace EngineCore
 
         float moveA = 0.5f + separationEpsilon;
         float moveB = 0.5f + separationEpsilon;
-        if (!aHasVelocity)
+        if (!aHasVelocity) { moveA = 0;                    moveB = 1 + separationEpsilon; }
+        if (!bHasVelocity) { moveA = 1 + separationEpsilon; moveB = 0; }
+
+        bool aCircle = a.entityLocation.archetype->hasCollider() &&
+                       a.colliderShape() == ColliderShape::CIRCLE;
+        bool bCircle = b.entityLocation.archetype->hasCollider() &&
+                       b.colliderShape() == ColliderShape::CIRCLE;
+
+        if (aCircle && bCircle)
         {
-            moveA = 0;
-            moveB = 1 + separationEpsilon;
-        }
-        if (!bHasVelocity)
-        {
-            moveA = 1 + separationEpsilon;
-            moveB = 0;
+            // Push apart along the line connecting centers.
+            float ra = std::min(a.width(), a.height()) * 0.5f;
+            float rb = std::min(b.width(), b.height()) * 0.5f;
+            float dx = a.x() - b.x();
+            float dy = a.y() - b.y();
+            float dist = std::sqrt(dx * dx + dy * dy);
+            if (dist < 0.0001f) { dx = 1.0f; dy = 0.0f; dist = 1.0f; }
+            float overlap = ra + rb - dist;
+            float nx = dx / dist, ny = dy / dist;
+
+            a.x() += nx * overlap * moveA;
+            a.y() += ny * overlap * moveA;
+            b.x() -= nx * overlap * moveB;
+            b.y() -= ny * overlap * moveB;
+
+            // Cancel velocity components pointing into the collision.
+            if (aHasVelocity)
+            {
+                float dot = a.vx() * nx + a.vy() * ny;
+                if (dot < 0) { a.vx() -= 2 * dot * nx; a.vy() -= 2 * dot * ny; }
+            }
+            if (bHasVelocity)
+            {
+                float dot = b.vx() * nx + b.vy() * ny;
+                if (dot > 0) { b.vx() -= 2 * dot * nx; b.vy() -= 2 * dot * ny; }
+            }
+            return;
         }
 
+        // AABB separation for rect-rect and rect-circle combos.
         float xOverlap = std::min(a.right(), b.right()) - std::max(a.left(), b.left());
         float yOverlap = std::min(a.top(), b.top()) - std::max(a.bottom(), b.bottom());
 
@@ -129,9 +172,8 @@ namespace EngineCore
         float& aVelocity = resolveX ? a.vx() : a.vy();
         float& bPosition = resolveX ? b.x() : b.y();
         float& bVelocity = resolveX ? b.vx() : b.vy();
-        float& overlap = resolveX ? xOverlap : yOverlap;
+        float& overlap   = resolveX ? xOverlap : yOverlap;
 
-        // A is left/below of B
         if (aPosition < bPosition)
         {
             aPosition -= overlap * moveA;
@@ -139,7 +181,7 @@ namespace EngineCore
             if (aVelocity > 0) aVelocity *= -1;
             if (bVelocity < 0) bVelocity *= -1;
         }
-        else // A is right/top of B
+        else
         {
             aPosition += overlap * moveA;
             bPosition -= overlap * moveB;
