@@ -29,8 +29,7 @@ To build and run the game:
 ## Controls
 - WASD or Arrow Keys: Move
 - Mouse: Aim
-- Left Click: Shoot
-- F1: Toggle debug overlay
+- Space: Shoot
 - R: Restart after death
 
 # Project Status Update Instructions

@@ -2,6 +2,6 @@
 
 int main()
 {
-    Game::Game game;
+    Game::ArenaGame game;
     return game.run();
 }

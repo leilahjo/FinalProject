@@ -1,71 +1,86 @@
-//
-// Created by greg8 on 1/29/2026.
-//
+#pragma once
 
-#ifndef GAME_ENGINE_GAME_H
-#define GAME_ENGINE_GAME_H
-
-#include "../engine_runtime/EngineRuntime.h"
+#include "engine_runtime/EngineRuntime.h"
+#include "EntityFactory.h"
+#include "WaveManager.h"
 
 namespace Game
 {
     using namespace EngineRuntime;
 
-    struct Game final : IGame
+    struct ArenaGame final : IGame
     {
         Runtime runtime;
 
+        // -- Archetypes --
+        Archetype* playerArch   = nullptr;
+        Archetype* chaserArch   = nullptr;
+        Archetype* tankArch     = nullptr;
+        Archetype* projArch     = nullptr;
+        Archetype* pickupArch   = nullptr;
+        Archetype* particleArch = nullptr;
+        Archetype* wallArch     = nullptr;
+
         EntityId playerId;
 
-        Archetype* borderArchetype;
-        Archetype* rockArchetype;
-        Archetype* animatedSquareArchetype;
-        Archetype* playerArchetype;
-        Archetype* faunaArchetype;
+        // -- Assets --
+        SpriteId    playerSprite;
+        AnimationId playerRunAnim;
+        SoundId     shootSfx;
+        SoundId     hitSfx;
+        SoundId     dieSfx;
+        MusicId     bgMusic;
 
-        SpriteId playerRunSpriteSheetId;
-        SpriteId rockSpriteId;
-        SpriteId lemmingSpriteId;
-        SpriteId pigSpriteSheetId;
-        SpriteId chickenSpriteSheetId;
-        SpriteId sheepSpriteSheetId;
+        // -- Game state --
+        enum State { PLAYING, DEAD } state = PLAYING;
+        float survivalTime = 0;
+        int   kills        = 0;
+        float fireCooldown = 0;
+        float hitCooldown  = 0; // invincibility frames after taking damage
 
-        BehaviorId lemmingBehaviorId;
-        BehaviorId faunaBehaviorId;
+        // -- Debug stats (text output, updated each frame) --
+        size_t lastCollisionCount = 0;
+        int    debugLogTimer      = 0; // frame counter for periodic console logs
 
-        AnimationId simpleAnimationId;
-        AnimationId playerRunAnimationId;
-        AnimationId animalIdleAnimation;
+        EntityFactory factory;
+        WaveManager   waves;
 
-        SoundId dootSoundId;
-
+        // IGame
         void onStart(World& world, Renderer& renderer) override;
         void onUpdateBegin(World& world) override;
         void onUpdatePostKinematics(World& world) override;
-        void onUpdatePostCollisionDetection(World& world, Collision collisions[], size_t collisionCount) override;
-        void onUpdatePostCollisionResolution(World& world, Collision collisions[], size_t collisionCount) override;
+        void onUpdatePostCollisionDetection(World& world, Collision[], size_t) override;
+        void onUpdatePostCollisionResolution(World& world, Collision[], size_t) override;
 
         int run();
 
         enum EntityType : EntityTypeId
         {
-            ENTITY_TYPE_NONE,
-            ENTITY_TYPE_PLAYER,
-            ENTITY_TYPE_ROCK,
-            ENTITY_TYPE_ANIMATED_SQUARE,
-            ENTITY_TYPE_FAUNA
+            TYPE_NONE = 0,
+            TYPE_PLAYER,
+            TYPE_CHASER,
+            TYPE_TANK,
+            TYPE_PROJECTILE,
+            TYPE_PICKUP,
+            TYPE_PARTICLE,
+            TYPE_WALL,
         };
 
-        enum Layers : ColliderLayerId
+        enum Layer : ColliderLayerId
         {
-            LAYER_NONE,
+            LAYER_NONE = 0,
             LAYER_PLAYER,
-            LAYER_ROCKS,
-            LAYER_ANIMATED_SQUARES,
-            LAYER_FAUNA,
-			LAYER_LEMMINGS,
+            LAYER_ENEMY,
+            LAYER_PROJ,
+            LAYER_PICKUP,
         };
+
+    private:
+        void handleInput(World& world);
+        void updateEnemyAI(World& world);
+        void clampToArena(World& world);
+        void printDebugLog(World& world);
+        void spawnWalls(World& world);
+        void restartGame(World& world);
     };
 }
-
-#endif //GAME_ENGINE_GAME_H

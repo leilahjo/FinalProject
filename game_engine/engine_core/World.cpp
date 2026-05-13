@@ -18,9 +18,7 @@ namespace EngineCore
 
     Archetype* World::createArchetype(ComponentMask mask)
     {
-        archetypes.push_back(
-            std::make_unique<Archetype>(mask)
-        );
+        archetypes.push_back(std::make_unique<Archetype>(mask));
         return archetypes.back().get();
     }
 
@@ -34,32 +32,41 @@ namespace EngineCore
                                  AnimationData animationData,
                                  SpriteId spriteId,
                                  EntityTypeId entityType,
-                                 BehaviorId behaviorId)
+                                 BehaviorId behaviorId,
+                                 float maxHp, float currentHp,
+                                 float rotation,
+                                 float particleLifetime, float particleMaxLifetime)
     {
         if (freeIndices.empty())
             return INVALID_ENTITY_ID;
 
         EntityRecordIndex recordIndex = freeIndices.back();
-        EntityRecord& entityRecord = entityRecords[recordIndex];
         freeIndices.pop_back();
+        EntityRecord& entityRecord = entityRecords[recordIndex];
 
         auto entityId = EntityId{recordIndex, entityRecord.generation};
 
         EntityIndex entityIndex = archetype->createEntity(entityId,
-                                                          x, y,
-                                                          vx, vy,
-                                                          width, height,
-                                                          color,
-                                                          state,
-                                                          colliderShape, colliderLayerId,
-                                                          animationData,
-                                                          spriteId,
-                                                          entityType,
-                                                          behaviorId);
+            x, y, vx, vy, width, height,
+            color, state,
+            colliderShape, colliderLayerId,
+            animationData, spriteId, entityType, behaviorId,
+            maxHp, currentHp, rotation,
+            particleLifetime, particleMaxLifetime);
 
         entityRecord.location = {archetype, entityIndex};
-
         return entityId;
+    }
+
+    EntityId World::createEntity(Archetype* archetype, const EntitySpec& s)
+    {
+        return createEntity(archetype,
+            s.x, s.y, s.vx, s.vy, s.width, s.height,
+            s.color, s.state,
+            s.colliderShape, s.colliderLayerId,
+            s.animationData, s.spriteId, s.entityType, s.behaviorId,
+            s.maxHp, s.currentHp, s.rotation,
+            s.particleLifetime, s.particleMaxLifetime);
     }
 
     bool World::removeEntity(EntityId entityId)
@@ -79,7 +86,6 @@ namespace EngineCore
         }
 
         destroyedRecord.generation++;
-
         freeIndices.push_back(entityId.recordIndex);
         return true;
     }
@@ -101,7 +107,6 @@ namespace EngineCore
         {
             if (!archetype->hasState())
                 continue;
-
             for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount();)
             {
                 auto entity = Entity{archetype.get(), entityIndex};
