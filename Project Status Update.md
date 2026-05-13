@@ -4,7 +4,7 @@
 
 https://github.com/leilah-s/arena-survival-gep
 
-#2.  Engine Features Completed
+# 2.  Engine Features Completed
 
 ## HP Component and HpCheckSystem
 
