@@ -75,7 +75,7 @@ namespace Scripting
 
     void BehaviorManager::uninitialize()
     {
-        for (Behavior behavior : behaviors)
+        for (Behavior& behavior : behaviors)
             behavior.unload();
         behaviors.clear();
         freeIndices.clear();

@@ -4,87 +4,246 @@
 
 https://github.com/leilah-s/arena-survival-gep
 
-## 2. Engine Progress
+# 2.  Engine Features Completed
 
-Engine features completed:
+## HP Component and HpCheckSystem
 
-- **HP Component and HpCheckSystem** — added `currentHp` and `maxHp` fields via `COMP_HP`. The `HpCheckSystem` just checks every entity with that component each frame and flags it destroyed if HP is zero or below. Means the game never has to manually handle entity death — it just does damage and the system takes care of the rest.
+Added `currentHp` and `maxHp` fields through `COMP_HP`. The `HpCheckSystem` checks entities with the HP component every frame and flags them for destruction when HP reaches zero or below.
 
-- **Particle Component and ParticleSystem** — `COMP_PARTICLE` tracks lifetime and max lifetime. Each frame the system ticks down lifetime and adjusts alpha proportionally. When it expires the entity gets flagged destroyed. I tested this with the burst spawner and it handles 10-16 particles per enemy death without any issues.
+This means the game itself never has to manually handle entity death since entities are automatically removed after taking enough damage.
 
-- **Audio System** — `AudioManager` wraps raylib audio with a voice pool so multiple copies of a sound can play at once. Two exhaustion modes: DROP just silently skips if all voices are busy, REPLACE steals the oldest one. Shoot, hit, and die effects each use a different file now (`doot.wav`, `hit.wav`, `die.wav`).
+---
 
-- **Lua Scripting via sol2** — `BehaviorManager` embeds Lua 5.4 and handles grouping entities by behavior ID, then calling the registered update function each frame with the entity list and a provider to look up other entities (e.g. the player). Chaser enemies are fully driven by `fauna.lua` now — the C++ AI loop skips any entity with a behavior component. Added a print in the script to confirm it actually runs. Hot-reload still works on F5.
+## Particle Component and ParticleSystem
 
-- **Parallax Background Rendering** — two dot-grid layers at different parallax factors (0.15 and 0.35). Each one auto-scrolls over time and also shifts based on the viewport position, so as the camera drifts with the player the layers move at different rates. Looks pretty good in practice.
+Added `COMP_PARTICLE` to track particle lifetime and maximum lifetime.
 
-- **Multi-Threaded Render Loop** — game logic runs on a background thread and writes frames into a triple-buffer swap. The main thread just grabs the latest ready frame and draws it without waiting on the game thread. I used a condition variable for the initial sync. The `BlockTimer` output shows the two loops are clearly running independently.
+Every frame, the system:
 
-- **Debug Render Overlay** — toggle with F1. Draws a bounding box around each entity, a velocity arrow, and an HP bar above anything that has the HP component. All of this goes through the render thread using the snapshot data so there's no extra locking needed.
+* decreases particle lifetime
+* fades particle alpha over time
 
-- **Type-Based Render Layering** — there's a map from entity type ID to a layer number. When the frame is built, each proxy gets tagged with its layer and they get sorted before drawing. Walls come out behind enemies, enemies behind projectiles, player on top. Works correctly with the parallax layers behind everything.
+Once the lifetime expires, the particle entity is automatically destroyed.
 
-- **Arena Allocator** — used for the collision pair list and the render proxy array, both of which get rebuilt every frame. The allocator just bumps a pointer and resets at the end of each frame instead of doing a bunch of small heap allocations. Handles alignment with `std::align`.
+I tested this using particle burst effects and it handled around 10–16 particles per enemy death without issues.
 
-- **Mouse World-Space Transform** — `InputManager` converts the raw mouse pixel position to world units using the same scale factor the renderer uses. The aim direction is correct even when the viewport has drifted from center.
+---
 
-- **Circle-Circle Collision** — `CollisionSystem::detect` checks the collider shape and picks the right test. Circle pairs use a radius-sum distance check. The separation pushes both entities apart along the contact axis.
+## Audio System
 
-- **On-Screen HUD** — HP bar (goes green → yellow → red), wave number, kill count, and time survived are drawn each frame. When the player dies a semi-transparent overlay comes up with the final stats and a prompt to restart with R.
+The `AudioManager` now wraps raylib audio using a voice pool so multiple copies of the same sound can play at once.
 
-## 3. Game Progress
+There are two exhaustion modes:
 
-- Player movement with WASD/arrows, mouse aim, left-click to shoot with a short cooldown — all working.
-- Two enemy types: Chasers (small, fast, low HP) driven by `fauna.lua` via the Lua behavior system; Tanks (bigger, slow, higher HP) still using C++ AI.
-- Waves escalate each round — wave N sends 3 + 2N chasers and N-1 tanks. Short grace period at the start and between waves.
-- Invincibility frames for 0.8s after any hit.
-- ~40% pickup drop on enemy death; pickups restore 30 HP capped at max.
-- Particle bursts on hit, kill, pickup, and player death.
-- Camera drifts slightly toward the player position for visible parallax effect.
-- R to restart after death — clears all entities, resets everything, spawns fresh.
+* `DROP` skips playing a sound if all voices are busy
+* `REPLACE` replaces the oldest active sound
 
-## 4. Blockers
+Different sounds are now used for:
+
+* shooting (`doot.wav`)
+* hits (`hit.wav`)
+* enemy deaths (`die.wav`)
+
+---
+
+## Lua Scripting via sol2
+
+Implemented a `BehaviorManager` using Lua 5.4 and sol2.
+
+Entities can now:
+
+* be grouped by behavior ID
+* update through Lua scripts every frame
+
+Chaser enemies are fully controlled through `fauna.lua`, while the C++ AI system ignores entities that already have behavior components.
+
+Hot reload support was also added with `F5`.
+
+---
+
+## Parallax Background Rendering
+
+Added two scrolling dot-grid background layers with different parallax factors:
+
+* `0.15`
+* `0.35`
+
+The layers:
+
+* scroll automatically
+* shift based on camera movement
+
+This creates a depth effect while the camera follows the player.
+
+---
+
+## Multi-Threaded Render Loop
+
+The game logic runs on a background thread while the main thread handles rendering.
+
+Frames are passed through a triple-buffer system so rendering does not block the game thread.
+
+A condition variable is used for startup synchronization.
+
+`BlockTimer` output confirms that both threads run independently.
+
+---
+
+## Debug Render Overlay
+
+Pressing `F1` toggles a debug overlay that renders:
+
+* bounding boxes
+* velocity arrows
+* HP bars
+
+The overlay uses render snapshot data, so no additional locking is required between threads.
+
+---
+
+## Type-Based Render Layering
+
+Added a render layer system based on entity type IDs.
+
+Render proxies are sorted before drawing so entities appear in the correct order:
+
+* walls behind enemies
+* enemies behind projectiles
+* player on top
+
+The system also works correctly with the parallax background layers.
+
+---
+
+## Arena Allocator
+
+Implemented an arena allocator for:
+
+* collision pair lists
+* render proxy arrays
+
+Since these structures are rebuilt every frame, the allocator:
+
+* bumps a pointer forward during allocation
+* resets at the end of each frame
+
+This avoids repeated heap allocations.
+
+Alignment is handled using `std::align`.
+
+---
+
+## Mouse World-Space Transform
+
+The `InputManager` converts raw mouse screen coordinates into world-space coordinates using the renderer scale factor.
+
+This keeps aiming accurate even when the camera moves away from the center.
+
+---
+
+## Circle-Circle Collision
+
+Updated collision detection to support circle-circle collisions.
+
+The collision system:
+
+* checks collider shapes
+* performs a radius-sum distance test for circles
+* separates entities along the collision axis
+
+---
+
+## On-Screen HUD
+
+Added a HUD that displays:
+
+* HP bar
+* wave number
+* kill count
+* survival time
+
+When the player dies, a semi-transparent overlay appears with:
+
+* final stats
+* restart prompt
+
+---
+
+# Game Progress
+
+Current gameplay features implemented:
+
+* Player movement using WASD/arrow keys
+* Mouse aiming
+* Left-click shooting with cooldown
+* Two enemy types:
+
+  * Chasers: fast, low HP, controlled through Lua
+  * Tanks: slower, higher HP, controlled through C++
+* Waves scale over time using increasing enemy counts
+* Short grace periods between waves
+* Invincibility frames after taking damage
+* ~40% pickup drop chance on enemy death
+* Health pickups restore HP up to max value
+* Particle effects on:
+
+  * hits
+  * kills
+  * pickups
+  * player death
+* Camera drift to enhance parallax effect
+* `R` resets the game after death
+
+---
+
+# Blockers
 
 None currently.
 
-## 5. Profiling Experiment
+---
 
-My hunch going in was that `collision.detect` was the most likely thing to blow up as the game gets further into later waves — it's a brute-force O(n²) loop, so I figured it'd start hurting somewhere around wave 4 or 5 when there can be 20+ enemies plus particles and projectiles all at once.
+# Profiling Experiment
 
-The engine already spits out `BlockTimer` stats when a frame goes over 16 ms, so I piggybacked on that and also wrapped the detect call in a `steady_clock` measurement and averaged it over 300 frames at fixed entity counts.
+I expected `collision.detect` to become the biggest performance issue during later waves because it uses a brute-force `O(n²)` collision loop.
 
-Numbers I got (very roughly — there was some variance run to run):
+I thought this would become noticeable once there were:
 
-| Entity count | detect time |
-|---|---|
-| ~30 | ~8 μs |
-| ~80 | ~19 μs |
-| ~200 | ~60-ish μs |
+* many enemies
+* particles
+* projectiles
 
-The ~200 case I had to fake by spawning a ton of enemies at once; that's not really a realistic wave count for this game.
+The engine already outputs `BlockTimer` statistics when a frame exceeds `16 ms`, so I added extra timing around collision detection using `steady_clock` and averaged the results over 300 frames.
 
-I tried adding a quick Manhattan pre-cull before the actual circle test — basically skip the sqrt entirely if the bounding boxes are obviously not overlapping:
+## Collision Detection Timings
 
-```cpp
-float mdx = std::abs(entityA.x() - entityB.x());
-float mdy = std::abs(entityA.y() - entityB.y());
-float maxR = (std::min(entityA.width(), entityA.height()) +
-              std::min(entityB.width(), entityB.height())) * 0.5f;
-if (mdx > maxR || mdy > maxR)
-    continue;
-```
+| Entity Count | Detect Time |
+| ------------ | ----------- |
+| ~30          | ~8 μs       |
+| ~80          | ~19 μs      |
+| ~200         | ~60 μs      |
 
-With the pre-cull:
+The 200-entity case was artificially created and is much larger than normal gameplay conditions.
 
-| Entities | before | after |
-|---|---|---|
-| ~30 | 8 μs | 9 μs |
-| ~80 | 19 μs | 17 μs |
-| ~200 | ~61 μs | ~52 μs |
+---
 
-Honestly the gains were pretty underwhelming. It helped a bit at 200 entities but added a tiny overhead at 30 (probably just branch prediction noise). At the entity counts this game actually hits — call it 80ish at peak — the difference is basically noise and the detect time is already tiny compared to the 16 ms frame budget anyway.
+## Manhattan Pre-Cull Experiment
 
-I ended up reverting it. Not worth the extra code for a few microseconds when the real bottleneck in a slow frame was something else entirely (usually the particle burst after a wave clears).
+I tested a Manhattan-distance pre-cull to skip unnecessary square root calculations when entities were obviously too far apart to collide.
+
+### Results
+
+| Entities | Before | After  |
+| -------- | ------ | ------ |
+| ~30      | 8 μs   | 9 μs   |
+| ~80      | 19 μs  | 17 μs  |
+| ~200     | ~61 μs | ~52 μs |
+
+The optimization helped slightly at very high entity counts but added small overhead at lower counts.
+
+Since normal gameplay rarely exceeds around 80 entities and collision detection was already well below the frame budget, I decided the extra complexity was not worth keeping.
+
+Most slow frames were actually caused by large particle bursts after wave clears instead of collision detection.
+
 
 ## 6. LLM Usage
 

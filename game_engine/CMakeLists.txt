@@ -53,6 +53,10 @@ add_executable(game_engine
         game/main.cpp
         game/Game.cpp
         game/Game.h
+        game/EntityFactory.h
+        game/EntityFactory.cpp
+        game/WaveManager.h
+        game/WaveManager.cpp
 )
 
 # ==========================================
@@ -146,6 +150,10 @@ add_library(engine_core STATIC
         engine_core/systems/CollisionSystem.h
         engine_core/systems/KinematicsSystem.cpp
         engine_core/systems/KinematicsSystem.h
+        engine_core/systems/HpCheckSystem.cpp
+        engine_core/systems/HpCheckSystem.h
+        engine_core/systems/ParticleSystem.cpp
+        engine_core/systems/ParticleSystem.h
         engine_core/util/Random.cpp
         engine_core/util/Random.h
         engine_core/EngineCore.h

@@ -15,9 +15,44 @@
 #include "systems/AnimationSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/KinematicsSystem.h"
+#include "systems/HpCheckSystem.h"
+#include "systems/ParticleSystem.h"
 
 namespace EngineCore
 {
+    // Snapshot of game state written by the game each frame and consumed by the renderer.
+    struct HudData
+    {
+        float playerHpCurrent = 100.0f;
+        float playerHpMax     = 100.0f;
+        int   wave            = 0;
+        int   kills           = 0;
+        float survivalTime    = 0.0f;
+        bool  isDead          = false;
+    };
+
+    // Flat config struct used with the factory-style createEntity overload.
+    // Designated initializers keep call sites readable with no positional guessing.
+    struct EntitySpec
+    {
+        float x = 0, y = 0;
+        float vx = 0, vy = 0;
+        float width = 0.1f, height = 0.1f;
+        GameColor color = white;
+        State state = STATE_DEFAULT;
+        ColliderShape colliderShape = ColliderShape::RECT;
+        ColliderLayerId colliderLayerId = DEFAULT_COLLISION_LAYER_ID;
+        AnimationData animationData = {};
+        SpriteId spriteId = INVALID_SPRITE_ID;
+        EntityTypeId entityType = 0;
+        BehaviorId behaviorId = INVALID_BEHAVIOR_ID;
+        float maxHp = 0.0f;
+        float currentHp = 0.0f;
+        float rotation = 0.0f;
+        float particleLifetime = 0.0f;
+        float particleMaxLifetime = 0.0f;
+    };
+
     struct World
     {
         static constexpr uint32_t MAX_ENTITIES = 1'000'000;
@@ -27,25 +62,30 @@ namespace EngineCore
         const float frameDt;
 
         GameColor backgroundColor = rayWhite;
-		float viewportX = 0, viewportY = 0;
+        float viewportX = 0, viewportY = 0;
+        float viewportScale = 2.0f; // pxPerGameUnit = minScreenDim / viewportScale
+
+        HudData hud;
 
         CollisionSystem collisionSystem;
         AnimationSystem animationSystem;
         KinematicsSystem kinematicsSystem;
+        HpCheckSystem hpCheckSystem;
+        ParticleSystem particleSystem;
 
-        // We're using unique_ptr because world is the exclusive "owner" of the archetypes.
         std::vector<std::unique_ptr<Archetype>> archetypes;
 
-        // 1MB allocator specifically for archetype queries
         ArenaAllocator archetypeListAllocator{1 * 1024 * 1024};
 
-        // A lightweight view over our arena-allocated array
-        struct ArchetypeList {
+        struct ArchetypeList
+        {
             Archetype** archetypes;
             size_t count;
         };
 
         Archetype* createArchetype(ComponentMask mask);
+
+        // positional overload — old call sites in EntityFactory still use this form
         EntityId createEntity(Archetype* archetype,
                               float x, float y,
                               float vx, float vy,
@@ -56,7 +96,13 @@ namespace EngineCore
                               AnimationData animationData,
                               SpriteId spriteId,
                               EntityTypeId entityType,
-                              BehaviorId behaviorId);
+                              BehaviorId behaviorId,
+                              float maxHp = 0.0f, float currentHp = 0.0f,
+                              float rotation = 0.0f,
+                              float particleLifetime = 0.0f, float particleMaxLifetime = 0.0f);
+
+        // Factory-friendly overload using EntitySpec with designated initializers.
+        EntityId createEntity(Archetype* archetype, const EntitySpec& spec);
 
         bool removeEntity(EntityId entityId);
 
@@ -71,7 +117,6 @@ namespace EngineCore
             {
                 if ((archetype->componentMask & mask) != mask)
                     continue;
-
                 for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); ++entityIndex)
                     callable(Entity{archetype.get(), entityIndex});
             }
@@ -86,10 +131,7 @@ namespace EngineCore
             for (const auto& archetype : archetypes)
             {
                 if ((archetype->componentMask & mask) == mask)
-                {
-                    archetypeList[matchCount] = archetype.get();
-                    matchCount++;
-                }
+                    archetypeList[matchCount++] = archetype.get();
             }
 
             return {archetypeList, matchCount};
@@ -100,6 +142,5 @@ namespace EngineCore
         std::vector<uint32_t> freeIndices;
     };
 }
-
 
 #endif //ENGINE_CORE_WORLD_H

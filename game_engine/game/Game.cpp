@@ -1,326 +1,458 @@
-//
-// Created by greg8 on 1/29/2026.
-//
-
 #include "Game.h"
 
 #include <cmath>
+#include <iostream>
+#include <filesystem>
+
+#include "raylib.h"
 
 namespace Game
 {
-    int Game::run()
+    static constexpr float ARENA_W  = 3.7f;   // half-width (so full arena is 7.4 units)
+    static constexpr float ARENA_H  = 2.7f;   // half-height
+    static constexpr float CAM_LAG  = 0.12f;  // how much the camera drifts toward player
+    static constexpr float FIRE_CD  = 0.18f;  // seconds between shots
+    static constexpr float HIT_CD   = 0.8f;   // invincibility after being hit
+    static constexpr float PICKUP_HEAL = 30.0f;
+
+    int ArenaGame::run()
     {
-        return runtime.run(*this, 1600, 1200, "GEP");
+        return runtime.run(*this, 1200, 900, "Arena Survival");
     }
 
-    void Game::onStart(World& world, Renderer& renderer)
+    void ArenaGame::onStart(World& world, Renderer& renderer)
     {
-        world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ROCKS, true);
-        world.collisionSystem.enableCollisions(LAYER_ANIMATED_SQUARES, LAYER_ANIMATED_SQUARES, true);
-        world.collisionSystem.enableCollisions(LAYER_ROCKS, LAYER_ROCKS, true);
-        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ROCKS, true);
-        // world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_FAUNA, true);
-        // world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_FAUNA, true);
-        // world.collisionSystem.enableCollisions(LAYER_FAUNA, LAYER_ROCKS, true);
+        world.viewportScale = 7.0f; // shows a bit more than the arena for parallax room
+        world.backgroundColor = {15, 15, 25, 255};
 
-        renderer.typeToRenderLayer[ENTITY_TYPE_ANIMATED_SQUARE] = 1;
-        renderer.typeToRenderLayer[ENTITY_TYPE_FAUNA] = 2;
-        renderer.typeToRenderLayer[ENTITY_TYPE_ROCK] = 3;
-        renderer.typeToRenderLayer[ENTITY_TYPE_PLAYER] = 4;
+        // Parallax background layers — dark dot grids at different depths
+        renderer.addParallaxLayer({30, 30, 60, 255},  0.15f, 0.6f, 0.6f);
+        renderer.addParallaxLayer({20, 50, 80, 190},  0.35f, 0.35f, 0.35f);
 
-        simpleAnimationId = world.animationSystem.createAnimation(STOP_AT_END, 1);
-        playerRunAnimationId = world.animationSystem.createAnimation(LOOP, 1, 6 * 0, 6);
-        animalIdleAnimation = world.animationSystem.createAnimation(LOOP, 1, 0, 4);
+        // Archetypes
+        playerArch = world.createArchetype(
+            Archetype::COMP_POSITION | Archetype::COMP_VELOCITY |
+            Archetype::COMP_SIZE     | Archetype::COMP_COLOR    |
+            Archetype::COMP_STATE    | Archetype::COMP_COLLIDER |
+            Archetype::COMP_ANIMATION| Archetype::COMP_SPRITE   |
+            Archetype::COMP_TYPE     | Archetype::COMP_HP       |
+            Archetype::COMP_ROTATION);
 
-        rockSpriteId = renderer.spriteManager.loadSprite("assets/rock.png", 1, 1, 0);
-        // runtime.renderer.spriteManager.unloadSprite(rockSpriteId);
-        playerRunSpriteSheetId = renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
-        lemmingSpriteId = renderer.spriteManager.loadSprite("assets/lemming.png", 1, 1, 0);
-        sheepSpriteSheetId = renderer.spriteManager.loadSprite("assets/sheep_idle.png", 4, 1, 0);
-        pigSpriteSheetId = renderer.spriteManager.loadSprite("assets/pig_idle.png", 4, 1, 0);
-        chickenSpriteSheetId = renderer.spriteManager.loadSprite("assets/chicken_idle.png", 4, 1, 0);
+        chaserArch = world.createArchetype(
+            Archetype::COMP_POSITION | Archetype::COMP_VELOCITY |
+            Archetype::COMP_SIZE     | Archetype::COMP_COLOR    |
+            Archetype::COMP_STATE    | Archetype::COMP_COLLIDER |
+            Archetype::COMP_TYPE     | Archetype::COMP_HP       |
+            Archetype::COMP_BEHAVIOR);
 
-        dootSoundId = runtime.audioManager.loadAudioAsset("assets/doot.wav", 10, Audio::REPLACE);
-        // runtime.audioManager.unloadAudioAsset(dootSoundId);
+        tankArch = world.createArchetype(
+            Archetype::COMP_POSITION | Archetype::COMP_VELOCITY |
+            Archetype::COMP_SIZE     | Archetype::COMP_COLOR    |
+            Archetype::COMP_STATE    | Archetype::COMP_COLLIDER |
+            Archetype::COMP_TYPE     | Archetype::COMP_HP);
 
-        lemmingBehaviorId = runtime.behaviorManager.loadBehavior(
-            (std::filesystem::path(PROJECT_ROOT) / "assets/lemming.lua").string()
-        );
-        faunaBehaviorId = runtime.behaviorManager.loadBehavior(
-            (std::filesystem::path(PROJECT_ROOT) / "assets/fauna.lua").string()
-        );
+        projArch = world.createArchetype(
+            Archetype::COMP_POSITION | Archetype::COMP_VELOCITY |
+            Archetype::COMP_SIZE     | Archetype::COMP_COLOR    |
+            Archetype::COMP_STATE    | Archetype::COMP_COLLIDER |
+            Archetype::COMP_TYPE     | Archetype::COMP_PARTICLE |
+            Archetype::COMP_ROTATION);
 
-        // Instead of permanently setting velocity to 0, we can avoid storing velocity altogether.
-        borderArchetype = world.createArchetype(
-            Archetype::COMP_POSITION
-            | Archetype::COMP_SIZE
-            | Archetype::COMP_COLOR);
-        playerArchetype = world.createArchetype(
-            Archetype::COMP_POSITION
-            | Archetype::COMP_VELOCITY
-            | Archetype::COMP_SIZE
-            | Archetype::COMP_STATE
-            | Archetype::COMP_COLLIDER
-            | Archetype::COMP_ANIMATION
-            | Archetype::COMP_SPRITE
-            | Archetype::COMP_TYPE);
-        rockArchetype = world.createArchetype(
-            Archetype::COMP_POSITION
-            | Archetype::COMP_VELOCITY
-            | Archetype::COMP_SIZE
-            | Archetype::COMP_STATE
-            | Archetype::COMP_COLLIDER
-            | Archetype::COMP_SPRITE
-            | Archetype::COMP_TYPE);
-        animatedSquareArchetype = world.createArchetype(
-            Archetype::COMP_POSITION
-            | Archetype::COMP_VELOCITY
-            | Archetype::COMP_SIZE
-            | Archetype::COMP_COLOR
-            | Archetype::COMP_STATE
-            | Archetype::COMP_COLLIDER
-            | Archetype::COMP_ANIMATION
-            | Archetype::COMP_TYPE);
-        faunaArchetype = world.createArchetype(
-            Archetype::COMP_POSITION
-            | Archetype::COMP_VELOCITY
-            | Archetype::COMP_SIZE
-            | Archetype::COMP_STATE
-            | Archetype::COMP_COLLIDER
-            | Archetype::COMP_ANIMATION
-            | Archetype::COMP_SPRITE
-            | Archetype::COMP_BEHAVIOR
-            | Archetype::COMP_TYPE);
+        pickupArch = world.createArchetype(
+            Archetype::COMP_POSITION |
+            Archetype::COMP_SIZE     | Archetype::COMP_COLOR    |
+            Archetype::COMP_STATE    | Archetype::COMP_COLLIDER |
+            Archetype::COMP_TYPE     | Archetype::COMP_PARTICLE);
 
-        runtime.prefabManager.registerPrefab("sheep", Prefab{
-                                                 faunaArchetype,
-                                                 sheepSpriteSheetId,
-                                                 0.05, 0.05,
-                                                 white,
-                                                 STATE_DEFAULT,
-                                                 ColliderShape::RECT, LAYER_FAUNA,
-                                                 AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
-                                                 ENTITY_TYPE_FAUNA,
-                                                 faunaBehaviorId
-                                             });
-        runtime.prefabManager.registerPrefab("chicken", Prefab{
-                                                 faunaArchetype,
-                                                 chickenSpriteSheetId,
-                                                 0.05, 0.05,
-                                                 white,
-                                                 STATE_DEFAULT,
-                                                 ColliderShape::RECT, LAYER_FAUNA,
-                                                 AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
-                                                 ENTITY_TYPE_FAUNA,
-                                                 faunaBehaviorId
-                                             });
-        runtime.prefabManager.registerPrefab("pig", Prefab{
-                                                 faunaArchetype,
-                                                 pigSpriteSheetId,
-                                                 0.01, 0.01,
-                                                 white,
-                                                 STATE_DEFAULT,
-                                                 ColliderShape::RECT, LAYER_FAUNA,
-                                                 AnimationData{animalIdleAnimation, -1, -1, AnimationData::PLAYING},
-                                                 ENTITY_TYPE_FAUNA,
-                                                 faunaBehaviorId //INVALID_BEHAVIOR_ID
-                                             });
+        particleArch = world.createArchetype(
+            Archetype::COMP_POSITION | Archetype::COMP_VELOCITY |
+            Archetype::COMP_SIZE     | Archetype::COMP_COLOR    |
+            Archetype::COMP_STATE    | Archetype::COMP_TYPE     |
+            Archetype::COMP_PARTICLE);
 
-        playerId = world.createEntity(playerArchetype,
-                                      0, 0,
-                                      0, 0,
-                                      0.2, 0.2,
-                                      green,
-                                      STATE_DEFAULT,
-                                      ColliderShape::RECT, LAYER_PLAYER,
-                                      {},
-                                      playerRunSpriteSheetId,
-                                      ENTITY_TYPE_PLAYER,
-                                      INVALID_BEHAVIOR_ID);
-        AnimationSystem::startAnimation(world, playerId, playerRunAnimationId);
+        wallArch = world.createArchetype(
+            Archetype::COMP_POSITION | Archetype::COMP_SIZE |
+            Archetype::COMP_COLOR    | Archetype::COMP_STATE);
+
+        playerSprite   = renderer.spriteManager.loadSprite("assets/player_run.png", 6, 4, 5);
+        playerRunAnim  = world.animationSystem.createAnimation(LOOP, 1.0f, 0, 6);
+
+        shootSfx = runtime.audioManager.loadAudioAsset("assets/doot.wav", 6, Audio::DROP);
+        hitSfx   = runtime.audioManager.loadAudioAsset("assets/hit.wav",  4, Audio::DROP);
+        dieSfx   = runtime.audioManager.loadAudioAsset("assets/die.wav",  4, Audio::REPLACE);
+
+        // Music — load if file exists, gracefully skip otherwise
+        auto musicPath = std::filesystem::path(PROJECT_ROOT) / "assets" / "music.ogg";
+        if (std::filesystem::exists(musicPath))
+        {
+            bgMusic = runtime.audioManager.loadMusic(musicPath.string());
+            runtime.audioManager.playMusic(bgMusic, 2.0f);
+        }
+        else
+        {
+            bgMusic = INVALID_MUSIC_ID;
+            std::cout << "[Audio] No music.ogg found in assets/ — skipping BGM\n";
+        }
+
+        // Render layers (lower = drawn first/behind)
+        renderer.typeToRenderLayer[TYPE_WALL]       = 1;
+        renderer.typeToRenderLayer[TYPE_PICKUP]     = 2;
+        renderer.typeToRenderLayer[TYPE_PARTICLE]   = 3;
+        renderer.typeToRenderLayer[TYPE_CHASER]     = 4;
+        renderer.typeToRenderLayer[TYPE_TANK]       = 4;
+        renderer.typeToRenderLayer[TYPE_PROJECTILE] = 5;
+        renderer.typeToRenderLayer[TYPE_PLAYER]     = 6;
+
+        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_ENEMY,   true);
+        world.collisionSystem.enableCollisions(LAYER_PLAYER, LAYER_PICKUP,  true);
+        world.collisionSystem.enableCollisions(LAYER_PROJ,   LAYER_ENEMY,   true);
+
+        factory.playerArch   = playerArch;
+        factory.chaserArch   = chaserArch;
+        factory.tankArch     = tankArch;
+        factory.projArch     = projArch;
+        factory.pickupArch   = pickupArch;
+        factory.particleArch = particleArch;
+        factory.playerSprite = playerSprite;
+        factory.playerRunAnim= playerRunAnim;
+        factory.typePlayer    = TYPE_PLAYER;
+        factory.typeChaser    = TYPE_CHASER;
+        factory.typeTank      = TYPE_TANK;
+        factory.typeProjectile= TYPE_PROJECTILE;
+        factory.typePickup    = TYPE_PICKUP;
+        factory.typeParticle  = TYPE_PARTICLE;
+        factory.layerPlayer   = LAYER_PLAYER;
+        factory.layerEnemy    = LAYER_ENEMY;
+        factory.layerProj     = LAYER_PROJ;
+        factory.layerPickup   = LAYER_PICKUP;
+
+        auto faunaPath = (std::filesystem::path(PROJECT_ROOT) / "assets" / "fauna.lua").string();
+        factory.chaserBehaviorId = runtime.behaviorManager.loadBehavior(faunaPath);
+
+        spawnWalls(world);
+
+        playerId = factory.spawnPlayer(world, 0, 0);
+        AnimationSystem::startAnimation(world, playerId, playerRunAnim);
         runtime.behaviorManager.setGlobalEntityId("PLAYER_ID", playerId);
 
-        // Double-unit "border" squares
-        world.createEntity(borderArchetype,
-                           0, 0,
-                           0, 0,
-                           8, 8,
-                           yellow,
-                           STATE_DEFAULT,
-                           ColliderShape::RECT, LAYER_NONE,
-                           {},
-                           INVALID_SPRITE_ID,
-                           ENTITY_TYPE_NONE,
-                           INVALID_BEHAVIOR_ID);
-        world.createEntity(borderArchetype,
-                           0, 0,
-                           0, 0,
-                           7.95, 7.95,
-                           rayWhite,
-                           STATE_DEFAULT,
-                           ColliderShape::RECT, LAYER_NONE,
-                           {},
-                           INVALID_SPRITE_ID,
-                           ENTITY_TYPE_NONE,
-                           INVALID_BEHAVIOR_ID);
-        for (int i = 1; i < 10; i++)
-            world.createEntity(rockArchetype,
-                               0, 0,
-                               randomFloat(-0.25, 0.25), randomFloat(-0.25, 0.25),
-                               0.1 * 128 / 92, 0.1,
-                               red,
-                               STATE_DEFAULT,
-                               ColliderShape::RECT, LAYER_ROCKS,
-                               {},
-                               rockSpriteId,
-                               ENTITY_TYPE_ROCK,
-                               INVALID_BEHAVIOR_ID);
-        // for (int i = 0; i < 10; i++)
-        //     world.createEntity(faunaArchetype,
-        //                        randomFloat(-1, 1), randomFloat(-1, 1),
-        //                        0, 0,
-        //                        0.1 * 64 / 144, 0.1,
-        //                        red,
-        //                        Entity::STATE_DEFAULT,
-        //                        ColliderShape::RECT, LAYER_FAUNA,
-        //                        {},
-        //                        lemmingSpriteId,
-        //                        ENTITY_TYPE_FAUNA,
-        //                        lemmingBehaviorId
-        //     );
-        for (int i = 0; i < 10'000; i++)
-            runtime.prefabManager.spawnPrefab("pig", world,
-                                              randomFloat(-4, 4),
-                                              randomFloat(-4, 4));
-        for (int i = 0; i < 50; i++)
-            runtime.prefabManager.spawnPrefab("sheep", world,
-                                              randomFloat(-2, 2),
-                                              randomFloat(-2, 2));
-        for (int i = 0; i < 50; i++)
-            runtime.prefabManager.spawnPrefab("chicken", world,
-                                              randomFloat(-2, 2),
-                                              randomFloat(-2, 2));
+        std::cout << "[Arena] Starting arena survival demo\n";
+        std::cout << "[Arena] WASD/arrows = move, Mouse = aim, LMB = shoot, F1 = debug\n";
     }
 
-    void Game::onUpdateBegin(World& world)
+    void ArenaGame::onUpdateBegin(World& world)
     {
-        // Input directly affects player velocity.
-        Entity player = world.findEntity(playerId).value();
-        player.vx() = 0;
-        if (runtime.inputManager.keyLeft)
-            player.vx() -= 1;
-        if (runtime.inputManager.keyRight)
-            player.vx() += 1;
+        auto& input = runtime.inputManager;
 
-        player.vy() = 0;
-        if (runtime.inputManager.keyUp)
-            player.vy() += 1;
-        if (runtime.inputManager.keyDown)
-            player.vy() -= 1;
-
-
-        if (runtime.inputManager.keySpace)
+        if (state == DEAD)
         {
-            for (int i = 0; i < 1; i++)
-            {
-                world.createEntity(animatedSquareArchetype,
-                                   player.x(), player.y(),
-                                   randomFloat(-0.25, 0.25),
-                                   randomFloat(-0.25, 0.25),
-                                   0.025, 0.025,
-                                   blue,
-                                   STATE_DEFAULT,
-                                   ColliderShape::RECT, LAYER_ANIMATED_SQUARES,
-                                   {},
-                                   INVALID_SPRITE_ID,
-                                   ENTITY_TYPE_ANIMATED_SQUARE,
-                                   INVALID_BEHAVIOR_ID);
-            }
+            if (input.keyRPressed)
+                restartGame(world);
+            return;
         }
 
-        // Bounce logic
-        for (auto& archetype : world.archetypes)
+        survivalTime += world.frameDt;
+        fireCooldown  = std::max(0.0f, fireCooldown - world.frameDt);
+        hitCooldown   = std::max(0.0f, hitCooldown  - world.frameDt);
+
+        handleInput(world);
+        updateEnemyAI(world);
+
+        if (waves.update(world.frameDt, world, factory))
+            std::cout << "[Wave " << waves.wave << "] Started!\n";
+
+        // Periodic entity-count debug log (every 180 frames ~3 sec)
+        debugLogTimer++;
+        if (debugLogTimer >= 180)
         {
-            if (!archetype->hasPosition() || !archetype->hasVelocity() || !archetype->hasSize())
-                continue;
+            debugLogTimer = 0;
+            printDebugLog(world);
+        }
+    }
 
-            for (EntityIndex entityIndex = 0; entityIndex < archetype->getEntityCount(); entityIndex++)
+    void ArenaGame::handleInput(World& world)
+    {
+        auto player = world.findEntity(playerId);
+        if (!player) return;
+
+        auto& input = runtime.inputManager;
+
+        float mx = 0, my = 0;
+        if (input.keyLeft)  mx -= 1;
+        if (input.keyRight) mx += 1;
+        if (input.keyUp)    my += 1;
+        if (input.keyDown)  my -= 1;
+
+        float len = std::sqrt(mx * mx + my * my);
+        if (len > 0.01f) { mx /= len; my /= len; }
+
+        float speed = 2.5f;
+        player->vx() = mx * speed;
+        player->vy() = my * speed;
+
+        float dx = input.mouseWorldX - player->x();
+        float dy = input.mouseWorldY - player->y();
+        if (std::abs(dx) > 0.001f || std::abs(dy) > 0.001f)
+            player->rotation() = std::atan2(-dy, dx) * (180.0f / 3.14159265f);
+
+        if (input.mouseLeft && fireCooldown <= 0.0f)
+        {
+            float d = std::sqrt(dx * dx + dy * dy);
+            if (d > 0.001f)
             {
-                auto entity = Entity{archetype.get(), entityIndex};
-                if (entity == player)
-                    continue;
-
-                //Bottom
-                if (entity.y() - entity.height() / 2 < -4 && archetype->hasState())
-                    entity.state() |= STATE_DESTROYED;
-                //Top
-                if (entity.y() + entity.height() / 2 > 4)
-                {
-                    entity.vy() *= -1;
-                    entity.y() -= 0.01f;
-                }
-                //Left
-                if (entity.x() - entity.width() / 2 < -4)
-                {
-                    entity.vx() *= -1;
-                    entity.x() += 0.01f;
-                }
-                //Right
-                if (entity.x() + entity.width() / 2 > 4)
-                {
-                    entity.vx() *= -1;
-                    entity.x() -= 0.01f;
-                }
+                factory.spawnProj(world, player->x(), player->y(), dx / d, dy / d);
+                runtime.audioManager.playOneshot(shootSfx);
+                fireCooldown = FIRE_CD;
             }
         }
     }
 
-    void Game::onUpdatePostKinematics(World& world)
+    void ArenaGame::updateEnemyAI(World& world)
     {
+        auto playerOpt = world.findEntity(playerId);
+        if (!playerOpt) return;
+        float px = playerOpt->x(), py = playerOpt->y();
+
+        world.forEach(Archetype::COMP_POSITION | Archetype::COMP_VELOCITY | Archetype::COMP_TYPE,
+            [&](Entity e)
+            {
+                if (!e.hasEntityType()) return;
+                if (e.entityTypeId() != TYPE_CHASER && e.entityTypeId() != TYPE_TANK) return;
+                if (e.hasBehavior()) return; // Lua script handles movement for this entity
+
+                float dx = px - e.x(), dy = py - e.y();
+                float d  = std::sqrt(dx * dx + dy * dy);
+                if (d < 0.001f) return;
+
+                float spd = (e.entityTypeId() == TYPE_TANK) ? 1.0f : 1.8f;
+                e.vx() = (dx / d) * spd;
+                e.vy() = (dy / d) * spd;
+            });
     }
 
-    void Game::onUpdatePostCollisionDetection(World& world, Collision collisions[], size_t collisionCount)
+    void ArenaGame::onUpdatePostKinematics(World& world)
     {
-        for (size_t i = 0; i < collisionCount; i++)
-        {
-            Collision collision = collisions[i];
+        clampToArena(world);
+    }
 
-            auto entityA = world.findEntity(collision.a).value();
-            auto entityB = world.findEntity(collision.b).value();
-
-            if (!entityA.hasEntityType() || !entityB.hasEntityType())
-                continue;
-
-            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() == ENTITY_TYPE_ROCK)
-                entityA.state() |= STATE_DESTROYED;
-            if (entityA.entityTypeId() == ENTITY_TYPE_ROCK && entityB.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE)
-                entityB.state() |= STATE_DESTROYED;
-            if (entityA.entityTypeId() == ENTITY_TYPE_ANIMATED_SQUARE && entityB.entityTypeId() ==
-                ENTITY_TYPE_ANIMATED_SQUARE)
+    void ArenaGame::clampToArena(World& world)
+    {
+        world.forEach(Archetype::COMP_POSITION | Archetype::COMP_SIZE,
+            [](Entity e)
             {
-                AnimationSystem::startAnimation(world, entityA.id(), simpleAnimationId);
-                AnimationSystem::startAnimation(world, entityB.id(), simpleAnimationId);
+                float hw = e.width()  * 0.5f;
+                float hh = e.height() * 0.5f;
 
-                runtime.audioManager.playOneshot(dootSoundId);
-            }
+                if (e.x() - hw < -ARENA_W) e.x() = -ARENA_W + hw;
+                if (e.x() + hw >  ARENA_W) e.x() =  ARENA_W - hw;
+                if (e.y() - hh < -ARENA_H) e.y() = -ARENA_H + hh;
+                if (e.y() + hh >  ARENA_H) e.y() =  ARENA_H - hh;
+            });
+    }
+
+    void ArenaGame::onUpdatePostCollisionDetection(World& world, Collision* collisions, size_t count)
+    {
+        lastCollisionCount = count;
+
+        for (size_t i = 0; i < count; i++)
+        {
+            auto eA = world.findEntity(collisions[i].a);
+            auto eB = world.findEntity(collisions[i].b);
+            if (!eA || !eB) continue;
+
+            auto& a = *eA;
+            auto& b = *eB;
+            if (!a.hasEntityType() || !b.hasEntityType()) continue;
+
+            EntityTypeId ta = a.entityTypeId(), tb = b.entityTypeId();
+
+            auto handleProjHit = [&](Entity& proj, Entity& enemy)
+            {
+                if (proj.entityTypeId()  != TYPE_PROJECTILE) return;
+                if (enemy.entityTypeId() != TYPE_CHASER && enemy.entityTypeId() != TYPE_TANK) return;
+
+                proj.state() |= STATE_DESTROYED;
+
+                float dmg = 20.0f;
+                if (enemy.hasHp())
+                {
+                    enemy.currentHp() -= dmg;
+                    if (enemy.currentHp() <= 0)
+                    {
+                        kills++;
+                        waves.notifyEnemyKilled();
+                        factory.spawnBurst(world, enemy.x(), enemy.y(),
+                                           enemy.color(), 10);
+
+                        // ~40% chance to drop a pickup
+                        if (randomFloat(0, 1) < 0.4f)
+                            factory.spawnPickup(world, enemy.x(), enemy.y());
+
+                        std::cout << "[Kill] enemy down | total kills: " << kills
+                                  << " | wave enemies left: " << waves.enemiesLeft << "\n";
+                    }
+                    else
+                    {
+                        factory.spawnBurst(world, enemy.x(), enemy.y(),
+                                           {255, 180, 60, 255}, 4);
+                    }
+                }
+            };
+
+            auto handlePlayerHit = [&](Entity& player, Entity& enemy)
+            {
+                if (player.entityTypeId() != TYPE_PLAYER) return;
+                if (enemy.entityTypeId()  != TYPE_CHASER && enemy.entityTypeId() != TYPE_TANK) return;
+                if (hitCooldown > 0) return;
+
+                float dmg = (enemy.entityTypeId() == TYPE_TANK) ? 25.0f : 15.0f;
+                if (player.hasHp())
+                {
+                    player.currentHp() -= dmg;
+                    hitCooldown = HIT_CD;
+                    factory.spawnBurst(world, player.x(), player.y(),
+                                       {255, 80, 80, 255}, 6);
+                    runtime.audioManager.playOneshot(hitSfx);
+
+                    std::cout << "[Hit] player HP: " << player.currentHp()
+                              << " / " << player.maxHp() << "\n";
+                }
+            };
+
+            auto handlePickup = [&](Entity& player, Entity& pickup)
+            {
+                if (player.entityTypeId() != TYPE_PLAYER) return;
+                if (pickup.entityTypeId() != TYPE_PICKUP) return;
+
+                pickup.state() |= STATE_DESTROYED;
+                if (player.hasHp())
+                {
+                    player.currentHp() = std::min(player.currentHp() + PICKUP_HEAL, player.maxHp());
+                    factory.spawnBurst(world, pickup.x(), pickup.y(),
+                                       {80, 255, 120, 255}, 6);
+                }
+            };
+
+            handleProjHit(a, b);
+            handleProjHit(b, a);
+            handlePlayerHit(a, b);
+            handlePlayerHit(b, a);
+            handlePickup(a, b);
+            handlePickup(b, a);
         }
     }
 
-    void Game::onUpdatePostCollisionResolution(World& world, Collision collisions[], size_t collisionCount)
+    void ArenaGame::onUpdatePostCollisionResolution(World& world, Collision*, size_t)
     {
-        world.forEach(Archetype::COMP_ANIMATION | Archetype::COMP_COLOR,
-                      [](Entity entity)
-                      {
-                          if (entity.animation().state == AnimationData::PLAYING || entity.color().r > 0)
-                          {
-                              entity.color().r = static_cast<unsigned char>(
-                                  std::round(255.0f * (1.0f - entity.animation().progress))
-                              );
-                          }
-                      });
+        auto player = world.findEntity(playerId);
 
-        auto player = world.findEntity(playerId).value();
-        world.viewportX = player.x();
-        world.viewportY = player.y();
+        if (player)
+        {
+            // Subtle camera drift — gives parallax something to work with
+            world.viewportX = player->x() * CAM_LAG;
+            world.viewportY = player->y() * CAM_LAG;
+
+            if (player->hasHp() && player->currentHp() <= 0 && state == PLAYING)
+            {
+                state = DEAD;
+                factory.spawnBurst(world, player->x(), player->y(),
+                                   {255, 100, 100, 255}, 16);
+                runtime.audioManager.playOneshot(dieSfx);
+                player->state() |= STATE_DESTROYED;
+
+                std::cout << "\n=== GAME OVER ===\n";
+                std::cout << "Survived: " << static_cast<int>(survivalTime) << " seconds\n";
+                std::cout << "Wave reached: " << waves.wave << "\n";
+                std::cout << "Total kills: " << kills << "\n";
+                std::cout << "=================\n";
+            }
+        }
+        else if (state == PLAYING)
+        {
+            // Player entity was cleaned up already — mark dead
+            state = DEAD;
+        }
+
+        // Write HUD snapshot for the renderer. Done last so HP reflects this frame's damage.
+        world.hud.wave          = waves.wave;
+        world.hud.kills         = kills;
+        world.hud.survivalTime  = survivalTime;
+        world.hud.isDead        = (state == DEAD);
+
+        auto playerForHud = world.findEntity(playerId);
+        if (playerForHud && playerForHud->hasHp())
+        {
+            world.hud.playerHpCurrent = playerForHud->currentHp();
+            world.hud.playerHpMax     = playerForHud->maxHp();
+        }
+        else if (state == DEAD)
+        {
+            world.hud.playerHpCurrent = 0.0f;
+        }
     }
+
+    void ArenaGame::spawnWalls(World& world)
+    {
+        float bw = ARENA_W * 2 + 0.1f, bh = ARENA_H * 2 + 0.1f;
+        constexpr GameColor wallColor = {80, 80, 160, 255};
+
+        world.createEntity(wallArch, EntitySpec{ .x =  0,             .y =  ARENA_H + 0.03f, .width = bw,   .height = 0.06f, .color = wallColor });
+        world.createEntity(wallArch, EntitySpec{ .x =  0,             .y = -ARENA_H - 0.03f, .width = bw,   .height = 0.06f, .color = wallColor });
+        world.createEntity(wallArch, EntitySpec{ .x =  ARENA_W + 0.03f, .y = 0,             .width = 0.06f, .height = bh,   .color = wallColor });
+        world.createEntity(wallArch, EntitySpec{ .x = -ARENA_W - 0.03f, .y = 0,             .width = 0.06f, .height = bh,   .color = wallColor });
+    }
+
+    void ArenaGame::restartGame(World& world)
+    {
+        // Mark every entity with a state component for destruction, then flush.
+        world.forEach(Archetype::COMP_STATE, [](Entity e)
+        {
+            e.state() |= STATE_DESTROYED;
+        });
+        world.cleanup();
+
+        // Reset game state.
+        state        = PLAYING;
+        survivalTime = 0.0f;
+        kills        = 0;
+        fireCooldown = 0.0f;
+        hitCooldown  = 0.0f;
+        lastCollisionCount = 0;
+        debugLogTimer      = 0;
+        waves = WaveManager{};
+
+        // Flush HUD immediately so the game-over overlay disappears this frame.
+        world.hud = HudData{};
+
+        // Re-create arena geometry and player.
+        spawnWalls(world);
+        playerId = factory.spawnPlayer(world, 0, 0);
+        AnimationSystem::startAnimation(world, playerId, playerRunAnim);
+
+        std::cout << "[Arena] Restarted\n";
+    }
+
+    void ArenaGame::printDebugLog(World& world)
+    {
+        size_t total = 0, enemies = 0, projs = 0, particles = 0;
+
+        world.forEach(Archetype::COMP_TYPE, [&](Entity e)
+        {
+            if (!e.hasEntityType()) return;
+            total++;
+            auto t = e.entityTypeId();
+            if (t == TYPE_CHASER  || t == TYPE_TANK)       enemies++;
+            if (t == TYPE_PROJECTILE)                       projs++;
+            if (t == TYPE_PARTICLE)                         particles++;
+        });
+
+        std::cout << "[Debug] entities=" << total
+                  << " enemies=" << enemies
+                  << " projs=" << projs
+                  << " particles=" << particles
+                  << " | collisions last frame=" << lastCollisionCount
+                  << " | kills=" << kills
+                  << " | wave=" << waves.wave
+                  << " | survivedSec=" << static_cast<int>(survivalTime) << "\n";
+    }
+
 }
