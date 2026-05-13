@@ -1,4 +1,6 @@
-local SPEED = 1.8
+local SPEED = 0.65
+local ARENA_W = 3.7
+local ARENA_H = 2.7
 local printed = false
 
 -- Return the function directly to the C++ Behavior::load method.
@@ -21,6 +23,10 @@ return function(entities, entityProvider)
         if dist > 0.001 then
             entity.vx = (dx / dist) * SPEED
             entity.vy = (dy / dist) * SPEED
+            if entity.x <= -ARENA_W + 0.1 and entity.vx < 0 then entity.vx = 0 end
+            if entity.x >=  ARENA_W - 0.1 and entity.vx > 0 then entity.vx = 0 end
+            if entity.y <= -ARENA_H + 0.1 and entity.vy < 0 then entity.vy = 0 end
+            if entity.y >=  ARENA_H - 0.1 and entity.vy > 0 then entity.vy = 0 end
         end
     end
 end

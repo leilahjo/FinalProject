@@ -249,7 +249,10 @@ namespace Rendering
         else
         {
             ::Color c = p.hasColor ? std::bit_cast<::Color>(p.color) : BLACK;
-            if (rot == 0.0f)
+            bool isEnemy = p.hasType && (p.typeId == 2 || p.typeId == 3); // TYPE_CHASER=2, TYPE_TANK=3
+            if (isEnemy)
+                DrawCircle(static_cast<int>(cx), static_cast<int>(cy), pw * 0.5f, c);
+            else if (rot == 0.0f)
                 DrawRectangle(static_cast<int>(cx - pw * 0.5f),
                               static_cast<int>(cy - ph * 0.5f),
                               static_cast<int>(pw), static_cast<int>(ph), c);

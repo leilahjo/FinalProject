@@ -194,7 +194,7 @@ namespace Game
         if (std::abs(dx) > 0.001f || std::abs(dy) > 0.001f)
             player->rotation() = std::atan2(-dy, dx) * (180.0f / 3.14159265f);
 
-        if (input.mouseLeft && fireCooldown <= 0.0f)
+        if (input.keySpace && fireCooldown <= 0.0f)
         {
             float d = std::sqrt(dx * dx + dy * dy);
             if (d > 0.001f)
@@ -223,9 +223,15 @@ namespace Game
                 float d  = std::sqrt(dx * dx + dy * dy);
                 if (d < 0.001f) return;
 
-                float spd = (e.entityTypeId() == TYPE_TANK) ? 1.0f : 1.8f;
+                float spd = (e.entityTypeId() == TYPE_TANK) ? 0.35f : 0.65f;
                 e.vx() = (dx / d) * spd;
                 e.vy() = (dy / d) * spd;
+
+                float hw = e.width() * 0.5f, hh = e.height() * 0.5f;
+                if (e.x() - hw <= -ARENA_W + 0.02f && e.vx() < 0) e.vx() = 0;
+                if (e.x() + hw >=  ARENA_W - 0.02f && e.vx() > 0) e.vx() = 0;
+                if (e.y() - hh <= -ARENA_H + 0.02f && e.vy() < 0) e.vy() = 0;
+                if (e.y() + hh >=  ARENA_H - 0.02f && e.vy() > 0) e.vy() = 0;
             });
     }
 
@@ -427,6 +433,7 @@ namespace Game
         spawnWalls(world);
         playerId = factory.spawnPlayer(world, 0, 0);
         AnimationSystem::startAnimation(world, playerId, playerRunAnim);
+        runtime.behaviorManager.setGlobalEntityId("PLAYER_ID", playerId);
 
         std::cout << "[Arena] Restarted\n";
     }
