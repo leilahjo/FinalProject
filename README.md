@@ -1,4 +1,3 @@
-
 # Project proposal
 I plan to build a top-down arena survival shooter where the player controls a character in a single-screen arena and survives waves of enemies. The player aims with the mouse, shoots projectiles, avoids enemies, and collects pickups. The demo will use engine-level hitpoints, rotation, mouse input, particles, parallax background rendering, and toggleable debug rendering. The goal is to create a simple but polished playable demo that clearly shows ECS components, animation, collision, and engine improvements.
 
@@ -30,8 +29,7 @@ To build and run the game:
 ## Controls
 - WASD or Arrow Keys: Move
 - Mouse: Aim
-- Left Click: Shoot
-- F1: Toggle debug overlay
+- Space: Shoot
 - R: Restart after death
 
 # Project Status Update Instructions
