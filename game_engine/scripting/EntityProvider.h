@@ -19,12 +19,9 @@ namespace Scripting
         {
         }
 
-        Entity getEntity(EntityId id)
+        std::optional<Entity> getEntity(EntityId id)
         {
-            auto optEntity = world.findEntity(id);
-            if (!optEntity)
-                return {};
-            return optEntity.value();
+            return world.findEntity(id);
         }
     };
 }
